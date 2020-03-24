@@ -10,5 +10,8 @@ export default {
   accountUpdate: apiUrl + 'accounts/update',
   accountCreate: apiUrl + 'accounts/create',
   notificationsRetrieve: apiUrl + 'notifications/retrieve',
-  notificationUpdate: apiUrl + 'notifications/update'
+  notificationUpdate: apiUrl + 'notifications/update',
+  accountProfileCreate: apiUrl + 'account_profiles/create',
+  accountProfileUpdate: apiUrl + 'account_profiles/update',
+  accountInformationRetrieve: apiUrl + 'account_informations/retrieve',
 }
