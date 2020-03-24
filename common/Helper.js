@@ -13,6 +13,9 @@ export default {
   }, {
     title: 'Profile',
     route: 'Profile'
+  }, {
+    title: 'Places',
+    route: 'Places'
   }],
   pusher: {
     broadcast_type: 'pusher',

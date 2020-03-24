@@ -8,6 +8,7 @@ import Slider from 'components/Slider';
 import { Color, BasicStyles } from 'common';
 import Dashboard from 'modules/dashboard';
 import Notification from 'modules/notification';
+import Places from 'modules/places';
 import Profile from 'modules/profile';
 import OptionRight from './OptionRight';
 class MenuDrawerStructure extends Component {
@@ -81,6 +82,21 @@ const Profile_StackNavigator = createStackNavigator({
   },
 });
 
+const Places_StackNavigator = createStackNavigator({
+  Profile: {
+    screen: Places,
+    navigationOptions: ({ navigation }) => ({
+      title: 'Places',
+      headerLeft: <MenuDrawerStructure navigationProps={navigation} />,
+      headerRight: <OptionRight navigationProps={navigation} />,
+      headerStyle: {
+        backgroundColor: Color.primary,
+      },
+      headerTintColor: '#fff',
+    }),
+  },
+});
+
 const Drawer = createDrawerNavigator({
   Dashboard: {
     screen: Dashboard_StackNavigator,
@@ -92,6 +108,12 @@ const Drawer = createDrawerNavigator({
     screen: Profile_StackNavigator,
     navigationOptions: {
       drawerLabel: 'Profile',
+    },
+  },
+  Places: {
+    screen: Places_StackNavigator,
+    navigationOptions: {
+      drawerLabel: 'Places',
     },
   },
   Notification: {
