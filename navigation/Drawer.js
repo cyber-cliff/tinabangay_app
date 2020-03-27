@@ -10,6 +10,7 @@ import Dashboard from 'modules/dashboard';
 import Notification from 'modules/notification';
 import Places from 'modules/places';
 import Profile from 'modules/profile';
+import GenerateQR from 'modules/generateQR';
 import OptionRight from './OptionRight';
 class MenuDrawerStructure extends Component {
   constructor(props){
@@ -97,6 +98,22 @@ const Places_StackNavigator = createStackNavigator({
   },
 });
 
+const GenQR_StackNavigator = createStackNavigator({
+  Profile: {
+    screen: GenerateQR,
+    navigationOptions: ({ navigation }) => ({
+      title: 'Generate QR',
+      headerLeft: <MenuDrawerStructure navigationProps={navigation} />,
+      headerRight: <OptionRight navigationProps={navigation} />,
+      headerStyle: {
+        backgroundColor: Color.primary,
+      },
+      headerTintColor: '#fff',
+    }),
+  },
+});
+
+
 const Drawer = createDrawerNavigator({
   Dashboard: {
     screen: Dashboard_StackNavigator,
@@ -122,6 +139,13 @@ const Drawer = createDrawerNavigator({
       drawerLabel: 'Notification',
     },
   },
+  GenerateQR: {
+    screen: GenQR_StackNavigator,
+    navigationOptions: {
+      drawerLabel: 'Generate QR',
+    },
+  },
+  
 }, {
   contentComponent: Slider
 });

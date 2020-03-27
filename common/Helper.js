@@ -16,6 +16,10 @@ export default {
   }, {
     title: 'Places',
     route: 'Places'
+  },
+  {
+    title: 'GenerateQR',
+    route: 'GenerateQR'
   }],
   pusher: {
     broadcast_type: 'pusher',
