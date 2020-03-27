@@ -14,4 +14,9 @@ export default {
   accountProfileCreate: apiUrl + 'account_profiles/create',
   accountProfileUpdate: apiUrl + 'account_profiles/update',
   accountInformationRetrieve: apiUrl + 'account_informations/retrieve',
+  visitedPlacesRetrieve: apiUrl + 'visited_places/retrieve',
+  visitedPlacesCreate: apiUrl + 'visited_places/create',
+  visitedPlacesUpdate: apiUrl + 'visited_places/update',
+  temperaturesCreate: apiUrl + 'temperatures/create',
+  patientsCreate: apiUrl + 'patients/create'
 }

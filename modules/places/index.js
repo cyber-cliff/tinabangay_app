@@ -8,7 +8,7 @@ import Currency from 'services/Currency.js';
 import { connect } from 'react-redux';
 import Config from 'src/config.js';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faUserCircle } from '@fortawesome/free-solid-svg-icons';
+import { faUserCircle, faMapMarker } from '@fortawesome/free-solid-svg-icons';
 import { Dimensions } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import RNPickerSelect from 'react-native-picker-select';
@@ -26,11 +26,15 @@ class Places extends Component{
       showTimePicker: false,
       timeLabel: null,
       timeFlag: false,
-      time: new Date()
+      time: new Date(),
+      data: null,
+      selected: null,
+      errorMessage: null
     }
   }
 
   componentDidMount(){
+    this.retrieve()
   }
 
   retrieve = () => {
@@ -43,45 +47,82 @@ class Places extends Component{
         value: user.id,
         clause: '=',
         column: 'account_id'
-      }]
+      }],
+      sort: {
+        route: 'asc'
+      }
     }
     this.setState({
       isLoading: true, 
-      showDatePicker: false
+      showDatePicker: false,
+      showTimePicker: false
     })
-    Api.request(Routes.accountInformationRetrieve, parameter, response => {
+    Api.request(Routes.visitedPlacesRetrieve, parameter, response => {
+      console.log(response.data)
       this.setState({isLoading: false})
       if(response.data.length > 0){
-        let data = response.data[0]
-        this.setState({
-          id: data.id,
-          firstName: data.first_name,
-          middleName: data.middle_name,
-          lastName: data.last_name,
-          sex: data.sex,
-          cellularNumber: data.cellular_number,
-          address: data.address,
-          birthDate: data.birth_date
-        })
-        if(data.birth_date != null){
-          this.setState({
-            dateFlag: true,
-            birthDateLabel: data.birth_date
-          })
-        }
+        this.setState({data: response.data})
       }else{
-        this.setState({
-          id: null,
-          firstName: null,
-          middleName: null,
-          lastName: null,
-          sex: null,
-          cellularNumber: null,
-          address: null,
-          birthDate: new Date(),
-        })
+        this.setState({data: null})
       }
     });
+  }
+
+  submit = () => {
+    const { user, location } = this.props.state;
+    const { date, time } = this.state;
+    if(user == null){
+      this.setState({errorMessage: 'Invalid Account.'})
+      return
+    }
+    if(location == null || (location != null && location.route)){
+      this.setState({errorMessage: 'Location is required.'})
+      return
+    }
+    if(date == null){
+      this.setState({errorMessage: 'Date is required.'})
+      return
+    }
+    if(time == null){
+      this.setState({errorMessage: 'Time is required.'})
+      return
+    }
+    this.setState({errorMessage: null})
+    let parameter = {
+      account_id: user.id,
+      longitude: location.longitude,
+      latitude: location.latitude,
+      route: location.route,
+      region: location.region,
+      country: location.country,
+      date: date,
+      time: time
+    }
+    Api.request(Routes.visitedPlacesCreate, parameter, response => {
+      this.setState({isLoading: false})
+      if(response.data > 0){
+        this.setState({
+          newPlaceFlag: false,
+          timeFlag: false,
+          showTimePicker: false,
+          time: new Date(),
+          timeLabel: null,
+          showDatePicker: false,
+          dateFlag: false,
+          date: new Date(),
+          dateLabel: null
+        })
+        this.retrieve()
+      }
+    });
+    // this.setState({newPlaceFlag: false})
+  }
+
+  goToLocation = () => {
+    const { setPreviousRoute } = this.props;
+    setPreviousRoute('drawerStack')
+    this.setState({showTimePicker: false, showDatePicker: false})
+    this.props.navigation.navigate('locationStack')
   }
 
   setDate = (event, date) => {
@@ -139,10 +180,12 @@ class Places extends Component{
   _newPlace = () => {
     return (
       <View>
-        <View>
+        <View style={{
+          marginTop: 20
+        }}>
           <TouchableHighlight style={{
                 height: 50,
-                backgroundColor: Color.secondary,
+                backgroundColor: Color.warning,
                 width: '100%',
                 marginBottom: 20,
                 alignItems: 'center',
@@ -161,7 +204,7 @@ class Places extends Component{
         <View>
           <TouchableHighlight style={{
                 height: 50,
-                backgroundColor: Color.secondary,
+                backgroundColor: Color.warning,
                 width: '100%',
                 marginBottom: 20,
                 alignItems: 'center',
@@ -180,14 +223,14 @@ class Places extends Component{
         <View>
           <TouchableHighlight style={{
                 height: 50,
-                backgroundColor: Color.secondary,
+                backgroundColor: Color.warning,
                 width: '100%',
                 marginBottom: 20,
                 alignItems: 'center',
                 justifyContent: 'center',
                 borderRadius: 5,
               }}
-              onPress={() => {this.setState({showTimePicker: true})}}
+              onPress={() => {this.goToLocation()}}
               underlayColor={Color.gray}
                 >
               <Text style={{
@@ -196,20 +239,99 @@ class Places extends Component{
               }}>Add Location</Text>
           </TouchableHighlight>
         </View>
+
+        <View>
+          <TouchableHighlight style={{
+                height: 50,
+                backgroundColor: Color.primary,
+                width: '100%',
+                marginBottom: 20,
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: 5,
+              }}
+              onPress={() => {this.submit()}}
+              underlayColor={Color.gray}
+                >
+              <Text style={{
+                color: Color.white,
+                textAlign: 'center',
+              }}>Submit</Text>
+          </TouchableHighlight>
+        </View>
+      </View>
+    );
+  }
+
+  _places = () => {
+    const { data, selected } = this.state;
+    return (
+      <View>
+        <FlatList
+          data={data}
+          extraData={selected}
+          ItemSeparatorComponent={this.FlatListItemSeparator}
+          renderItem={({ item, index }) => (
+            <View style={{
+              borderRadius: 10,
+              marginBottom: 10,
+              backgroundColor: Color.warning
+            }}>
+              <TouchableHighlight
+                onPress={() => {console.log('hello list')}}
+                underlayColor={Color.gray}
+                >
+                <View style={Style.TextContainer}>
+                  <View style={{
+                    flexDirection: 'row'
+                  }}>
+                    <FontAwesomeIcon 
+                      icon={faMapMarker}
+                      size={BasicStyles.iconSize}
+                    />
+                    <Text
+                      style={[BasicStyles.titleText, {
+                        paddingTop: 10,
+                        color: Color.white,
+                        fontSize: 20
+                      }]}>
+                      {item.route}
+                    </Text>
+                  </View>
+                  <Text
+                    style={[BasicStyles.normalText, {
+                      color: Color.white
+                    }]}>
+                    {item.locality}
+                  </Text>
+
+                  <Text
+                    style={[BasicStyles.normalText, {
+                      paddingBottom: 10,
+                      color: Color.white
+                    }]}>
+                    {item.country}
+                  </Text>
+                </View>
+              </TouchableHighlight>
+            </View>
+          )}
+          keyExtractor={(item, index) => index.toString()}
+        />
       </View>
     );
   }
 
   render() {
     const { user } = this.props.state;
-    const { isLoading, newPlaceFlag } = this.state;
+    const { isLoading, newPlaceFlag, data } = this.state;
     return (
       <ScrollView
         style={Style.ScrollView}
         onScroll={(event) => {
           if(event.nativeEvent.contentOffset.y <= 0) {
             if(this.state.isLoading == false){
-              // this.retrieve()
+              this.retrieve()
             }
           }
         }}
@@ -225,28 +347,35 @@ class Places extends Component{
           <Text style={{
             color: Color.white
           }}>
-            Hi {user.username}! We would like to ask your help to input places you have been visited for the past months. Please, be honest and help use fight COVID-19.
+            Hi {user.username}! We would like to ask your help to input places you have been visited for the past months. Please, be honest and help us fight COVID-19. Don't worry your location is not viewable from other users.
           </Text>
         </View>
 
-        <TouchableHighlight
-          style={[BasicStyles.btn, {
-            backgroundColor: Color.primary,
-            width: '100%',
-            marginTop: 20
-          }]}
-          onPress={() => {
-            this.setState({newPlaceFlag: true})
-          }}
-        >
-          <Text style={{
-            color: Color.white
-          }}>Add visited places</Text>
-        </TouchableHighlight>
+        {
+          newPlaceFlag == false && (
+            <TouchableHighlight
+              style={[BasicStyles.btn, {
+                backgroundColor: Color.primary,
+                width: '100%',
+                marginTop: 20
+              }]}
+              onPress={() => {
+                this.setState({newPlaceFlag: true})
+              }}
+            >
+              <Text style={{
+                color: Color.white
+              }}>Add visited places</Text>
+            </TouchableHighlight>
+          )
+        }
         {
           newPlaceFlag == true && (
             this._newPlace()
           )
+        }
+        {
+          data !== null && (this._places())
         }
         {isLoading ? <Spinner mode="overlay"/> : null }
         {this._datePicker()}
@@ -260,6 +389,7 @@ const mapStateToProps = state => ({ state: state });
 const mapDispatchToProps = dispatch => {
   const { actions } = require('@redux');
   return {
+    setPreviousRoute: (previousRoute) => dispatch(actions.setPreviousRoute(previousRoute))
   };
 };
 

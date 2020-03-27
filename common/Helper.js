@@ -3,10 +3,10 @@ import { faEdit, faComments, faCheck, faPaperPlane } from '@fortawesome/free-sol
 export default {
   company: 'Increment Technologies',
   APP_NAME: '@Tinabangay_',
-  APP_NAME_BASIC: 'Tinabangay',
-  APP_EMAIL: 'support@tinabangay.ph',
-  APP_WEBSITE: 'www.tinabangay.increment.ltd',
-  APP_HOST: 'com.tinabangay',
+  APP_NAME_BASIC: 'BirdsEye',
+  APP_EMAIL: 'support@birdseye.increment.ltd',
+  APP_WEBSITE: 'www.birdseye.increment.ltd',
+  APP_HOST: 'com.birdseye',
   DrawerMenu: [{
     title: 'Dashboard',
     route: 'Dashboard'
@@ -19,14 +19,14 @@ export default {
   }],
   pusher: {
     broadcast_type: 'pusher',
-    channel: 'tinabangay',
+    channel: 'birdseye',
     notifications: 'App\\Events\\Notifications',
     typing: 'typing'
   },
   tutorials: [
     {
       key: 1,
-      title: 'Welcome to Tinabangay!',
+      title: 'Welcome to BirdsEye!',
       text: 'Instruction here!',
       icon: null,
       image: require('assets/logo.png'),
