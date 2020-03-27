@@ -18,7 +18,7 @@ class Ride extends Component{
     super(props);
     this.state = {
       isLoading: false,
-      newPlaceFlag: false,
+      newDataFlag: false,
       showDatePicker: false,
       dateLabel: null,
       dateFlag: false,
@@ -47,24 +47,23 @@ class Ride extends Component{
         value: user.id,
         clause: '=',
         column: 'account_id'
-      }],
-      sort: {
-        route: 'asc'
-      }
+      }]
     }
     this.setState({
       isLoading: true, 
       showDatePicker: false,
       showTimePicker: false
     })
-    Api.request(Routes.visitedPlacesRetrieve, parameter, response => {
-      console.log(response.data)
+    Api.request(Routes.ridesRetrieve, parameter, response => {
       this.setState({isLoading: false})
       if(response.data.length > 0){
         this.setState({data: response.data})
       }else{
         this.setState({data: null})
       }
+    }, error => {
+      this.setState({isLoading: false})
+      console.log(error)
     });
   }
 
@@ -102,7 +101,7 @@ class Ride extends Component{
       this.setState({isLoading: false})
       if(response.data > 0){
         this.setState({
-          newPlaceFlag: false,
+          newDataFlag: false,
           timeFlag: false,
           showTimePicker: false,
           time: new Date(),
@@ -177,7 +176,7 @@ class Ride extends Component{
     );
   }
 
-  _newPlace = () => {
+  _newData = () => {
     return (
       <View>
         <View style={{
@@ -263,7 +262,7 @@ class Ride extends Component{
     );
   }
 
-  _places = () => {
+  _data = () => {
     const { data, selected } = this.state;
     return (
       <View>
@@ -289,17 +288,24 @@ class Ride extends Component{
                     <Text
                       style={[BasicStyles.titleText, {
                         paddingTop: 10,
-                        fontSize: 20,
+                        fontWeight: 'bold',
                         color: Color.primary
                       }]}>
-                      {item.route}
+                      {item.code ? item.code: ''} {item.type}
                     </Text>
                   </View>
                   <Text
                     style={[BasicStyles.normalText, {
-                      color: Color.primary
+                      paddingTop: 10,
+                      color: Color.darkGray
                     }]}>
-                    {item.locality + ',' + item.country}
+                    {item.from} - {item.to}
+                  </Text>
+                  <Text
+                    style={[BasicStyles.normalText, {
+                      color: Color.darkGray
+                    }]}>
+                    {item.from_date_human} - {item.to_date_human}
                   </Text>
                   {
                     item.status == 'death' && (
@@ -427,7 +433,7 @@ class Ride extends Component{
 
   render() {
     const { user } = this.props.state;
-    const { isLoading, newPlaceFlag, data } = this.state;
+    const { isLoading, newDataFlag, data } = this.state;
     return (
       <ScrollView
         style={Style.ScrollView}
@@ -450,12 +456,12 @@ class Ride extends Component{
           <Text style={{
             color: Color.white
           }}>
-            Hi {user != null ? user.username : ''}! We would like to ask your help to input places you have been visited for the past months. Please, be honest and help us fight COVID-19. Don't worry your location is not viewable from other users.
+            Hi {user != null ? user.username : ''}! We would like to ask your help to input your transportation history that you have been on board for the past months. Please, be honest and help us fight COVID-19. Don't worry your location is not viewable from other users.
           </Text>
         </View>
 
         {
-          newPlaceFlag == false && (
+          newDataFlag == false && (
             <TouchableHighlight
               style={[BasicStyles.btn, {
                 backgroundColor: Color.primary,
@@ -463,22 +469,22 @@ class Ride extends Component{
                 marginTop: 20
               }]}
               onPress={() => {
-                this.setState({newPlaceFlag: true})
+                this.setState({newDataFlag: true})
               }}
             >
               <Text style={{
                 color: Color.white
-              }}>Add visited places</Text>
+              }}>Add previous rides</Text>
             </TouchableHighlight>
           )
         }
         {
-          newPlaceFlag == true && (
-            this._newPlace()
+          newDataFlag == true && (
+            this._newData()
           )
         }
         {
-          data !== null && (this._places())
+          data !== null && (this._data())
         }
         {isLoading ? <Spinner mode="overlay"/> : null }
         {this._datePicker()}

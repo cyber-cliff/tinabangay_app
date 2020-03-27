@@ -289,15 +289,15 @@ class Place extends Component{
                     <Text
                       style={[BasicStyles.titleText, {
                         paddingTop: 10,
-                        fontSize: 20,
+                        fontWeight: 'bold',
                         color: Color.primary
                       }]}>
-                      {item.route}
+                      {item.date_human + ':' + item.time + ' - ' + item.route}
                     </Text>
                   </View>
                   <Text
                     style={[BasicStyles.normalText, {
-                      color: Color.primary
+                      color: Color.darkGray
                     }]}>
                     {item.locality + ',' + item.country}
                   </Text>
