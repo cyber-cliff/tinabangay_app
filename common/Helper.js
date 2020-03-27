@@ -11,11 +11,17 @@ export default {
     title: 'Dashboard',
     route: 'Dashboard'
   }, {
+    title: 'My Visited Places',
+    route: 'Place'
+  }, {
+    title: 'My Rides',
+    route: 'Ride'
+  }, {
+    title: 'My Temperature',
+    route: 'Temperature'
+  }, {
     title: 'Profile',
     route: 'Profile'
-  }, {
-    title: 'Places',
-    route: 'Places'
   }],
   pusher: {
     broadcast_type: 'pusher',

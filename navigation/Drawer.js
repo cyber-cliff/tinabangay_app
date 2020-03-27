@@ -8,7 +8,9 @@ import Slider from 'components/Slider';
 import { Color, BasicStyles } from 'common';
 import Dashboard from 'modules/dashboard';
 import Notification from 'modules/notification';
-import Places from 'modules/places';
+import Place from 'modules/place';
+import Temperature from 'modules/temperature';
+import Ride from 'modules/ride';
 import Profile from 'modules/profile';
 import OptionRight from './OptionRight';
 class MenuDrawerStructure extends Component {
@@ -82,11 +84,41 @@ const Profile_StackNavigator = createStackNavigator({
   },
 });
 
-const Places_StackNavigator = createStackNavigator({
+const Place_StackNavigator = createStackNavigator({
   Profile: {
-    screen: Places,
+    screen: Place,
     navigationOptions: ({ navigation }) => ({
-      title: 'Places',
+      title: 'My Visited Places',
+      headerLeft: <MenuDrawerStructure navigationProps={navigation} />,
+      headerRight: <OptionRight navigationProps={navigation} />,
+      headerStyle: {
+        backgroundColor: Color.primary,
+      },
+      headerTintColor: '#fff',
+    }),
+  },
+});
+
+const Temperature_StackNavigator = createStackNavigator({
+  Profile: {
+    screen: Temperature,
+    navigationOptions: ({ navigation }) => ({
+      title: 'My Temperatures',
+      headerLeft: <MenuDrawerStructure navigationProps={navigation} />,
+      headerRight: <OptionRight navigationProps={navigation} />,
+      headerStyle: {
+        backgroundColor: Color.primary,
+      },
+      headerTintColor: '#fff',
+    }),
+  },
+});
+
+const Ride_StackNavigator = createStackNavigator({
+  Profile: {
+    screen: Ride,
+    navigationOptions: ({ navigation }) => ({
+      title: 'My Rides',
       headerLeft: <MenuDrawerStructure navigationProps={navigation} />,
       headerRight: <OptionRight navigationProps={navigation} />,
       headerStyle: {
@@ -110,10 +142,22 @@ const Drawer = createDrawerNavigator({
       drawerLabel: 'Profile',
     },
   },
-  Places: {
-    screen: Places_StackNavigator,
+  Place: {
+    screen: Place_StackNavigator,
     navigationOptions: {
-      drawerLabel: 'Places',
+      drawerLabel: 'Place',
+    },
+  },
+  Temperature: {
+    screen: Temperature_StackNavigator,
+    navigationOptions: {
+      drawerLabel: 'Temperature',
+    },
+  },
+  Ride: {
+    screen: Ride_StackNavigator,
+    navigationOptions: {
+      drawerLabel: 'Ride',
     },
   },
   Notification: {

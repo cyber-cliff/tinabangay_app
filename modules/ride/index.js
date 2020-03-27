@@ -13,7 +13,7 @@ import { Dimensions } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import RNPickerSelect from 'react-native-picker-select';
 const height = Math.round(Dimensions.get('window').height);
-class Places extends Component{
+class Ride extends Component{
   constructor(props){
     super(props);
     this.state = {
@@ -273,9 +273,10 @@ class Places extends Component{
           ItemSeparatorComponent={this.FlatListItemSeparator}
           renderItem={({ item, index }) => (
             <View style={{
-              borderRadius: 10,
+              borderRadius: 5,
               marginBottom: 10,
-              backgroundColor: Color.warning
+              borderColor: Color.gray,
+              borderWidth: 1
             }}>
               <TouchableHighlight
                 onPress={() => {console.log('hello list')}}
@@ -285,33 +286,135 @@ class Places extends Component{
                   <View style={{
                     flexDirection: 'row'
                   }}>
-                    <FontAwesomeIcon 
-                      icon={faMapMarker}
-                      size={BasicStyles.iconSize}
-                    />
                     <Text
                       style={[BasicStyles.titleText, {
                         paddingTop: 10,
-                        color: Color.white,
-                        fontSize: 20
+                        fontSize: 20,
+                        color: Color.primary
                       }]}>
                       {item.route}
                     </Text>
                   </View>
                   <Text
                     style={[BasicStyles.normalText, {
-                      color: Color.white
+                      color: Color.primary
                     }]}>
-                    {item.locality}
+                    {item.locality + ',' + item.country}
                   </Text>
+                  {
+                    item.status == 'death' && (
+                      <View style={{
+                        backgroundColor: 'black',
+                        borderRadius: 2,
+                        marginRight: 20,
+                        marginLeft: 20,
+                        marginBottom: 10,
+                        marginTop: 10
+                      }}>
+                        <Text style={{
+                          color: Color.white,
+                          paddingTop: 2,
+                          paddingBottom: 2,
+                          paddingLeft: 10,
+                          paddingRight: 10
+                        }}>
+                          There was a PUI in this area.
+                        </Text>
+                      </View>
+                    )
+                  }
 
-                  <Text
-                    style={[BasicStyles.normalText, {
-                      paddingBottom: 10,
-                      color: Color.white
-                    }]}>
-                    {item.country}
-                  </Text>
+                  {
+                    item.status == 'positive' && (
+                      <View style={{
+                        backgroundColor: Color.danger,
+                        borderRadius: 2,
+                        marginRight: 20,
+                        marginLeft: 20,
+                        marginBottom: 10,
+                        marginTop: 10
+                      }}>
+                        <Text style={{
+                          color: Color.white,
+                          paddingTop: 2,
+                          paddingBottom: 2,
+                          paddingLeft: 10,
+                          paddingRight: 10
+                        }}>
+                          There was a COVID Positve in this area.
+                        </Text>
+                      </View>
+                    )
+                  }
+                  {
+                    item.status == 'pum' && (
+                      <View style={{
+                        backgroundColor: Color.warning,
+                        borderRadius: 2,
+                        marginRight: 20,
+                        marginLeft: 20,
+                        marginBottom: 10,
+                        marginTop: 10
+                      }}>
+                        <Text style={{
+                          color: Color.white,
+                          paddingTop: 2,
+                          paddingBottom: 2,
+                          paddingLeft: 10,
+                          paddingRight: 10
+                        }}>
+                          There was a PUM in this area.
+                        </Text>
+                      </View>
+                    )
+                  }
+
+                  {
+                    item.status == 'pui' && (
+                      <View style={{
+                        backgroundColor: Color.primary,
+                        borderRadius: 2,
+                        marginRight: 20,
+                        marginLeft: 20,
+                        marginBottom: 10,
+                        marginTop: 10
+                      }}>
+                        <Text style={{
+                          color: Color.white,
+                          paddingTop: 2,
+                          paddingBottom: 2,
+                          paddingLeft: 10,
+                          paddingRight: 10
+                        }}>
+                          There was a PUI in this area.
+                        </Text>
+                      </View>
+                    )
+                  }
+                  {
+                    item.status == 'negative' && (
+                      <View style={{
+                        backgroundColor: 'green',
+                        borderRadius: 2,
+                        marginRight: 20,
+                        marginLeft: 20,
+                        marginBottom: 10,
+                        marginTop: 10
+                      }}>
+                        <Text style={{
+                          color: Color.white,
+                          paddingTop: 2,
+                          paddingBottom: 2,
+                          paddingLeft: 10,
+                          paddingRight: 10
+                        }}>
+                          There was a PUI in this area.
+                        </Text>
+                      </View>
+                    )
+                  }
+
+                  
                 </View>
               </TouchableHighlight>
             </View>
@@ -396,4 +499,4 @@ const mapDispatchToProps = dispatch => {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(Places);
+)(Ride);

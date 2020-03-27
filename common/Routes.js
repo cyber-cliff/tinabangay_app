@@ -18,5 +18,7 @@ export default {
   visitedPlacesCreate: apiUrl + 'visited_places/create',
   visitedPlacesUpdate: apiUrl + 'visited_places/update',
   temperaturesCreate: apiUrl + 'temperatures/create',
-  patientsCreate: apiUrl + 'patients/create'
+  temperaturesRetrieve: apiUrl + 'temperatures/retrieve',
+  patientsCreate: apiUrl + 'patients/create',
+  ridesRetrieve: apiUrl + 'rides/retrieve'
 }
