@@ -450,7 +450,7 @@ class Place extends Component{
           <Text style={{
             color: Color.white
           }}>
-            Hi {user.username}! We would like to ask your help to input places you have been visited for the past months. Please, be honest and help us fight COVID-19. Don't worry your location is not viewable from other users.
+            Hi {user != null ? user.username : ''}! We would like to ask your help to input places you have been visited for the past months. Please, be honest and help us fight COVID-19. Don't worry your location is not viewable from other users.
           </Text>
         </View>
 
