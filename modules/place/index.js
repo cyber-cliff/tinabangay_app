@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import Style from './Style.js';
 import { View, Image, TouchableHighlight, Text, ScrollView, FlatList, TextInput, Picker} from 'react-native';
 import { Routes, Color, Helper, BasicStyles } from 'common';
-import { Spinner, ImageUpload } from 'components';
+import { Spinner, ImageUpload, GooglePlacesAutoComplete } from 'components';
 import Api from 'services/api/index.js';
 import Currency from 'services/Currency.js';
 import { connect } from 'react-redux';
@@ -29,7 +29,8 @@ class Place extends Component{
       time: new Date(),
       data: null,
       selected: null,
-      errorMessage: null
+      errorMessage: null,
+      location: null
     }
   }
 
@@ -66,6 +67,12 @@ class Place extends Component{
         this.setState({data: null})
       }
     });
+  }
+
+  manageLocation = (location) => {
+    this.setState({
+      location: location
+    })
   }
 
   submit = () => {
@@ -116,13 +123,6 @@ class Place extends Component{
       }
     });
     // this.setState({newPlaceFlag: false})
-  }
-
-  goToLocation = () => {
-    const { setPreviousRoute } = this.props;
-    setPreviousRoute('drawerStack')
-    this.setState({showTimePicker: false, showDatePicker: false})
-    this.props.navigation.navigate('locationStack')
   }
 
   setDate = (event, date) => {
@@ -220,27 +220,21 @@ class Place extends Component{
               }}>{this.state.timeFlag == false ? 'Click to add time' : this.state.timeLabel}</Text>
           </TouchableHighlight>
         </View>
-        <View>
-          <TouchableHighlight style={{
-                height: 50,
-                backgroundColor: Color.warning,
-                width: '100%',
-                marginBottom: 20,
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: 5,
-              }}
-              onPress={() => {this.goToLocation()}}
-              underlayColor={Color.gray}
-                >
-              <Text style={{
-                color: Color.white,
-                textAlign: 'center',
-              }}>Add Location</Text>
-          </TouchableHighlight>
+        <View style={{
+          position: 'relative',
+          backgroundColor: Color.white,
+          zIndex: 2
+        }}>
+          <GooglePlacesAutoComplete 
+            onFinish={(location) => this.manageLocation(location)}
+            placeholder={'Start typing location'}
+          />
         </View>
 
-        <View>
+        <View style={{
+          position: 'relative',
+          zIndex: 0
+        }}>
           <TouchableHighlight style={{
                 height: 50,
                 backgroundColor: Color.primary,
@@ -266,7 +260,11 @@ class Place extends Component{
   _places = () => {
     const { data, selected } = this.state;
     return (
-      <View>
+      <View style={{
+        backgroundColor: Color.white,
+        position: 'relative',
+        zIndex: -1
+      }}>
         <FlatList
           data={data}
           extraData={selected}
@@ -276,7 +274,9 @@ class Place extends Component{
               borderRadius: 5,
               marginBottom: 10,
               borderColor: Color.gray,
-              borderWidth: 1
+              borderWidth: 1,
+              position: 'relative',
+              zIndex: -1
             }}>
               <TouchableHighlight
                 onPress={() => {console.log('hello list')}}

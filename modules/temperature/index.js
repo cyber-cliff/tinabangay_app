@@ -56,18 +56,16 @@ class Temperature extends Component{
   _data = () => {
     const { data, selected } = this.state;
     return (
-      <View style={{
-        backgroundColor: Color.primary,
-        borderRadius: 5
-      }}>
+      <View>
         <FlatList
           data={data}
           extraData={selected}
           ItemSeparatorComponent={this.FlatListItemSeparator}
           renderItem={({ item, index }) => (
             <View style={{
-              borderRadius: 10,
-              marginBottom: 10
+              borderRadius: 5,
+              borderColor: Color.gray,
+              borderWidth: 1
             }}>
                 <View style={Style.TextContainer}>
                   <View style={{
@@ -76,8 +74,8 @@ class Temperature extends Component{
                     <Text
                       style={[BasicStyles.titleText, {
                         paddingTop: 10,
-                        color: Color.white,
-                        fontSize: 20
+                        color: Color.primary,
+                        fontWeight: 'bold'
                       }]}>
                       {item.value} Degree Celsius
                     </Text>
@@ -86,48 +84,35 @@ class Temperature extends Component{
                     item.remarks != null && (
                         <Text
                           style={[BasicStyles.normalText, {
-                            color: Color.white
+                            color: Color.darkGray
                           }]}>
                           {item.remarks}
                         </Text>
                       )
                   }
                   {
-                    item.added_by_account != null && (
-                      <Text
-                        style={[BasicStyles.normalText, {
-                          color: Color.white
-                        }]}>
-                        {item.added_by_account.username}
-                      </Text>
-                    )
-                  }
-                  {
                     item.temperature_location && (
-                      <View>
+                      <View style={{
+                        flexDirection: 'row'
+                      }}>
                         <FontAwesomeIcon
                           icon={faMapMarker}
                           style={{
-                            color: Color.white
+                            color: Color.darkGray,
+                            marginLeft: 17
                           }}
                         ></FontAwesomeIcon>
                         <Text
                           style={[BasicStyles.normalText, {
-                            color: Color.white
+                            color: Color.darkGray,
+                            paddingLeft: 0,
+                            marginBottom: 10
                           }]}>
                           {item.temperature_location.route + ', ' + item.temperature_location.locality + ', ' + item.temperature_location.country}
                         </Text>
                       </View>
                     )
                   }
-
-                  <Text
-                    style={[BasicStyles.normalText, {
-                      paddingBottom: 10,
-                      color: Color.white
-                    }]}>
-                    {item.country}
-                  </Text>
                 </View>
             </View>
           )}
