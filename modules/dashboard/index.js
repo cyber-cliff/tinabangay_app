@@ -22,7 +22,7 @@ class Dashboard extends Component{
   componentDidMount(){
     const { user } = this.props.state;
     if(user != null){
-      this.retrieveSummaryLedger();
+      // this.retrieveSummaryLedger();
     }
   }
 

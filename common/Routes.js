@@ -10,5 +10,16 @@ export default {
   accountUpdate: apiUrl + 'accounts/update',
   accountCreate: apiUrl + 'accounts/create',
   notificationsRetrieve: apiUrl + 'notifications/retrieve',
-  notificationUpdate: apiUrl + 'notifications/update'
+  notificationUpdate: apiUrl + 'notifications/update',
+  accountProfileCreate: apiUrl + 'account_profiles/create',
+  accountProfileUpdate: apiUrl + 'account_profiles/update',
+  accountInformationRetrieve: apiUrl + 'account_informations/retrieve',
+  visitedPlacesRetrieve: apiUrl + 'visited_places/retrieve',
+  visitedPlacesCreate: apiUrl + 'visited_places/create',
+  visitedPlacesUpdate: apiUrl + 'visited_places/update',
+  temperaturesCreate: apiUrl + 'temperatures/create',
+  temperaturesRetrieve: apiUrl + 'temperatures/retrieve',
+  patientsCreate: apiUrl + 'patients/create',
+  ridesRetrieve: apiUrl + 'rides/retrieve',
+  ridesCreate: apiUrl + 'rides/create'
 }
