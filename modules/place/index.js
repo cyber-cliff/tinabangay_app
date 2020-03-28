@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import Style from './Style.js';
-import { View, Image, TouchableHighlight, Text, ScrollView, FlatList, TextInput, Picker} from 'react-native';
+import { View, Image, TouchableHighlight, Text, ScrollView, FlatList, TextInput, Picker, Platform} from 'react-native';
 import { Routes, Color, Helper, BasicStyles } from 'common';
 import { Spinner, ImageUpload, GooglePlacesAutoComplete } from 'components';
 import Api from 'services/api/index.js';
@@ -23,11 +23,8 @@ class Place extends Component{
       dateLabel: null,
       dateFlag: false,
       date: new Date(),
-      showTimePicker: false,
-      timeLabel: null,
-      timeFlag: false,
-      time: new Date(),
       data: null,
+      time: null,
       selected: null,
       errorMessage: null,
       location: null
@@ -55,8 +52,7 @@ class Place extends Component{
     }
     this.setState({
       isLoading: true, 
-      showDatePicker: false,
-      showTimePicker: false
+      showDatePicker: false
     })
     Api.request(Routes.visitedPlacesRetrieve, parameter, response => {
       console.log(response.data)
@@ -76,13 +72,13 @@ class Place extends Component{
   }
 
   submit = () => {
-    const { user, location } = this.props.state;
-    const { date, time } = this.state;
+    const { user } = this.props.state;
+    const { date, time, location } = this.state;
     if(user == null){
       this.setState({errorMessage: 'Invalid Account.'})
       return
     }
-    if(location == null || (location != null && location.route)){
+    if(location == null || (location != null && location.route == null)){
       this.setState({errorMessage: 'Location is required.'})
       return
     }
@@ -102,18 +98,16 @@ class Place extends Component{
       route: location.route,
       region: location.region,
       country: location.country,
+      locality: location.locality,
       date: date,
       time: time
     }
+    this.setState({isLoading: true})
     Api.request(Routes.visitedPlacesCreate, parameter, response => {
       this.setState({isLoading: false})
       if(response.data > 0){
         this.setState({
           newPlaceFlag: false,
-          timeFlag: false,
-          showTimePicker: false,
-          time: new Date(),
-          timeLabel: null,
           showDatePicker: false,
           dateFlag: false,
           date: new Date(),
@@ -130,17 +124,26 @@ class Place extends Component{
       showDatePicker: false,
       dateFlag: true,
       date: date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate(),
+      time: date.getHours() + ':' + date.getMinutes(),
       dateLabel: Currency.getMonth(date.getMonth()) + ' ' + date.getDate() + ', ' + date.getFullYear()
     });
-    console.log('date', this.state.date);
+    console.log(this.state.date + '/' + this.state.time);
   }
 
   _datePicker = () => {
     const { showDatePicker, date } = this.state;
     return (
       <View>
-        { showDatePicker && <DateTimePicker value={new Date()}
-            mode={'date'}
+        { (showDatePicker && Platform.OS == 'ios') && <DateTimePicker value={new Date()}
+            mode={'datetime'}
+            display="default"
+            date={new Date()}
+            onCancel={() => this.setState({showDatePicker: false})}
+            onConfirm={this.setDate} 
+            onChange={this.setDate} />
+        }
+        { (showDatePicker && Platform.OS == 'android') && <DateTimePicker value={new Date()}
+            mode={'datetime'}
             display="default"
             date={new Date()}
             onCancel={() => this.setState({showDatePicker: false})}
@@ -151,35 +154,21 @@ class Place extends Component{
     );
   }
 
-  setTime = (event, date) => {
-    console.log(date)
-    this.setState({
-      showTimePicker: false,
-      timeFlag: true,
-      time: date.getHours() + ':' + date.getMinutes,
-      timeLabel: date.getHours() + ':' + date.getMinutes
-    });
-    console.log('date', this.state.time);
-  }
-
-  _timePicker = () => {
-    const { showTimePicker, time } = this.state;
-    return (
-      <View>
-        { showTimePicker && <DateTimePicker value={new Date()}
-            mode={'time'}
-            display="default"
-            onCancel={() => this.setState({showTimePicker: false})}
-            onConfirm={this.setTime} 
-            onChange={this.setTime} />
-        }
-      </View>
-    );
-  }
-
   _newPlace = () => {
     return (
       <View>
+        {
+          this.state.errorMessage != null && (
+            <View>
+              <Text style={{
+                color: Color.danger,
+                paddingTop: 10,
+                paddingBottom: 10,
+                textAlign: 'center'
+              }}>{this.state.errorMessage}</Text>
+            </View>
+          )
+        }
         <View style={{
           marginTop: 20
         }}>
@@ -198,26 +187,7 @@ class Place extends Component{
               <Text style={{
                 color: Color.white,
                 textAlign: 'center',
-              }}>{this.state.dateFlag == false ? 'Click to add date' : this.state.dateLabel}</Text>
-          </TouchableHighlight>
-        </View>
-        <View>
-          <TouchableHighlight style={{
-                height: 50,
-                backgroundColor: Color.warning,
-                width: '100%',
-                marginBottom: 20,
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: 5,
-              }}
-              onPress={() => {this.setState({showTimePicker: true})}}
-              underlayColor={Color.gray}
-                >
-              <Text style={{
-                color: Color.white,
-                textAlign: 'center',
-              }}>{this.state.timeFlag == false ? 'Click to add time' : this.state.timeLabel}</Text>
+              }}>{this.state.dateFlag == false ? 'Click to add date' : this.state.dateLabel + ' ' + this.state.time}</Text>
           </TouchableHighlight>
         </View>
         <View style={{
@@ -482,7 +452,6 @@ class Place extends Component{
         }
         {isLoading ? <Spinner mode="overlay"/> : null }
         {this._datePicker()}
-        {this._timePicker()}
       </ScrollView>
     );
   }
