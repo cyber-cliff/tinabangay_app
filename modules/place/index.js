@@ -288,7 +288,7 @@ class Place extends Component{
                           paddingLeft: 10,
                           paddingRight: 10
                         }}>
-                          There was a PUI in this area.
+                          There was death in this area.
                         </Text>
                       </View>
                     )
@@ -378,7 +378,7 @@ class Place extends Component{
                           paddingLeft: 10,
                           paddingRight: 10
                         }}>
-                          There was a PUI in this area.
+                          This area is clear.
                         </Text>
                       </View>
                     )

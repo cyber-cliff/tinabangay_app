@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import Style from './Style.js';
-import { View, Image, TouchableHighlight, Text, ScrollView, FlatList, TextInput, Picker} from 'react-native';
+import { View, Image, TouchableHighlight, Text, ScrollView, FlatList, TextInput, Picker, Platform} from 'react-native';
 import { Routes, Color, Helper, BasicStyles } from 'common';
-import { Spinner, ImageUpload } from 'components';
+import { Spinner, ImageUpload, GooglePlacesAutoComplete } from 'components';
 import Api from 'services/api/index.js';
 import Currency from 'services/Currency.js';
 import { connect } from 'react-redux';
@@ -20,16 +20,21 @@ class Ride extends Component{
       isLoading: false,
       newDataFlag: false,
       showDatePicker: false,
-      dateLabel: null,
-      dateFlag: false,
-      date: new Date(),
-      showTimePicker: false,
-      timeLabel: null,
-      timeFlag: false,
-      time: new Date(),
+      fromDateLabel: null,
+      fromDateFlag: false,
+      fromDate: new Date(),
+      toDateLabel: null,
+      toDateFlag: false,
+      toDate: new Date(),
+      from: null,
+      to: null,
       data: null,
       selected: null,
-      errorMessage: null
+      errorMessage: null,
+      locationFlag: 'from',
+      dateFlag: null,
+      code: null,
+      type: null
     }
   }
 
@@ -68,77 +73,122 @@ class Ride extends Component{
   }
 
   submit = () => {
-    const { user, location } = this.props.state;
-    const { date, time } = this.state;
+    const { user } = this.props.state;
+    const {from, to, fromDate, toDate, type, code } = this.state;
     if(user == null){
       this.setState({errorMessage: 'Invalid Account.'})
       return
     }
-    if(location == null || (location != null && location.route)){
-      this.setState({errorMessage: 'Location is required.'})
+    if(from == null || to == null){
+      this.setState({errorMessage: 'Locations are required.'})
       return
     }
-    if(date == null){
-      this.setState({errorMessage: 'Date is required.'})
+    if(fromDate == null || toDate == null){
+      this.setState({errorMessage: 'Dates are required.'})
       return
     }
-    if(time == null){
-      this.setState({errorMessage: 'Time is required.'})
+    if(type == null){
+      this.setState({errorMessage: 'Type is required.'})
       return
     }
     this.setState({errorMessage: null})
     let parameter = {
       account_id: user.id,
-      longitude: location.longitude,
-      latitude: location.latitude,
-      route: location.route,
-      region: location.region,
-      country: location.country,
-      date: date,
-      time: time
+      from: from,
+      to: to,
+      from_date_time: fromDate,
+      to_date_time: toDate,
+      payload: 'manual',
+      type: type,
+      code: code
     }
-    Api.request(Routes.visitedPlacesCreate, parameter, response => {
+    this.setState({isLoading: true})
+    console.log(parameter)
+    Api.request(Routes.ridesCreate, parameter, response => {
+      console.log(response)
       this.setState({isLoading: false})
       if(response.data > 0){
         this.setState({
           newDataFlag: false,
-          timeFlag: false,
-          showTimePicker: false,
-          time: new Date(),
-          timeLabel: null,
-          showDatePicker: false,
-          dateFlag: false,
-          date: new Date(),
-          dateLabel: null
+          fromDatePicker: false,
+          fromDateLabel: null,
+          fromDateFlag: false,
+          fromDate: new Date(),
+          toDatePicker: false,
+          toDateLabel: null,
+          toTimeFlag: false,
+          toDate: new Date(),
+          from: null,
+          to: null,
+          selected: null,
+          errorMessage: null,
+          locationFlag: 'from'
         })
         this.retrieve()
       }
+    }, error => {
+      console.log(error)
+      this.setState({isLoading: false})
     });
     // this.setState({newPlaceFlag: false})
   }
 
-  goToLocation = () => {
-    const { setPreviousRoute } = this.props;
-    setPreviousRoute('drawerStack')
-    this.setState({showTimePicker: false, showDatePicker: false})
-    this.props.navigation.navigate('locationStack')
+  manageLocation = (location) => {
+    const { locationFlag } = this.state;
+    if(locationFlag == 'from'){
+      this.setState({
+        from: location ? location.route + ', ' + location.locality + ', ' + location.country : null
+      })
+    }else{
+      this.setState({
+        to: location ? location.route + ', ' + location.locality + ', ' + location.country : null
+      })
+    }
+  }
+
+  getTime = (date) => {
+    let hours = date.getHours() % 12 || 12
+    return hours + ':' + date.getMinutes() + ' ' + (date.getHours() > 12 ? 'PM' : 'AM')
+  }
+
+  getTimeTz = (date) => {
+    return date.getFullYear() + '-' + date.getMonth() + '-' + date.getDate() + ' ' + date.getHours() + ':' + date.getMinutes() + ':00'
   }
 
   setDate = (event, date) => {
-    this.setState({
-      showDatePicker: false,
-      dateFlag: true,
-      date: date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate(),
-      dateLabel: Currency.getMonth(date.getMonth()) + ' ' + date.getDate() + ', ' + date.getFullYear()
-    });
-    console.log('date', this.state.date);
+    const { dateFlag } = this.state;
+    if(dateFlag == 'from'){
+      this.setState({
+        showDatePicker: false,
+        fromDateFlag: true,
+        fromDate: this.getTimeTz(date),
+        fromDateLabel: Currency.getMonth(date.getMonth()) + ' ' + date.getDate() + ', ' + date.getFullYear() + ' ' + this.getTime(date)
+      });
+    }else if(dateFlag == 'to'){
+      this.setState({
+        showDatePicker: false,
+        toDateFlag: true,
+        toDate: this.getTimeTz(date),
+        toDateLabel: Currency.getMonth(date.getMonth()) + ' ' + date.getDate() + ', ' + date.getFullYear() + ' ' + this.getTime(date)
+      });
+    }
   }
 
   _datePicker = () => {
-    const { showDatePicker, date } = this.state;
+    const { showDatePicker } = this.state;
     return (
       <View>
-        { showDatePicker && <DateTimePicker value={new Date()}
+        { 
+          (showDatePicker && Platform.OS == 'ios') && <DateTimePicker value={new Date()}
+            mode={'datetime'}
+            display="default"
+            date={new Date()}
+            onCancel={() => this.setState({showDatePicker: false})}
+            onConfirm={this.setDate} 
+            onChange={this.setDate} />
+        }
+        { 
+          (showDatePicker && Platform.OS == 'android') && <DateTimePicker value={new Date()}
             mode={'date'}
             display="default"
             date={new Date()}
@@ -150,92 +200,151 @@ class Ride extends Component{
     );
   }
 
-  setTime = (event, date) => {
-    console.log(date)
-    this.setState({
-      showTimePicker: false,
-      timeFlag: true,
-      time: date.getHours() + ':' + date.getMinutes,
-      timeLabel: date.getHours() + ':' + date.getMinutes
-    });
-    console.log('date', this.state.time);
-  }
-
-  _timePicker = () => {
-    const { showTimePicker, time } = this.state;
-    return (
-      <View>
-        { showTimePicker && <DateTimePicker value={new Date()}
-            mode={'time'}
-            display="default"
-            onCancel={() => this.setState({showTimePicker: false})}
-            onConfirm={this.setTime} 
-            onChange={this.setTime} />
-        }
-      </View>
-    );
-  }
-
   _newData = () => {
+    const types = Helper.transportationTypes.map((item, index) => {
+      return {
+        label: item.title,
+        value: item.value
+      };
+    })
     return (
       <View>
+        {
+          this.state.errorMessage != null && (
+            <View>
+              <Text style={{
+                color: Color.danger,
+                paddingTop: 10,
+                paddingBottom: 10,
+                textAlign: 'center'
+              }}>{this.state.errorMessage}</Text>
+            </View>
+          )
+        }
         <View style={{
+          marginTop: 10
+        }}>
+          <Text>Select Type</Text>
+          {
+            Platform.OS == 'android' && (
+              <Picker selectedValue={this.state.type}
+              onValueChange={(type) => this.setState({type})}
+              style={BasicStyles.pickerStyleCreate}
+              >
+                {
+                  Helper.transportationTypes.map((item, index) => {
+                    return (
+                      <Picker.Item
+                      key={index}
+                      label={item.title} 
+                      value={item.value}/>
+                    );
+                  })
+                }
+              </Picker>
+            )
+          }
+          {
+            Platform.OS == 'ios' && (
+              <RNPickerSelect
+                onValueChange={(type) => this.setState({type})}
+                items={types}
+                style={BasicStyles.pickerStyleIOSNoMargin}
+                placeholder={{
+                  label: 'Click to select',
+                  value: null,
+                  color: Color.primary
+                }}
+                />
+            )
+          }
+        </View>
+        <View>
+          <Text style={{
+            paddingTop: 10
+          }}>Code(Optional)</Text>
+          <TextInput
+            style={BasicStyles.formControlCreate}
+            onChangeText={(code) => this.setState({code})}
+            value={this.state.code}
+            placeholder={'Plate Number, Flight Number, Jeepney Code ...'}
+          />
+        </View>
+        <View style={{
+          position: 'relative',
+          backgroundColor: Color.white,
+          zIndex: 2
+        }}>
+          <Text style={{
+            paddingTop: 10
+          }}>From</Text>
+          <GooglePlacesAutoComplete 
+            onFinish={(from) => this.manageLocation(from)}
+            placeholder={'Start typing location'}
+            onChange={() => this.setState({
+              locationFlag: 'from'
+            })}
+          />
+        </View>
+        <View style={{
+        }}>
+
+          <Text style={{
+            paddingTop: 10
+          }}>From Date</Text>
+          <TouchableHighlight style={{
+                height: 50,
+                backgroundColor: Color.warning,
+                width: '100%',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: 5,
+              }}
+              onPress={() => {this.setState({showDatePicker: true, dateFlag: 'from'})}}
+              underlayColor={Color.gray}
+                >
+              <Text style={{
+                color: Color.white,
+                textAlign: 'center',
+              }}>{this.state.fromDateFlag == false ? 'Click to add' : this.state.fromDateLabel}</Text>
+          </TouchableHighlight>
+        </View>
+        <View style={{
+          position: 'relative',
+          backgroundColor: Color.white,
+          zIndex: 1,
           marginTop: 20
         }}>
-          <TouchableHighlight style={{
-                height: 50,
-                backgroundColor: Color.warning,
-                width: '100%',
-                marginBottom: 20,
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: 5,
-              }}
-              onPress={() => {this.setState({showDatePicker: true})}}
-              underlayColor={Color.gray}
-                >
-              <Text style={{
-                color: Color.white,
-                textAlign: 'center',
-              }}>{this.state.dateFlag == false ? 'Click to add date' : this.state.dateLabel}</Text>
-          </TouchableHighlight>
+          <Text style={{
+            paddingTop: 10
+          }}>To</Text>
+          <GooglePlacesAutoComplete 
+            onFinish={(to) => this.manageLocation(to)}
+            placeholder={'Start typing location'}
+            onChange={() => this.setState({
+              locationFlag: 'to'
+            })}
+          />
         </View>
         <View>
+        <Text style={{
+            paddingTop: 10
+          }}>To Date</Text>
           <TouchableHighlight style={{
                 height: 50,
                 backgroundColor: Color.warning,
                 width: '100%',
-                marginBottom: 20,
                 alignItems: 'center',
                 justifyContent: 'center',
                 borderRadius: 5,
               }}
-              onPress={() => {this.setState({showTimePicker: true})}}
+              onPress={() => {this.setState({showDatePicker: true, dateFlag: 'to'})}}
               underlayColor={Color.gray}
                 >
               <Text style={{
                 color: Color.white,
                 textAlign: 'center',
-              }}>{this.state.timeFlag == false ? 'Click to add time' : this.state.timeLabel}</Text>
-          </TouchableHighlight>
-        </View>
-        <View>
-          <TouchableHighlight style={{
-                height: 50,
-                backgroundColor: Color.warning,
-                width: '100%',
-                marginBottom: 20,
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: 5,
-              }}
-              onPress={() => {this.goToLocation()}}
-              underlayColor={Color.gray}
-                >
-              <Text style={{
-                color: Color.white,
-                textAlign: 'center',
-              }}>Add Location</Text>
+              }}>{this.state.toDateFlag == false ? 'Click to add' : this.state.toDateLabel}</Text>
           </TouchableHighlight>
         </View>
 
@@ -248,6 +357,7 @@ class Ride extends Component{
                 alignItems: 'center',
                 justifyContent: 'center',
                 borderRadius: 5,
+                marginTop: 20
               }}
               onPress={() => {this.submit()}}
               underlayColor={Color.gray}
@@ -265,7 +375,11 @@ class Ride extends Component{
   _data = () => {
     const { data, selected } = this.state;
     return (
-      <View>
+      <View style={{
+        backgroundColor: Color.white,
+        position: 'relative',
+        zIndex: -1
+      }}>
         <FlatList
           data={data}
           extraData={selected}
@@ -275,7 +389,9 @@ class Ride extends Component{
               borderRadius: 5,
               marginBottom: 10,
               borderColor: Color.gray,
-              borderWidth: 1
+              borderWidth: 1,
+              position: 'relative',
+              zIndex: -1
             }}>
               <TouchableHighlight
                 onPress={() => {console.log('hello list')}}
@@ -324,7 +440,7 @@ class Ride extends Component{
                           paddingLeft: 10,
                           paddingRight: 10
                         }}>
-                          There was a PUI in this area.
+                          There was a death in this route.
                         </Text>
                       </View>
                     )
@@ -347,7 +463,7 @@ class Ride extends Component{
                           paddingLeft: 10,
                           paddingRight: 10
                         }}>
-                          There was a COVID Positve in this area.
+                          There was a COVID Positve in this route.
                         </Text>
                       </View>
                     )
@@ -369,7 +485,7 @@ class Ride extends Component{
                           paddingLeft: 10,
                           paddingRight: 10
                         }}>
-                          There was a PUM in this area.
+                          There was a PUM in this route.
                         </Text>
                       </View>
                     )
@@ -392,7 +508,7 @@ class Ride extends Component{
                           paddingLeft: 10,
                           paddingRight: 10
                         }}>
-                          There was a PUI in this area.
+                          There was a PUI in this route.
                         </Text>
                       </View>
                     )
@@ -414,7 +530,7 @@ class Ride extends Component{
                           paddingLeft: 10,
                           paddingRight: 10
                         }}>
-                          There was a PUI in this area.
+                          This route is clear.
                         </Text>
                       </View>
                     )
@@ -488,7 +604,6 @@ class Ride extends Component{
         }
         {isLoading ? <Spinner mode="overlay"/> : null }
         {this._datePicker()}
-        {this._timePicker()}
       </ScrollView>
     );
   }
