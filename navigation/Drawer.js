@@ -13,6 +13,7 @@ import Temperature from 'modules/temperature';
 import Ride from 'modules/ride';
 import Profile from 'modules/profile';
 import GenerateQR from 'modules/generateQR';
+import ScanQR from 'modules/scanQR';
 import OptionRight from './OptionRight';
 class MenuDrawerStructure extends Component {
   constructor(props){
@@ -145,6 +146,21 @@ const GenQR_StackNavigator = createStackNavigator({
   },
 });
 
+const ScanQR_StackNavigator = createStackNavigator({
+  Profile: {
+    screen: ScanQR,
+    navigationOptions: ({ navigation }) => ({
+      title: 'Scan QR',
+      headerLeft: <MenuDrawerStructure navigationProps={navigation} />,
+      headerRight: <OptionRight navigationProps={navigation} />,
+      headerStyle: {
+        backgroundColor: Color.primary,
+      },
+      headerTintColor: '#fff',
+    }),
+  },
+});
+
 
 const Drawer = createDrawerNavigator({
   Dashboard: {
@@ -187,6 +203,13 @@ const Drawer = createDrawerNavigator({
     screen: GenQR_StackNavigator,
     navigationOptions: {
       drawerLabel: 'Generate QR',
+    },
+  },
+
+  ScanQR: {
+    screen: ScanQR_StackNavigator,
+    navigationOptions: {
+      drawerLabel: 'Scan QR',
     },
   },
   
