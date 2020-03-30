@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import Style from './Style.js';
 import { View, Image, TouchableHighlight, Text, ScrollView, FlatList, TextInput, Picker, Platform} from 'react-native';
 import { Routes, Color, Helper, BasicStyles } from 'common';
-import { Spinner, ImageUpload, GooglePlacesAutoComplete } from 'components';
+import { Spinner, ImageUpload, GooglePlacesAutoComplete, DateTime } from 'components';
 import Api from 'services/api/index.js';
 import Currency from 'services/Currency.js';
 import { connect } from 'react-redux';
@@ -19,13 +19,8 @@ class Ride extends Component{
     this.state = {
       isLoading: false,
       newDataFlag: false,
-      showDatePicker: false,
-      fromDateLabel: null,
-      fromDateFlag: false,
-      fromDate: new Date(),
-      toDateLabel: null,
-      toDateFlag: false,
-      toDate: new Date(),
+      fromDate: null,
+      toDate: null,
       from: null,
       to: null,
       data: null,
@@ -146,60 +141,6 @@ class Ride extends Component{
     }
   }
 
-  getTime = (date) => {
-    let hours = date.getHours() % 12 || 12
-    return hours + ':' + date.getMinutes() + ' ' + (date.getHours() > 12 ? 'PM' : 'AM')
-  }
-
-  getTimeTz = (date) => {
-    return date.getFullYear() + '-' + date.getMonth() + '-' + date.getDate() + ' ' + date.getHours() + ':' + date.getMinutes() + ':00'
-  }
-
-  setDate = (event, date) => {
-    const { dateFlag } = this.state;
-    if(dateFlag == 'from'){
-      this.setState({
-        showDatePicker: false,
-        fromDateFlag: true,
-        fromDate: this.getTimeTz(date),
-        fromDateLabel: Currency.getMonth(date.getMonth()) + ' ' + date.getDate() + ', ' + date.getFullYear() + ' ' + this.getTime(date)
-      });
-    }else if(dateFlag == 'to'){
-      this.setState({
-        showDatePicker: false,
-        toDateFlag: true,
-        toDate: this.getTimeTz(date),
-        toDateLabel: Currency.getMonth(date.getMonth()) + ' ' + date.getDate() + ', ' + date.getFullYear() + ' ' + this.getTime(date)
-      });
-    }
-  }
-
-  _datePicker = () => {
-    const { showDatePicker } = this.state;
-    return (
-      <View>
-        { 
-          (showDatePicker && Platform.OS == 'ios') && <DateTimePicker value={new Date()}
-            mode={'datetime'}
-            display="default"
-            date={new Date()}
-            onCancel={() => this.setState({showDatePicker: false})}
-            onConfirm={this.setDate} 
-            onChange={this.setDate} />
-        }
-        { 
-          (showDatePicker && Platform.OS == 'android') && <DateTimePicker value={new Date()}
-            mode={'date'}
-            display="default"
-            date={new Date()}
-            onCancel={() => this.setState({showDatePicker: false})}
-            onConfirm={this.setDate} 
-            onChange={this.setDate} />
-        }
-      </View>
-    );
-  }
-
   _newData = () => {
     const types = Helper.transportationTypes.map((item, index) => {
       return {
@@ -286,28 +227,22 @@ class Ride extends Component{
             })}
           />
         </View>
-        <View style={{
-        }}>
-
+        <View>
           <Text style={{
             paddingTop: 10
           }}>From Date</Text>
-          <TouchableHighlight style={{
-                height: 50,
-                backgroundColor: Color.warning,
-                width: '100%',
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: 5,
-              }}
-              onPress={() => {this.setState({showDatePicker: true, dateFlag: 'from'})}}
-              underlayColor={Color.gray}
-                >
-              <Text style={{
-                color: Color.white,
-                textAlign: 'center',
-              }}>{this.state.fromDateFlag == false ? 'Click to add' : this.state.fromDateLabel}</Text>
-          </TouchableHighlight>
+          <DateTime
+            type={'datetime'}
+            placeholder={'Select Date'}
+            onFinish={(date) => {
+              this.setState({
+                fromDate: date.date + ' ' + date.time
+              })
+            }}
+            style={{
+              marginTop: 5
+            }}
+          />
         </View>
         <View style={{
           position: 'relative',
@@ -327,25 +262,21 @@ class Ride extends Component{
           />
         </View>
         <View>
-        <Text style={{
+          <Text style={{
             paddingTop: 10
           }}>To Date</Text>
-          <TouchableHighlight style={{
-                height: 50,
-                backgroundColor: Color.warning,
-                width: '100%',
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: 5,
-              }}
-              onPress={() => {this.setState({showDatePicker: true, dateFlag: 'to'})}}
-              underlayColor={Color.gray}
-                >
-              <Text style={{
-                color: Color.white,
-                textAlign: 'center',
-              }}>{this.state.toDateFlag == false ? 'Click to add' : this.state.toDateLabel}</Text>
-          </TouchableHighlight>
+          <DateTime
+            type={'datetime'}
+            placeholder={'Select Date'}
+            onFinish={(date) => {
+              this.setState({
+                toDate: date.date + ' ' + date.time
+              })
+            }}
+            style={{
+              marginTop: 5
+            }}
+          />
         </View>
 
         <View>
@@ -587,6 +518,7 @@ class Ride extends Component{
               onPress={() => {
                 this.setState({newDataFlag: true})
               }}
+              
             >
               <Text style={{
                 color: Color.white
@@ -603,7 +535,6 @@ class Ride extends Component{
           data !== null && (this._data())
         }
         {isLoading ? <Spinner mode="overlay"/> : null }
-        {this._datePicker()}
       </ScrollView>
     );
   }

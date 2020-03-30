@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import Style from './Style.js';
 import { View, Image, TouchableHighlight, Text, ScrollView, FlatList, TextInput, Picker, Platform} from 'react-native';
 import { Routes, Color, Helper, BasicStyles } from 'common';
-import { Spinner, ImageUpload, GooglePlacesAutoComplete } from 'components';
+import { Spinner, ImageUpload, GooglePlacesAutoComplete, DateTime } from 'components';
 import Api from 'services/api/index.js';
 import Currency from 'services/Currency.js';
 import { connect } from 'react-redux';
@@ -19,11 +19,7 @@ class Place extends Component{
     this.state = {
       isLoading: false,
       newPlaceFlag: false,
-      showDatePicker: false,
-      dateLabel: null,
-      dateFlag: false,
-      date: new Date(),
-      data: null,
+      date: null,
       time: null,
       selected: null,
       errorMessage: null,
@@ -119,41 +115,6 @@ class Place extends Component{
     // this.setState({newPlaceFlag: false})
   }
 
-  setDate = (event, date) => {
-    this.setState({
-      showDatePicker: false,
-      dateFlag: true,
-      date: date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate(),
-      time: date.getHours() + ':' + date.getMinutes(),
-      dateLabel: Currency.getMonth(date.getMonth()) + ' ' + date.getDate() + ', ' + date.getFullYear()
-    });
-    console.log(this.state.date + '/' + this.state.time);
-  }
-
-  _datePicker = () => {
-    const { showDatePicker, date } = this.state;
-    return (
-      <View>
-        { (showDatePicker && Platform.OS == 'ios') && <DateTimePicker value={new Date()}
-            mode={'datetime'}
-            display="default"
-            date={new Date()}
-            onCancel={() => this.setState({showDatePicker: false})}
-            onConfirm={this.setDate} 
-            onChange={this.setDate} />
-        }
-        { (showDatePicker && Platform.OS == 'android') && <DateTimePicker value={new Date()}
-            mode={'datetime'}
-            display="default"
-            date={new Date()}
-            onCancel={() => this.setState({showDatePicker: false})}
-            onConfirm={this.setDate} 
-            onChange={this.setDate} />
-        }
-      </View>
-    );
-  }
-
   _newPlace = () => {
     return (
       <View>
@@ -169,26 +130,18 @@ class Place extends Component{
             </View>
           )
         }
-        <View style={{
-          marginTop: 20
-        }}>
-          <TouchableHighlight style={{
-                height: 50,
-                backgroundColor: Color.warning,
-                width: '100%',
-                marginBottom: 20,
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: 5,
-              }}
-              onPress={() => {this.setState({showDatePicker: true})}}
-              underlayColor={Color.gray}
-                >
-              <Text style={{
-                color: Color.white,
-                textAlign: 'center',
-              }}>{this.state.dateFlag == false ? 'Click to add date' : this.state.dateLabel + ' ' + this.state.time}</Text>
-          </TouchableHighlight>
+
+        <View>
+          <DateTime
+            type={'datetime'}
+            placeholder={'Select Date'}
+            onFinish={(date) => {
+              this.setState({
+                date: date.date,
+                time: date.time
+              })
+            }}
+          />
         </View>
         <View style={{
           position: 'relative',
@@ -198,6 +151,7 @@ class Place extends Component{
           <GooglePlacesAutoComplete 
             onFinish={(location) => this.manageLocation(location)}
             placeholder={'Start typing location'}
+            onChange={() => {}}
           />
         </View>
 
@@ -451,7 +405,6 @@ class Place extends Component{
           data !== null && (this._places())
         }
         {isLoading ? <Spinner mode="overlay"/> : null }
-        {this._datePicker()}
       </ScrollView>
     );
   }
