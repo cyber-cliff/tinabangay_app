@@ -21,5 +21,6 @@ export default {
   temperaturesRetrieve: apiUrl + 'temperatures/retrieve',
   patientsCreate: apiUrl + 'patients/create',
   ridesRetrieve: apiUrl + 'rides/retrieve',
-  ridesCreate: apiUrl + 'rides/create'
+  ridesCreate: apiUrl + 'rides/create',
+  tracingPlaces: apiUrl + 'tracing_places/places'
 }
