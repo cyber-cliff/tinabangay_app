@@ -22,6 +22,14 @@ export default {
   }, {
     title: 'Profile',
     route: 'Profile'
+  },
+  {
+    title: 'Generate QR',
+    route: 'GenerateQR'
+  },
+  {
+    title: 'Scan QR',
+    route: 'ScanQR'
   }],
   pusher: {
     broadcast_type: 'pusher',
