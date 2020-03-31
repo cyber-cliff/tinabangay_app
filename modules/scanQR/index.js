@@ -61,8 +61,7 @@ class ScanQR extends Component {
   }
 
   componentDidMount(){
-    this.retrieve()
-    
+    this.retrieve() 
   }
 
   

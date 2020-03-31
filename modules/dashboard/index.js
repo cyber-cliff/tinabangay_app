@@ -10,7 +10,7 @@ import { connect } from 'react-redux';
 import { Dimensions } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import ViewMap from 'modules/checkMap';
-import DisplayScan from 'modules/scanQR';
+import DisplayScan from 'modules/scanQR/Scanner.js';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faUserCircle, faMapMarker, faUniversity, faKaaba } from '@fortawesome/free-solid-svg-icons';
 const width = Math.round(Dimensions.get('window').width);
@@ -61,6 +61,15 @@ class Dashboard extends Component{
 
   redirect = (route) => {
     this.props.navigation.navigate(route)
+  }
+
+  manageScannedData = (data) => {
+    this.setState({
+      showScanner: false
+    })
+    if(data != null){
+      this.redirect('scannedUserStack')
+    }
   }
   
   FlatListItemSeparator = () => {
@@ -414,12 +423,10 @@ class Dashboard extends Component{
             )
           }
           {
-            (data != null &&this.state.showScanner)&&(
+            (data != null && this.state.showScanner)&&(
               <DisplayScan
               visible={this.state.showScanner}
-              close={() => this.setState({
-                showScanner: false
-              })}
+              close={(data) => this.manageScannedData(data)}
              >
               </DisplayScan>
             )

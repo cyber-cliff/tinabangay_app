@@ -1,0 +1,312 @@
+import React, { Component } from 'react';
+import Style from './Style.js';
+import { View, Image, TouchableHighlight, Text, ScrollView, FlatList, TextInput, Picker, Platform} from 'react-native';
+import { Routes, Color, Helper, BasicStyles } from 'common';
+import { Spinner, Empty, ImageUpload, GooglePlacesAutoComplete, DateTime } from 'components';
+import Api from 'services/api/index.js';
+import Currency from 'services/Currency.js';
+import { connect } from 'react-redux';
+import Config from 'src/config.js';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faUserCircle, faMapMarker } from '@fortawesome/free-solid-svg-icons';
+import { Dimensions } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import RNPickerSelect from 'react-native-picker-select';
+import ScannedUserPlaces from 'modules/place/places.js';
+import ScannedUserRides from 'modules/ride/rides.js';
+import ScannedUserTemperatures from 'modules/temperature/temperatures.js';
+const height = Math.round(Dimensions.get('window').height);
+class ScannedUser extends Component{
+  constructor(props){
+    super(props);
+    this.state = {
+      isLoading: false,
+      activePage: 'places'
+    }
+  }
+
+  componentDidMount(){
+  }
+
+  _agentOption = () => {
+    const { user } = this.props.state;
+    return (
+      <View>
+        <View style={{
+          flexDirection: 'row'
+        }}>
+        {
+          (user.account_type == 'AGENCY' || user.account_type == 'AGENCY_LEVEL_1' || user.account_type == 'ADMIN') && (
+            <TouchableHighlight style={{
+                height: 50,
+                backgroundColor: Color.primary,
+                width: '49%',
+                marginBottom: 20,
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: 5,
+                marginTop: 20
+              }}
+              onPress={() => {this.submit()}}
+              underlayColor={Color.gray}
+                >
+              <Text style={{
+                color: Color.white,
+                textAlign: 'center',
+              }}>Add Temperature</Text>
+            </TouchableHighlight>
+          )
+        }
+          {
+            (user.account_type == 'AGENCY_LEVEL_1' || user.account_type == 'ADMIN') && (
+              <TouchableHighlight style={{
+                  height: 50,
+                  backgroundColor: Color.primary,
+                  width: '49%',
+                  marginBottom: 20,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: 5,
+                  marginTop: 20,
+                  marginLeft: '1%'
+                }}
+                onPress={() => {this.submit()}}
+                underlayColor={Color.gray}
+                  >
+                <Text style={{
+                  color: Color.white,
+                  textAlign: 'center',
+                }}>Add Patient</Text>
+              </TouchableHighlight>
+
+            )
+          }
+        </View>
+      </View>
+
+    );
+  }
+
+  _userHistory = () => {
+    const { user } = this.props.state;
+    return (
+      <View>
+        <View style={{
+          flexDirection: 'row'
+        }}>
+          <TouchableHighlight style={{
+                height: 50,
+                backgroundColor: this.state.activePage == 'places' ? 'green' : Color.gray,
+                width: '32%',
+                marginBottom: 20,
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: 5,
+                marginTop: 20
+              }}
+              onPress={() => {this.setState({
+                activePage: 'places'
+              })}}
+              underlayColor={Color.gray}
+                >
+              <Text style={{
+                color: Color.white,
+                textAlign: 'center',
+              }}>Places</Text>
+          </TouchableHighlight>
+          <TouchableHighlight style={{
+                height: 50,
+                backgroundColor: this.state.activePage == 'rides' ? 'green' : Color.gray,
+                width: '32%',
+                marginBottom: 20,
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: 5,
+                marginTop: 20,
+                marginLeft: '1%'
+              }}
+              onPress={() => {this.setState({
+                activePage: 'rides'
+              })}}
+              underlayColor={Color.gray}
+                >
+              <Text style={{
+                color: Color.white,
+                textAlign: 'center',
+              }}>Rides</Text>
+          </TouchableHighlight>
+          <TouchableHighlight style={{
+                height: 50,
+                backgroundColor: this.state.activePage == 'temperatures' ? 'green' : Color.gray,
+                width: '32%',
+                marginBottom: 20,
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: 5,
+                marginTop: 20,
+                marginLeft: '1%'
+              }}
+              onPress={() => {this.setState({
+                activePage: 'temperatures'
+              })}}
+              underlayColor={Color.gray}
+                >
+              <Text style={{
+                color: Color.white,
+                textAlign: 'center',
+              }}>Temperature</Text>
+          </TouchableHighlight>
+        </View>
+      </View>
+    ); 
+  }
+
+  _places = () => {
+    return(
+      <View>
+        <ScannedUserPlaces />
+      </View>
+    );
+  }
+
+  _rides = () => {
+    return(
+      <View>
+        <ScannedUserRides />
+      </View>
+    );
+  }
+
+  _temperatures = () => {
+    return(
+      <View>
+        <ScannedUserTemperatures />
+      </View>
+    );
+  }
+
+  _userInfo = (scannedUser) => {
+    return (
+      <View>
+        <View>
+          <Text style={{
+            fontWeight: 'bold'
+          }}>User Information</Text>
+        </View>
+        <View style={{
+          alignItems: 'center'
+        }}>
+        {
+          scannedUser.profile != null && scannedUser.profile.url != null && (
+            <Image
+              source={{uri: Config.BACKEND_URL  + scannedUser.profile.url}}
+              style={150}/>
+          )
+        }
+        {
+          (scannedUser.profile == null || (scannedUser.profile != null && scannedUser.profile.url == null)) && (
+            <FontAwesomeIcon
+              icon={faUserCircle}
+              size={150}
+              style={{
+                color: this.props.color ? this.props.color : Color.primary
+              }}
+            />
+          )
+        }
+        </View>
+        <View style={{
+          alignItems: 'center'
+        }}>
+          {
+            (scannedUser.account_information.first_name != null && scannedUser.account_information.last_name != null) && (
+              <Text style={{
+                fontWeight: 'bold'
+              }}>
+                {
+                  scannedUser.account_information.first_name + ' ' + scannedUser.account_information.last_name
+                }
+              </Text>
+            )
+          }
+          {
+            (scannedUser.account_information.first_name == null || scannedUser.account_information.last_name == null) && (
+              <Text style={{
+                fontWeight: 'bold'
+              }}>
+                {
+                  scannedUser.username
+                }
+              </Text>
+            )
+          }
+        </View>
+      </View>
+    );
+  }
+
+  render() {
+    const { user, scannedUser } = this.props.state;
+    const { isLoading} = this.state;
+    return (
+      <ScrollView
+        style={Style.ScrollView}
+        onScroll={(event) => {
+          if(event.nativeEvent.contentOffset.y <= 0) {
+          }
+        }}
+        >
+        {isLoading ? <Spinner mode="overlay"/> : null }
+        {
+          scannedUser == null && (
+            <View
+              style={{
+                justifyContent: 'center',
+                alignItems: 'center'
+              }}>
+              <Text style={{
+                color: Color.danger
+              }}>Invalid Accessed!</Text>
+            </View>
+          )
+        }
+        {
+          scannedUser != null && (this._agentOption())
+        }
+        {
+          scannedUser !== null && (this._userInfo(scannedUser))
+        }
+        {
+          scannedUser !== null && (this._userHistory())
+        }
+        {
+          this.state.activePage == 'places' && (
+            this._places()
+          )
+        }
+        {
+          this.state.activePage == 'rides' && (
+            this._rides()
+          )
+        }
+        {
+          this.state.activePage == 'temperatures' && (
+            this._temperatures()
+          )
+        }
+      </ScrollView>
+    );
+  }
+}
+const mapStateToProps = state => ({ state: state });
+
+const mapDispatchToProps = dispatch => {
+  const { actions } = require('@redux');
+  return {
+  };
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(ScannedUser);
