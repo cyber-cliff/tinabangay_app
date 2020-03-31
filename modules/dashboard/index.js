@@ -9,6 +9,7 @@ import {NavigationActions} from 'react-navigation';
 import { connect } from 'react-redux';
 import { Dimensions } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
+import ViewMap from 'modules/checkMap';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faUserCircle, faMapMarker, faUniversity } from '@fortawesome/free-solid-svg-icons';
 const width = Math.round(Dimensions.get('window').width);
@@ -19,7 +20,8 @@ class Dashboard extends Component{
     this.state = {
       isLoading: false,
       selected: null,
-      data: null
+      data: null,
+      showMapFlag: false
     }
   }
 
@@ -96,7 +98,9 @@ class Dashboard extends Component{
                 justifyContent: 'center',
                 borderRadius: 5
               }}
-              onPress={() => {}}
+              onPress={() => {this.setState({
+                showMapFlag: true
+              })}}
               underlayColor={Color.gray}
                 >
               <Text style={{
@@ -390,10 +394,21 @@ class Dashboard extends Component{
           }
         }}
         >
-        {isLoading ? <Spinner mode="overlay"/> : null }
         <View style={[Style.MainContainer, {
           minHeight: height
         }]}>
+          {isLoading ? <Spinner mode="overlay"/> : null }
+          {
+            (data != null && this.state.showMapFlag)&& (
+              <ViewMap 
+                visible={this.state.showMapFlag}
+                data={this.state.data}
+                close={() => this.setState({
+                  showMapFlag: false
+                })}
+              />
+            )
+          }
           <View style={Style.MainContainer}>
             {user != null && (this._qrCode())}
             {data != null && (this._data())}

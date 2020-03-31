@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { View,StyleSheet,AppRegistry,Text} from 'react-native';
-import { Routes} from 'common';
+import { View,StyleSheet,AppRegistry,Text, Modal, TouchableOpacity} from 'react-native';
+import { Routes, Color} from 'common';
 import QRCode from 'react-native-qrcode-svg';
 import Api from 'services/api/index.js';
 import { connect } from 'react-redux';
@@ -9,92 +9,100 @@ class CheckMap extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      data:[],
       isLoading: false,
-      scannedId:null,  
       errorMessage: null,
-      id:'',
-      latitude:''
-
+      region: null
     };
   }
 
-  componentDidMount(){
-    this.retrieve()
+  _mapView = () => {
+    const { data } = this.props;
+    return (
+      <View style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        justifyContent: 'flex-end',
+        alignItems: 'center',
+      }}>
+         <MapView
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+          }}
+          provider={PROVIDER_GOOGLE}
+          initialRegion={{
+            latitude: parseFloat(data[0].latitude),
+            longitude: parseFloat(data[0].longitude),
+            latitudeDelta: 0.0922,
+            longitudeDelta: 0.0421,
+          }}
+          >
+          {data.map((item, index) => (
+            <Marker
+              coordinate={{
+                longitude: parseFloat(item.longitude),
+                latitude: parseFloat(item.latitude),
+                latitudeDelta: 0.0922,
+                longitudeDelta: 0.0421,
+              }}
+              title={item.route + ', ' + item.locality + ', ' + item.country}
+            />
+          ))}
+        </MapView>
+      </View>
+    );
   }
-
-
-  retrieve = () => {
-    let parameter = {
-      status: 'positive'
-    }
-    console.log('hi')
-    this.setState({
-      isLoading: true
-    })
-    Api.request(Routes.tracingPlaces, parameter, response => {
-      this.setState({
-        isLoading: false
-      })
-      
-      if(response.data.length > 0){
-        
-        this.setState({
-          data: response.data
-        })
-      }else{
-        this.setState({
-          data: []
-        })
-      }
-    });
-    
+  _modal = () => {
+    return (
+      <View style={{
+        backgroundColor: Color.secondary
+      }}>
+        <Modal isVisible={this.props.visible} style={{
+          padding: 0,
+          margin: 0,
+          position: 'relative'
+        }}>
+          {this._mapView()}
+          <View style={{
+            width: 200,
+            position: 'absolute',
+            top: 10,
+            right: 10
+          }}>
+            <TouchableOpacity
+              onPress={() => this.props.close()} 
+              style={[{
+                alignItems: 'center',
+                justifyContent: 'center',
+                height: 40,
+                borderRadius: 5
+              }, {
+                width: '25%',
+                backgroundColor: Color.danger
+              }]}
+              >
+              <Text style={{
+                color: Color.white,
+                textAlign: 'center'
+              }}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </Modal>
+      </View>
+    );
   }
 
   render() {
-    
-   const data=this.state
-   
-   
-
+    const data=this.state
     return (
       <View style={styles.container}>
-   <MapView
-   style={styles.map}
-   provider={PROVIDER_GOOGLE}
-    initialRegion={{
-      latitude: 10.3167,
-      longitude: 123.8878,
-      latitudeDelta: 0.0922,
-      longitudeDelta: 0.0421,
-    }}
-  >
-    {this.state.data.map((item,index) => 
-    
-    <Marker
-   
-      coordinate={{
-        latitude:parseFloat(item.latitude),
-        longitude:parseFloat(item.longitude)
-      }}
-      description={"hello"}
-    
-    >
-      <Callout>
-        <Text>DEATH: {item.death_size}</Text>
-        <Text>POSITIVE: {item.positive_size}</Text>
-        <Text>PUI: {item.pui_size}</Text>
-        <Text>PUM: {item.pum_size}</Text>
-        <Text>NEGATIVE: {item.negative_size}</Text>
-        <Text>ROUTE: {item.route}</Text>
-      </Callout>
-    </Marker>
-    )}
-
-
-
-  </MapView>
-         
+        {this._modal()}
       </View>
     );
   }
