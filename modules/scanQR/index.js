@@ -55,6 +55,7 @@ class ScanQR extends Component {
       data:null,
       dataTemp:null,
       dataLoc:null,
+      dataRide:[],
 
     };
   }
@@ -617,6 +618,64 @@ _places = () => {
 
   onRead=e=>{
     // this.setState({qr:e.data});
+    // let parameter = {
+    //   condition: [{
+    //     value: e.data,
+    //     clause: '=',
+    //     column: 'username'
+    //   }]
+    // }
+    // Api.request(Routes.accountRetrieve, parameter, response => {
+    //   if(response.data.length > 0){
+    //       console.log(response)
+    //       this.setState({scannedId:response.data[0].id})
+    //       this.retrieveLoc(response.data[0].id)
+    //       this.retrieveTemp(response.data[0].id)
+          
+    //   }
+    // }, error => {
+    //   this.setState({isResponseError: true})
+    // })
+    
+
+    // console.log(this.state.scannedId)
+    
+    // this.setState({isModalVisible:true})
+    console.log("Not User!")
+  }
+
+  retrieveRide = () => {
+    const { user } = this.props.state;
+    if(user === null){
+      return
+    }
+    let parameter = {
+      condition: [{
+        value: this.state.scannedId,
+        clause: '=',
+        column: 'account_id'
+      }]
+    }
+    this.setState({
+      isLoading: true, 
+      showDatePicker: false,
+      showTimePicker: false
+    })
+    Api.request(Routes.ridesRetrieve, parameter, response => {
+      console.log(response.data)
+      this.setState({isLoading: false})
+      if(response.data.length > 0){
+        this.setState({dataRide: response.data})
+      }else{
+        this.setState({dataRide: null})
+      }
+    }, error => {
+      this.setState({isLoading: false})
+      console.log(error)
+    });
+  }
+  onReadUserType=e=>{
+   this.setState({qr:e.data});
     let parameter = {
       condition: [{
         value: e.data,
@@ -628,8 +687,7 @@ _places = () => {
       if(response.data.length > 0){
           console.log(response)
           this.setState({scannedId:response.data[0].id})
-          this.retrieveLoc(response.data[0].id)
-          this.retrieveTemp(response.data[0].id)
+          this.retrieveRide()
           
       }
     }, error => {
@@ -640,8 +698,183 @@ _places = () => {
     console.log(this.state.scannedId)
     
     this.setState({isModalVisible:true})
+    console.log("User!")
   }
 
+  _dataRide = () => {
+    const { dataRide, selected } = this.state;
+    return (
+      <View style={{
+        backgroundColor: Color.white,
+        position: 'relative',
+        zIndex: -1
+      }}>
+        <FlatList
+          data={dataRide}
+          extraData={selected}
+          ItemSeparatorComponent={this.FlatListItemSeparator}
+          renderItem={({ item, index }) => (
+            <View style={{
+              borderRadius: 5,
+              marginBottom: 10,
+              borderColor: Color.gray,
+              borderWidth: 1,
+              position: 'relative',
+              zIndex: -1
+            }}>
+              <TouchableHighlight
+                onPress={() => {console.log('hello list')}}
+                underlayColor={Color.gray}
+                >
+                <View style={Style.TextContainer}>
+                  <View style={{
+                    flexDirection: 'row'
+                  }}>
+                    <Text
+                      style={[BasicStyles.titleText, {
+                        paddingTop: 10,
+                        fontWeight: 'bold',
+                        color: Color.primary
+                      }]}>
+                      {item.code ? item.code: ''} {item.type}
+                    </Text>
+                  </View>
+                  <Text
+                    style={[BasicStyles.normalText, {
+                      paddingTop: 10,
+                      color: Color.darkGray
+                    }]}>
+                    {item.from} - {item.to}
+                  </Text>
+                  <Text
+                    style={[BasicStyles.normalText, {
+                      color: Color.darkGray
+                    }]}>
+                    {item.from_date_human} - {item.to_date_human}
+                  </Text>
+                  {
+                    item.status == 'death' && (
+                      <View style={{
+                        backgroundColor: 'black',
+                        borderRadius: 2,
+                        marginRight: 20,
+                        marginLeft: 20,
+                        marginBottom: 10,
+                        marginTop: 10
+                      }}>
+                        <Text style={{
+                          color: Color.white,
+                          paddingTop: 2,
+                          paddingBottom: 2,
+                          paddingLeft: 10,
+                          paddingRight: 10
+                        }}>
+                          There was a death in this route.
+                        </Text>
+                      </View>
+                    )
+                  }
+
+                  {
+                    item.status == 'positive' && (
+                      <View style={{
+                        backgroundColor: Color.danger,
+                        borderRadius: 2,
+                        marginRight: 20,
+                        marginLeft: 20,
+                        marginBottom: 10,
+                        marginTop: 10
+                      }}>
+                        <Text style={{
+                          color: Color.white,
+                          paddingTop: 2,
+                          paddingBottom: 2,
+                          paddingLeft: 10,
+                          paddingRight: 10
+                        }}>
+                          There was a COVID Positve in this route.
+                        </Text>
+                      </View>
+                    )
+                  }
+                  {
+                    item.status == 'pum' && (
+                      <View style={{
+                        backgroundColor: Color.warning,
+                        borderRadius: 2,
+                        marginRight: 20,
+                        marginLeft: 20,
+                        marginBottom: 10,
+                        marginTop: 10
+                      }}>
+                        <Text style={{
+                          color: Color.white,
+                          paddingTop: 2,
+                          paddingBottom: 2,
+                          paddingLeft: 10,
+                          paddingRight: 10
+                        }}>
+                          There was a PUM in this route.
+                        </Text>
+                      </View>
+                    )
+                  }
+
+                  {
+                    item.status == 'pui' && (
+                      <View style={{
+                        backgroundColor: Color.primary,
+                        borderRadius: 2,
+                        marginRight: 20,
+                        marginLeft: 20,
+                        marginBottom: 10,
+                        marginTop: 10
+                      }}>
+                        <Text style={{
+                          color: Color.white,
+                          paddingTop: 2,
+                          paddingBottom: 2,
+                          paddingLeft: 10,
+                          paddingRight: 10
+                        }}>
+                          There was a PUI in this route.
+                        </Text>
+                      </View>
+                    )
+                  }
+                  {
+                    item.status == 'negative' && (
+                      <View style={{
+                        backgroundColor: 'green',
+                        borderRadius: 2,
+                        marginRight: 20,
+                        marginLeft: 20,
+                        marginBottom: 10,
+                        marginTop: 10
+                      }}>
+                        <Text style={{
+                          color: Color.white,
+                          paddingTop: 2,
+                          paddingBottom: 2,
+                          paddingLeft: 10,
+                          paddingRight: 10
+                        }}>
+                          This route is clear.
+                        </Text>
+                      </View>
+                    )
+                  }
+
+                  
+                </View>
+              </TouchableHighlight>
+            </View>
+          )}
+          keyExtractor={(item, index) => index.toString()}
+        />
+      </View>
+    );
+  }
 
   changeTemp=(values)=>{
     console.log(this.state.scannedId)
@@ -840,7 +1073,7 @@ _displayUserInfo=()=>{
       <View style={styles.MainContainer}>
       <QRCodeScanner
         ref={(node) => { this.scanner = node }}
-        onRead={this.onRead}
+        onRead={this.props.state.user.account_type==="USER"? this.onReadUserType : this.onRead}
         reactivateTimeout={8000}
        
       />
@@ -866,7 +1099,7 @@ _displayUserInfo=()=>{
           </Text>{this._places()}
           </React.Fragment>}
           </View>  :
-          this.props.state.user.account_type==="USER"?<View><Text>User</Text><Text>{this.props.state.user.username}</Text></View> :
+          this.props.state.user.account_type==="USER"?<View><Text>User</Text>{this._dataRide()}</View> :
           <React.Fragment>
           {this.state.displayScan ?  
           this._TempStatusInput() : 

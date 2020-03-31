@@ -126,6 +126,7 @@ class Ride extends Component{
       this.setState({isLoading: false})
     });
     // this.setState({newPlaceFlag: false})
+    console.log("hello")
   }
 
   manageLocation = (location) => {
