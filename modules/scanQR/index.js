@@ -55,6 +55,7 @@ class ScanQR extends Component {
       data:null,
       dataTemp:null,
       dataLoc:null,
+      dataRide:[],
 
     };
   }
@@ -616,7 +617,7 @@ _places = () => {
 
 
   onRead=e=>{
-    // this.setState({qr:e.data});
+    this.setState({qr:e.data});
     let parameter = {
       condition: [{
         value: e.data,
@@ -640,8 +641,240 @@ _places = () => {
     console.log(this.state.scannedId)
     
     this.setState({isModalVisible:true})
+    console.log("Not User!")
   }
 
+  retrieveRide = () => {
+    const { user } = this.props.state;
+    if(user === null){
+      return
+    }
+    let parameter = {
+      condition: [{
+        value: this.state.scannedId,
+        clause: '=',
+        column: 'account_id'
+      }]
+    }
+    this.setState({
+      isLoading: true, 
+      showDatePicker: false,
+      showTimePicker: false
+    })
+    Api.request(Routes.ridesRetrieve, parameter, response => {
+      console.log(response.data)
+      this.setState({isLoading: false})
+      if(response.data.length > 0){
+        this.setState({dataRide: response.data})
+      }else{
+        this.setState({dataRide: null})
+      }
+    }, error => {
+      this.setState({isLoading: false})
+      console.log(error)
+    });
+  }
+  onReadUserType=e=>{
+   this.setState({qr:e.data});
+    let parameter = {
+      condition: [{
+        value: e.data,
+        clause: '=',
+        column: 'username'
+      }]
+    }
+    Api.request(Routes.accountRetrieve, parameter, response => {
+      if(response.data.length > 0){
+          console.log(response)
+          this.setState({scannedId:response.data[0].id})
+          this.retrieveRide()
+          
+      }
+    }, error => {
+      this.setState({isResponseError: true})
+    })
+    
+
+    console.log(this.state.scannedId)
+    
+    this.setState({isModalVisible:true})
+    console.log("User!")
+  }
+
+  _dataRide = () => {
+    const { dataRide, selected } = this.state;
+    return (
+      <View style={{
+        backgroundColor: Color.white,
+        position: 'relative',
+        zIndex: -1
+      }}>
+        <FlatList
+          data={dataRide}
+          extraData={selected}
+          ItemSeparatorComponent={this.FlatListItemSeparator}
+          renderItem={({ item, index }) => (
+            <View style={{
+              borderRadius: 5,
+              marginBottom: 10,
+              borderColor: Color.gray,
+              borderWidth: 1,
+              position: 'relative',
+              zIndex: -1
+            }}>
+              <TouchableHighlight
+                onPress={() => {console.log('hello list')}}
+                underlayColor={Color.gray}
+                >
+                <View style={Style.TextContainer}>
+                  <View style={{
+                    flexDirection: 'row'
+                  }}>
+                    <Text
+                      style={[BasicStyles.titleText, {
+                        paddingTop: 10,
+                        fontWeight: 'bold',
+                        color: Color.primary
+                      }]}>
+                      {item.code ? item.code: ''} {item.type}
+                    </Text>
+                  </View>
+                  <Text
+                    style={[BasicStyles.normalText, {
+                      paddingTop: 10,
+                      color: Color.darkGray
+                    }]}>
+                    {item.from} - {item.to}
+                  </Text>
+                  <Text
+                    style={[BasicStyles.normalText, {
+                      color: Color.darkGray
+                    }]}>
+                    {item.from_date_human} - {item.to_date_human}
+                  </Text>
+                  {
+                    item.status == 'death' && (
+                      <View style={{
+                        backgroundColor: 'black',
+                        borderRadius: 2,
+                        marginRight: 20,
+                        marginLeft: 20,
+                        marginBottom: 10,
+                        marginTop: 10
+                      }}>
+                        <Text style={{
+                          color: Color.white,
+                          paddingTop: 2,
+                          paddingBottom: 2,
+                          paddingLeft: 10,
+                          paddingRight: 10
+                        }}>
+                          There was a death in this route.
+                        </Text>
+                      </View>
+                    )
+                  }
+
+                  {
+                    item.status == 'positive' && (
+                      <View style={{
+                        backgroundColor: Color.danger,
+                        borderRadius: 2,
+                        marginRight: 20,
+                        marginLeft: 20,
+                        marginBottom: 10,
+                        marginTop: 10
+                      }}>
+                        <Text style={{
+                          color: Color.white,
+                          paddingTop: 2,
+                          paddingBottom: 2,
+                          paddingLeft: 10,
+                          paddingRight: 10
+                        }}>
+                          There was a COVID Positve in this route.
+                        </Text>
+                      </View>
+                    )
+                  }
+                  {
+                    item.status == 'pum' && (
+                      <View style={{
+                        backgroundColor: Color.warning,
+                        borderRadius: 2,
+                        marginRight: 20,
+                        marginLeft: 20,
+                        marginBottom: 10,
+                        marginTop: 10
+                      }}>
+                        <Text style={{
+                          color: Color.white,
+                          paddingTop: 2,
+                          paddingBottom: 2,
+                          paddingLeft: 10,
+                          paddingRight: 10
+                        }}>
+                          There was a PUM in this route.
+                        </Text>
+                      </View>
+                    )
+                  }
+
+                  {
+                    item.status == 'pui' && (
+                      <View style={{
+                        backgroundColor: Color.primary,
+                        borderRadius: 2,
+                        marginRight: 20,
+                        marginLeft: 20,
+                        marginBottom: 10,
+                        marginTop: 10
+                      }}>
+                        <Text style={{
+                          color: Color.white,
+                          paddingTop: 2,
+                          paddingBottom: 2,
+                          paddingLeft: 10,
+                          paddingRight: 10
+                        }}>
+                          There was a PUI in this route.
+                        </Text>
+                      </View>
+                    )
+                  }
+                  {
+                    item.status == 'negative' && (
+                      <View style={{
+                        backgroundColor: 'green',
+                        borderRadius: 2,
+                        marginRight: 20,
+                        marginLeft: 20,
+                        marginBottom: 10,
+                        marginTop: 10
+                      }}>
+                        <Text style={{
+                          color: Color.white,
+                          paddingTop: 2,
+                          paddingBottom: 2,
+                          paddingLeft: 10,
+                          paddingRight: 10
+                        }}>
+                          This route is clear.
+                        </Text>
+                      </View>
+                    )
+                  }
+
+                  
+                </View>
+              </TouchableHighlight>
+            </View>
+          )}
+          keyExtractor={(item, index) => index.toString()}
+        />
+      </View>
+    );
+  }
 
   changeTemp=(values)=>{
     console.log(this.state.scannedId)
@@ -660,21 +893,21 @@ _places = () => {
       this.setState({isResponseError: true})
       })
 //====================================================================================//
-// let parameter2 = {
-//   account_id: this.state.scannedId, // account id of the user
-//   added_by: user.id, // account id of the agent
-//   value: this.state.changeTemperature, // float temperature readings
-//   status: this.state.userStatus
-//   }
-// {this.user.account_type==="AGENCY" ? 
+let parameter2 = {
+  account_id: this.state.scannedId, // account id of the user
+  added_by: user.id, // account id of the agent
+  value: values.changeTemperature, // float temperature readings
+  status: this.state.userStatus
+  }
+{this.user.account_type==="AGENCY_LEVEL_1" || this.user.account_type==="ADMIN" ? 
 // //====================This is change Status and Temp on Agent & Admin====================================//
 
-//      null:  Api.request(Routes.patientsCreate, parameter2, response => {
-//       console.log(response)
-//       }, error => {
-//       this.setState({isResponseError: true})
-//       }) 
-//     }
+     null:  Api.request(Routes.patientsCreate, parameter2, response => {
+      console.log(response)
+      }, error => {
+      this.setState({isResponseError: true})
+      }) 
+    }
 
 //====================================================================================//
       this.setState({isModalVisible:false})
@@ -829,59 +1062,102 @@ _toggleDisplay=()=>{
 }
 
 
-_displayUserInfo=()=>{
+_modal=()=>{
+  return (
+  <View >
+    <Modal isVisible={this.props.visible} 
+    style={{
+      padding: 0,
+      margin: 0,
+      position: 'relative'
+    }}>
+      {this._qrdisplay()}
+      <View style={{
+        width: 200,
+        position: 'absolute',
+        top: 10,
+        right: 10
+      }}>
+        <TouchableOpacity
+              onPress={() => this.props.close()} 
+              style={[{
+                alignItems: 'center',
+                justifyContent: 'center',
+                height: 40,
+                borderRadius: 5
+              }, {
+                width: '25%',
+                backgroundColor: Color.danger
+              }]}
+              >
+              <Text style={{
+                color: Color.white,
+                textAlign: 'center'
+              }}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </Modal>
+      </View>
+  )
+}
 
+_qrdisplay=()=>{
+  
+
+  return (
+    <View style={styles.MainContainer}>
+    <QRCodeScanner
+      ref={(node) => { this.scanner = node }}
+      onRead={this.props.state.user.account_type==="USER"? this.onReadUserType : this.onRead}
+      reactivateTimeout={8000}
+     
+    />
+    <Text>{this.state.displayScan} </Text>
+    <Modal
+        isVisible={this.state.isModalVisible}
+        style={{
+          justifyContent: "center",
+          borderRadius: 20,
+          shadowRadius: 10,
+          width: screen.width - 50,
+          backgroundColor: "white",
+          zIndex:5,
+          position:"relative",
+        }}
+      >
+        {this.props.state.user.account_type==="ADMIN"? <View><Text>Admin</Text><Text>{this.props.state.user.username}</Text>{this.state.displayScan ?  
+        this._TempStatusInput() : 
+        <React.Fragment><Text>User Temperatures:</Text>
+        {this._data()
+        }<Text>{"\n"}
+        {"\n"}User Locations
+        </Text>{this._places()}
+        </React.Fragment>}
+        </View>  :
+        this.props.state.user.account_type==="USER"?<View><Text>User</Text>{this._dataRide()}</View> :
+        <React.Fragment>
+        {this.state.displayScan ?  
+        this._TempStatusInput() : 
+        <React.Fragment><Text>{"\n"}User Temperatures:</Text>
+        {this._data()}
+       <Text>{"\n"}
+        {"\n"}User Locations
+        </Text>{this._places()}
+        </React.Fragment>
+        }
+        </React.Fragment>
+        
+    }          
+      </Modal>
+      
+    </View>
+  );
 }
 
   render() {
-    const { isLoading, newPlaceFlag, data } = this.state;
-
     return (
-      <View style={styles.MainContainer}>
-      <QRCodeScanner
-        ref={(node) => { this.scanner = node }}
-        onRead={this.onRead}
-        reactivateTimeout={8000}
-       
-      />
-      <Text>{this.state.displayScan} </Text>
-      <Modal
-          isVisible={this.state.isModalVisible}
-          style={{
-            justifyContent: "center",
-            borderRadius: 20,
-            shadowRadius: 10,
-            width: screen.width - 50,
-            backgroundColor: "white",
-            zIndex:5,
-            position:"relative",
-          }}
-        >
-          {this.props.state.user.account_type==="ADMIN"? <View><Text>Admin</Text><Text>{this.props.state.user.username}</Text>{this.state.displayScan ?  
-          this._TempStatusInput() : 
-          <React.Fragment><Text>User Temperatures:</Text>
-          {this._data()
-          }<Text>{"\n"}
-          {"\n"}User Locations
-          </Text>{this._places()}
-          </React.Fragment>}
-          </View>  :
-          this.props.state.user.account_type==="USER"?<View><Text>User</Text><Text>{this.props.state.user.username}</Text></View> :
-          <React.Fragment>
-          {this.state.displayScan ?  
-          this._TempStatusInput() : 
-          <React.Fragment><Text>{"\n"}User Temperatures:</Text>
-          {this._data()}
-         <Text>{"\n"}
-          {"\n"}User Locations
-          </Text>{this._places()}
-          </React.Fragment>
-          }
-          </React.Fragment>
-          
-      }          
-        </Modal>
-        
+      <View style={styles.container}>
+        {this._modal()}
       </View>
     );
   }

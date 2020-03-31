@@ -99,7 +99,7 @@ class CheckMap extends Component {
   }
 
   render() {
-    const data=this.state
+  
     return (
       <View style={styles.container}>
         {this._modal()}
@@ -179,4 +179,4 @@ container: {
 },
 });
 
-AppRegistry.registerComponent('default', () => GenerateQR);
+AppRegistry.registerComponent('default', () => CheckMap);
