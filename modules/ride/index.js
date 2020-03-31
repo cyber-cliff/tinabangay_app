@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import Style from './Style.js';
 import { View, Image, TouchableHighlight, Text, ScrollView, FlatList, TextInput, Picker, Platform} from 'react-native';
 import { Routes, Color, Helper, BasicStyles } from 'common';
-import { Spinner, ImageUpload, GooglePlacesAutoComplete, DateTime } from 'components';
+import { Spinner, Empty, ImageUpload, GooglePlacesAutoComplete, DateTime } from 'components';
 import Api from 'services/api/index.js';
 import Currency from 'services/Currency.js';
 import { connect } from 'react-redux';
@@ -506,7 +506,7 @@ class Ride extends Component{
             Hi {user != null ? user.username : ''}! We would like to ask your help to input your transportation history that you have been on board for the past months. Please, be honest and help us fight COVID-19. Don't worry your location is not viewable from other users.
           </Text>
         </View>
-
+        {isLoading ? <Spinner mode="overlay"/> : null }
         {
           newDataFlag == false && (
             <TouchableHighlight
@@ -532,9 +532,13 @@ class Ride extends Component{
           )
         }
         {
+          data == null && (
+            <Empty /> 
+          )
+        }
+        {
           data !== null && (this._data())
         }
-        {isLoading ? <Spinner mode="overlay"/> : null }
       </ScrollView>
     );
   }

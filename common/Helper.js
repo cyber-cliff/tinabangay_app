@@ -46,7 +46,39 @@ export default {
     {
       key: 1,
       title: 'Welcome to BirdsEye!',
-      text: 'Instruction here!',
+      text: 'Let\'s be one in Fighting COVID-19!',
+      icon: null,
+      image: require('assets/logo.png'),
+      colors: [Color.primary, Color.lightGray]
+    }, 
+    {
+      key: 2,
+      title: 'Visited Places',
+      text: 'Track your visited locations if it was affected by COVID-19.',
+      icon: null,
+      image: require('assets/logo.png'),
+      colors: [Color.primary, Color.lightGray]
+    }, 
+    {
+      key: 3,
+      title: 'Transporation Routes',
+      text: 'Track your previous transportation if it was affected by COVID-19.',
+      icon: null,
+      image: require('assets/logo.png'),
+      colors: [Color.primary, Color.lightGray]
+    }, 
+    {
+      key: 4,
+      title: 'QR Code',
+      text: 'Use your QR Code to ease the data recording from agencies.',
+      icon: null,
+      image: require('assets/logo.png'),
+      colors: [Color.primary, Color.lightGray]
+    }, 
+    {
+      key: 5,
+      title: 'That\'s It!',
+      text: 'We can now trace and map your locations!',
       icon: null,
       image: require('assets/logo.png'),
       colors: [Color.primary, Color.lightGray]

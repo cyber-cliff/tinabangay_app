@@ -168,6 +168,11 @@ class Notifications extends Component{
           minHeight: height
         }]}>
           {
+            !notifications && (
+              <Empty />
+            )
+          }
+          {
             notifications && (
               <FlatList
                 data={notifications.notifications}

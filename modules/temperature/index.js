@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import Style from './Style.js';
 import { View, Image, TouchableHighlight, Text, ScrollView, FlatList, TextInput, Picker} from 'react-native';
 import { Routes, Color, Helper, BasicStyles } from 'common';
-import { Spinner, ImageUpload } from 'components';
+import { Spinner, ImageUpload, Empty } from 'components';
 import Api from 'services/api/index.js';
 import Currency from 'services/Currency.js';
 import { connect } from 'react-redux';
@@ -136,10 +136,19 @@ class Temperature extends Component{
           }
         }}
         >
-        {
-          data != null && (this._data())
-        }
-        {isLoading ? <Spinner mode="overlay"/> : null }
+        <View style={[Style.MainContainer, {
+          minHeight: height
+        }]}>
+          {isLoading ? <Spinner mode="overlay"/> : null }
+          {
+            data != null && (this._data())
+          }
+          {
+            data == null && (
+              <Empty />
+            )
+          }
+        </View>
       </ScrollView>
     );
   }
