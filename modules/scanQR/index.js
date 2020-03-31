@@ -643,8 +643,8 @@ _places = () => {
   }
 
 
-  changeTemp=()=>{
-
+  changeTemp=(values)=>{
+    console.log(this.state.scannedId)
     const { user } = this.props.state;
     // console.log("Button Press!!!");
 //=======================This is for change temperature on Agent===================================//
@@ -652,7 +652,7 @@ _places = () => {
       account_id: this.state.scannedId, // account id of the user
       added_by:user.id, // account id of the agent
       remarks:"test",
-      value: this.state.changeTemperature, // float temperature readings
+      value: values.changeTemperature, // float temperature readings
       }
       Api.request(Routes.temperaturesCreate, parameter, response => {
       console.log(response)
@@ -660,19 +660,21 @@ _places = () => {
       this.setState({isResponseError: true})
       })
 //====================================================================================//
+// let parameter2 = {
+//   account_id: this.state.scannedId, // account id of the user
+//   added_by: user.id, // account id of the agent
+//   value: this.state.changeTemperature, // float temperature readings
+//   status: this.state.userStatus
+//   }
+// {this.user.account_type==="AGENCY" ? 
+// //====================This is change Status and Temp on Agent & Admin====================================//
 
-//====================This is change Status and Temp on Agent & Admin====================================//
-    let parameter2 = {
-      account_id: this.state.scannedId, // account id of the user
-      added_by: user.id, // account id of the agent
-      value: this.state.changeTemperature, // float temperature readings
-      status: this.state.userStatus
-      }
-      Api.request(Routes.patientsCreate, parameter2, response => {
-      console.log(response)
-      }, error => {
-      this.setState({isResponseError: true})
-      })
+//      null:  Api.request(Routes.patientsCreate, parameter2, response => {
+//       console.log(response)
+//       }, error => {
+//       this.setState({isResponseError: true})
+//       }) 
+//     }
 
 //====================================================================================//
       this.setState({isModalVisible:false})

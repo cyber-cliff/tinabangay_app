@@ -1,28 +1,20 @@
 import React, { Component } from 'react';
-import { View,StyleSheet,AppRegistry} from 'react-native';
+import { View,StyleSheet,AppRegistry,Text} from 'react-native';
 import { Routes} from 'common';
 import QRCode from 'react-native-qrcode-svg';
 import Api from 'services/api/index.js';
 import { connect } from 'react-redux';
-import MapView, { PROVIDER_GOOGLE, Marker } from 'react-native-maps';
-class GenerateQR extends Component {
+import MapView, { PROVIDER_GOOGLE, Marker,Callout } from 'react-native-maps';
+class CheckMap extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      inputValue: '',
-      isModalVisible: false,
-      valueForQRCode: '',
+      data:[],
       isLoading: false,
-      firstName: null,
-      middleName: null,
-      scannedId:null,
-      lastName: null,
-      sex: null,
-      cellularNumber: null,
-      address: null,
-      birthDate: new Date(),
-      qr:"",
+      scannedId:null,  
       errorMessage: null,
+      id:'',
+      latitude:''
 
     };
   }
@@ -33,69 +25,76 @@ class GenerateQR extends Component {
 
 
   retrieve = () => {
-    const { user } = this.props.state;
-    if(user === null){
-      return
-    }
     let parameter = {
-      condition: [{
-        value: user.id,
-        clause: '=',
-        column: 'account_id'
-      }]
+      status: 'positive'
     }
+    console.log('hi')
     this.setState({
-      isLoading: true, 
-      showDatePicker: false
+      isLoading: true
     })
-    Api.request(Routes.accountInformationRetrieve, parameter, response => {
-      this.setState({isLoading: false})
+    Api.request(Routes.tracingPlaces, parameter, response => {
+      this.setState({
+        isLoading: false
+      })
+      
       if(response.data.length > 0){
-        let data = response.data[0]
+        
         this.setState({
-          id: data.id,
-          firstName: data.first_name,
-          middleName: data.middle_name,
-          lastName: data.last_name,
-          sex: data.sex,
-          cellularNumber: data.cellular_number,
-          address: data.address,
-          birthDate: data.birth_date
+          data: response.data
         })
-        if(data.birth_date != null){
-          this.setState({
-            dateFlag: true,
-            birthDateLabel: data.birth_date
-          })
-        }
       }else{
         this.setState({
-          id: null,
-          firstName: null,
-          middleName: null,
-          lastName: null,
-          sex: null,
-          cellularNumber: null,
-          address: null,
-          birthDate: new Date(),
+          data: []
         })
       }
     });
-   
+    
   }
 
   render() {
     
+   const data=this.state
+   
+   
 
     return (
       <View style={styles.container}>
-    <QRCode
-          value={this.state.valueForQRCode ? this.state.valueForQRCode : this.props.state.user.username}
-          size={250}
-          color="black"
-          backgroundColor="white"
-        />
-        
+   <MapView
+   style={styles.map}
+   provider={PROVIDER_GOOGLE}
+    initialRegion={{
+      latitude: 10.3167,
+      longitude: 123.8878,
+      latitudeDelta: 0.0922,
+      longitudeDelta: 0.0421,
+    }}
+  >
+    {this.state.data.map((item,index) => 
+    
+    <Marker
+   
+      coordinate={{
+        latitude:parseFloat(item.latitude),
+        longitude:parseFloat(item.longitude)
+      }}
+      description={"hello"}
+    
+    >
+      <Callout>
+        <Text>DEATH: {item.death_size}</Text>
+        <Text>POSITIVE: {item.positive_size}</Text>
+        <Text>PUI: {item.pui_size}</Text>
+        <Text>PUM: {item.pum_size}</Text>
+        <Text>NEGATIVE: {item.negative_size}</Text>
+        <Text>ROUTE: {item.route}</Text>
+      </Callout>
+    </Marker>
+    )}
+
+
+
+  </MapView>
+         
       </View>
     );
   }
@@ -112,7 +111,7 @@ export default connect(
   mapStateToProps,
   mapDispatchToProps
   
-)(GenerateQR);
+)(CheckMap);
 
 const styles = StyleSheet.create({
   MainContainer: {
