@@ -20,21 +20,22 @@ export default {
     title: 'My Temperature',
     route: 'Temperature'
   }, {
-    title: 'Profile',
+    title: 'My Profile',
     route: 'Profile'
-  },
-  {
-    title: 'Generate QR',
-    route: 'GenerateQR'
-  },
-  {
-    title: 'Scan QR',
-    route: 'ScanQR'
-  },
-  {
-    title: 'Check Map',
-    route: 'CheckMap'
-  }],
+  }
+  // {
+  //   title: 'Generate QR',
+  //   route: 'GenerateQR'
+  // },
+  // {
+  //   title: 'Scan QR',
+  //   route: 'ScanQR'
+  // },
+  // {
+  //   title: 'Check Map',
+  //   route: 'CheckMap'
+  // }
+  ],
   pusher: {
     broadcast_type: 'pusher',
     channel: 'birdseye',
