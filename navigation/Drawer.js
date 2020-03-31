@@ -15,6 +15,7 @@ import Profile from 'modules/profile';
 import GenerateQR from 'modules/generateQR';
 import ScanQR from 'modules/scanQR';
 import OptionRight from './OptionRight';
+import CheckMap from 'modules/checkMap';
 class MenuDrawerStructure extends Component {
   constructor(props){
     super(props);
@@ -161,6 +162,21 @@ const ScanQR_StackNavigator = createStackNavigator({
   },
 });
 
+const CheckMap_StackNavigator = createStackNavigator({
+  Profile: {
+    screen: CheckMap,
+    navigationOptions: ({ navigation }) => ({
+      title: 'Check Map',
+      headerLeft: <MenuDrawerStructure navigationProps={navigation} />,
+      headerRight: <OptionRight navigationProps={navigation} />,
+      headerStyle: {
+        backgroundColor: Color.primary,
+      },
+      headerTintColor: '#fff',
+    }),
+  },
+});
+
 
 const Drawer = createDrawerNavigator({
   Dashboard: {
@@ -210,6 +226,12 @@ const Drawer = createDrawerNavigator({
     screen: ScanQR_StackNavigator,
     navigationOptions: {
       drawerLabel: 'Scan QR',
+    },
+  },
+  CheckMap: {
+    screen: CheckMap_StackNavigator,
+    navigationOptions: {
+      drawerLabel: 'Check Map',
     },
   },
   

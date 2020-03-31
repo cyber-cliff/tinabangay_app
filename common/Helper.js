@@ -30,6 +30,10 @@ export default {
   {
     title: 'Scan QR',
     route: 'ScanQR'
+  },
+  {
+    title: 'Check Map',
+    route: 'CheckMap'
   }],
   pusher: {
     broadcast_type: 'pusher',
