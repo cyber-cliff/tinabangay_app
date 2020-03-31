@@ -1125,6 +1125,23 @@ _qrdisplay=()=>{
           position:"relative",
         }}
       >
+        <TouchableOpacity
+              onPress={() => this.setState({isModalVisible:false})} 
+              style={[{
+                alignItems: 'center',
+                justifyContent: 'center',
+                height: 40,
+                borderRadius: 5
+              }, {
+                width: '25%',
+                backgroundColor: Color.danger
+              }]}
+              >
+              <Text style={{
+                color: Color.white,
+                textAlign: 'center'
+              }}>Close</Text>
+            </TouchableOpacity>
         {this.props.state.user.account_type==="ADMIN"? <View><Text>Admin</Text><Text>{this.props.state.user.username}</Text>{this.state.displayScan ?  
         this._TempStatusInput() : 
         <React.Fragment><Text>User Temperatures:</Text>
