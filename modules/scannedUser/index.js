@@ -21,13 +21,166 @@ class ScannedUser extends Component{
     super(props);
     this.state = {
       isLoading: false,
-      activePage: 'places'
+      activePage: 'places',
+      addFlag: null,
+      errorMessage: null,
+      value: null,
+      remarks: null,
+      patientStatus: null
     }
   }
 
   componentDidMount(){
   }
 
+  submit = () => {
+    const { user, scannedUser } = this.props.state;
+    const { addFlag } = this.state;
+    if(addFlag == null || user == null || scannedUser == null){
+      this.setState({
+        errorMessage: 'Invalid Accessed!'
+      })
+      return
+    }
+    if(addFlag == 'temperature'){
+      if(this.state.value == null || this.state.value > 100){
+        this.setState({
+          errorMessage: 'Invalid Temperature!'
+        })
+        return
+      }
+      let parameter = {
+        temperature_location: null,
+        account_id: scannedUser.id,
+        added_by: user.id,
+        value: this.state.value,
+        remarks: this.state.remarks ? this.state.remarks : null
+      }
+      this.setState({isLoading: true})
+      Api.request(Routes.temperaturesCreate, parameter, response => {
+        console.log(response)
+        this.setState({
+          isLoading: false,
+          addFlag: null,
+          activePage: 'places',
+          value: null,
+          remarks: null,
+          errorMessage: null
+        })
+      }, error => {
+        console.log(error)
+      });
+    }else if(addFlag == 'patient'){
+      if(this.state.patientStatus == null || this.state.patientStatus > 100){
+        this.setState({
+          errorMessage: 'Invalid Status!'
+        })
+        return
+      }
+      let parameter = {
+        temperature_location: null,
+        account_id: scannedUser.id,
+        added_by: user.id,
+        status: this.state.patientStatus,
+      }
+      this.setState({isLoading: true})
+      Api.request(Routes.patientsCreate, parameter, response => {
+        console.log(response)
+        this.setState({
+          isLoading: false,
+          addFlag: null,
+          activePage: 'places',
+          value: null,
+          remarks: null,
+          errorMessage: null
+        })
+      }, error => {
+        console.log(error)
+      });
+    }
+  }
+  _newPatient = () => {
+    const patientStatus = Helper.patientStatus.map((item, index) => {
+      return {
+        label: item.title,
+        value: item.value
+      };
+    })
+    return (
+      <View>
+        <View style={{
+            marginTop: 10
+          }}>
+            <Text>Select Status</Text>
+            {
+              Platform.OS == 'android' && (
+                <Picker selectedValue={this.state.patientStatus}
+                onValueChange={(patientStatus) => this.setState({patientStatus})}
+                style={BasicStyles.pickerStyleCreate}
+                >
+                  {
+                    Helper.patientStatus.map((item, index) => {
+                      return (
+                        <Picker.Item
+                        key={index}
+                        label={item.title} 
+                        value={item.value}/>
+                      );
+                    })
+                  }
+                </Picker>
+              )
+            }
+            {
+              Platform.OS == 'ios' && (
+                <RNPickerSelect
+                  onValueChange={(patientStatus) => this.setState({patientStatus})}
+                  items={patientStatus}
+                  style={BasicStyles.pickerStyleIOSNoMargin}
+                  placeholder={{
+                    label: 'Click to select',
+                    value: null,
+                    color: Color.primary
+                  }}
+                  />
+              )
+            }
+          </View>
+        </View>
+    );
+  }
+
+  _newTemperature = () => {
+    return (
+      <View>
+        <View>
+          <Text style={{
+            paddingTop: 10
+          }}>Temperature</Text>
+          <TextInput
+            style={BasicStyles.formControlCreate}
+            onChangeText={(value) => this.setState({value})}
+            value={this.state.value}
+            keyboardType={'numeric'}
+            placeholder={'E.q. 35.00'}
+          />
+        </View>
+
+        <View>
+          <Text style={{
+            paddingTop: 10
+          }}>Remarks(Optional)</Text>
+          <TextInput
+            style={BasicStyles.formControlCreate}
+            onChangeText={(remarks) => this.setState({remarks})}
+            value={this.state.remarks}
+            multiline={true}
+            placeholder={'Type Remarks'}
+          />
+        </View>
+      </View>
+    );
+  }
   _agentOption = () => {
     const { user } = this.props.state;
     return (
@@ -47,7 +200,9 @@ class ScannedUser extends Component{
                 borderRadius: 5,
                 marginTop: 20
               }}
-              onPress={() => {this.submit()}}
+              onPress={() => {this.setState({
+                addFlag: 'temperature'
+              })}}
               underlayColor={Color.gray}
                 >
               <Text style={{
@@ -70,7 +225,9 @@ class ScannedUser extends Component{
                   marginTop: 20,
                   marginLeft: '1%'
                 }}
-                onPress={() => {this.submit()}}
+                onPress={() => {this.setState({
+                  addFlag: 'patient'
+                })}}
                 underlayColor={Color.gray}
                   >
                 <Text style={{
@@ -82,6 +239,71 @@ class ScannedUser extends Component{
             )
           }
         </View>
+        {
+          this.state.errorMessage != null && (
+            <View>
+              <Text style={{
+                color: Color.danger,
+                paddingTop: 10,
+                paddingBottom: 10,
+                textAlign: 'center'
+              }}>{this.state.errorMessage}</Text>
+            </View>
+          )
+        }
+        {
+          this.state.addFlag == 'temperature' && (this._newTemperature())
+        }
+
+        {
+          this.state.addFlag == 'patient' && (this._newPatient())
+        }
+        {
+          this.state.addFlag != null && (
+            <View>
+              <View>
+                <TouchableHighlight style={{
+                      height: 50,
+                      backgroundColor: Color.primary,
+                      width: '100%',
+                      marginBottom: 20,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      borderRadius: 5
+                    }}
+                    onPress={() => {this.submit()}}
+                    underlayColor={Color.gray}
+                      >
+                    <Text style={{
+                      color: Color.white,
+                      textAlign: 'center',
+                    }}>Submit</Text>
+                </TouchableHighlight>
+              </View>
+              <View>
+                <TouchableHighlight style={{
+                      height: 50,
+                      backgroundColor: Color.danger,
+                      width: '100%',
+                      marginBottom: 20,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      borderRadius: 5
+                    }}
+                    onPress={() => {this.setState({
+                      addFlag: null
+                    })}}
+                    underlayColor={Color.gray}
+                      >
+                    <Text style={{
+                      color: Color.white,
+                      textAlign: 'center',
+                    }}>Cancel</Text>
+                </TouchableHighlight>
+              </View>
+            </View>
+          )
+        }
       </View>
 
     );

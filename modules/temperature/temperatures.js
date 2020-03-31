@@ -65,7 +65,8 @@ class Temperatures extends Component{
             <View style={{
               borderRadius: 5,
               borderColor: Color.gray,
-              borderWidth: 1
+              borderWidth: 1,
+              marginBottom: 10
             }}>
                 <View style={Style.TextContainer}>
                   <View style={{

@@ -103,6 +103,25 @@ export default {
     title: 'Motorcycle',
     value: 'motorcycle'
   }],
+  patientStatus: [{
+    title: 'Death',
+    value: 'death'
+  }, {
+    title: 'Positive',
+    value: 'positive'
+  }, {
+    title: 'PUM',
+    value: 'pum'
+  }, {
+    title: 'PUI',
+    value: 'pui'
+  }, {
+    title: 'Negative',
+    value: 'negative'
+  }, {
+    title: 'Recovered',
+    value: 'recovered'
+  }],
   retrieveDataFlag: 1,
   validateEmail(email){
     let reg = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+.[a-zA-Z0-9]*$/
