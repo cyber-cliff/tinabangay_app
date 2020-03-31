@@ -617,30 +617,30 @@ _places = () => {
 
 
   onRead=e=>{
-    // this.setState({qr:e.data});
-    // let parameter = {
-    //   condition: [{
-    //     value: e.data,
-    //     clause: '=',
-    //     column: 'username'
-    //   }]
-    // }
-    // Api.request(Routes.accountRetrieve, parameter, response => {
-    //   if(response.data.length > 0){
-    //       console.log(response)
-    //       this.setState({scannedId:response.data[0].id})
-    //       this.retrieveLoc(response.data[0].id)
-    //       this.retrieveTemp(response.data[0].id)
+    this.setState({qr:e.data});
+    let parameter = {
+      condition: [{
+        value: e.data,
+        clause: '=',
+        column: 'username'
+      }]
+    }
+    Api.request(Routes.accountRetrieve, parameter, response => {
+      if(response.data.length > 0){
+          console.log(response)
+          this.setState({scannedId:response.data[0].id})
+          this.retrieveLoc(response.data[0].id)
+          this.retrieveTemp(response.data[0].id)
           
-    //   }
-    // }, error => {
-    //   this.setState({isResponseError: true})
-    // })
+      }
+    }, error => {
+      this.setState({isResponseError: true})
+    })
     
 
-    // console.log(this.state.scannedId)
+    console.log(this.state.scannedId)
     
-    // this.setState({isModalVisible:true})
+    this.setState({isModalVisible:true})
     console.log("Not User!")
   }
 
@@ -893,21 +893,21 @@ _places = () => {
       this.setState({isResponseError: true})
       })
 //====================================================================================//
-// let parameter2 = {
-//   account_id: this.state.scannedId, // account id of the user
-//   added_by: user.id, // account id of the agent
-//   value: this.state.changeTemperature, // float temperature readings
-//   status: this.state.userStatus
-//   }
-// {this.user.account_type==="AGENCY" ? 
+let parameter2 = {
+  account_id: this.state.scannedId, // account id of the user
+  added_by: user.id, // account id of the agent
+  value: values.changeTemperature, // float temperature readings
+  status: this.state.userStatus
+  }
+{this.user.account_type==="AGENCY_LEVEL_1" || this.user.account_type==="ADMIN" ? 
 // //====================This is change Status and Temp on Agent & Admin====================================//
 
-//      null:  Api.request(Routes.patientsCreate, parameter2, response => {
-//       console.log(response)
-//       }, error => {
-//       this.setState({isResponseError: true})
-//       }) 
-//     }
+     null:  Api.request(Routes.patientsCreate, parameter2, response => {
+      console.log(response)
+      }, error => {
+      this.setState({isResponseError: true})
+      }) 
+    }
 
 //====================================================================================//
       this.setState({isModalVisible:false})
@@ -1062,59 +1062,102 @@ _toggleDisplay=()=>{
 }
 
 
-_displayUserInfo=()=>{
+_modal=()=>{
+  return (
+  <View >
+    <Modal isVisible={this.props.visible} 
+    style={{
+      padding: 0,
+      margin: 0,
+      position: 'relative'
+    }}>
+      {this._qrdisplay()}
+      <View style={{
+        width: 200,
+        position: 'absolute',
+        top: 10,
+        right: 10
+      }}>
+        <TouchableOpacity
+              onPress={() => this.props.close()} 
+              style={[{
+                alignItems: 'center',
+                justifyContent: 'center',
+                height: 40,
+                borderRadius: 5
+              }, {
+                width: '25%',
+                backgroundColor: Color.danger
+              }]}
+              >
+              <Text style={{
+                color: Color.white,
+                textAlign: 'center'
+              }}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </Modal>
+      </View>
+  )
+}
 
+_qrdisplay=()=>{
+  
+
+  return (
+    <View style={styles.MainContainer}>
+    <QRCodeScanner
+      ref={(node) => { this.scanner = node }}
+      onRead={this.props.state.user.account_type==="USER"? this.onReadUserType : this.onRead}
+      reactivateTimeout={8000}
+     
+    />
+    <Text>{this.state.displayScan} </Text>
+    <Modal
+        isVisible={this.state.isModalVisible}
+        style={{
+          justifyContent: "center",
+          borderRadius: 20,
+          shadowRadius: 10,
+          width: screen.width - 50,
+          backgroundColor: "white",
+          zIndex:5,
+          position:"relative",
+        }}
+      >
+        {this.props.state.user.account_type==="ADMIN"? <View><Text>Admin</Text><Text>{this.props.state.user.username}</Text>{this.state.displayScan ?  
+        this._TempStatusInput() : 
+        <React.Fragment><Text>User Temperatures:</Text>
+        {this._data()
+        }<Text>{"\n"}
+        {"\n"}User Locations
+        </Text>{this._places()}
+        </React.Fragment>}
+        </View>  :
+        this.props.state.user.account_type==="USER"?<View><Text>User</Text>{this._dataRide()}</View> :
+        <React.Fragment>
+        {this.state.displayScan ?  
+        this._TempStatusInput() : 
+        <React.Fragment><Text>{"\n"}User Temperatures:</Text>
+        {this._data()}
+       <Text>{"\n"}
+        {"\n"}User Locations
+        </Text>{this._places()}
+        </React.Fragment>
+        }
+        </React.Fragment>
+        
+    }          
+      </Modal>
+      
+    </View>
+  );
 }
 
   render() {
-    const { isLoading, newPlaceFlag, data } = this.state;
-
     return (
-      <View style={styles.MainContainer}>
-      <QRCodeScanner
-        ref={(node) => { this.scanner = node }}
-        onRead={this.props.state.user.account_type==="USER"? this.onReadUserType : this.onRead}
-        reactivateTimeout={8000}
-       
-      />
-      <Text>{this.state.displayScan} </Text>
-      <Modal
-          isVisible={this.state.isModalVisible}
-          style={{
-            justifyContent: "center",
-            borderRadius: 20,
-            shadowRadius: 10,
-            width: screen.width - 50,
-            backgroundColor: "white",
-            zIndex:5,
-            position:"relative",
-          }}
-        >
-          {this.props.state.user.account_type==="ADMIN"? <View><Text>Admin</Text><Text>{this.props.state.user.username}</Text>{this.state.displayScan ?  
-          this._TempStatusInput() : 
-          <React.Fragment><Text>User Temperatures:</Text>
-          {this._data()
-          }<Text>{"\n"}
-          {"\n"}User Locations
-          </Text>{this._places()}
-          </React.Fragment>}
-          </View>  :
-          this.props.state.user.account_type==="USER"?<View><Text>User</Text>{this._dataRide()}</View> :
-          <React.Fragment>
-          {this.state.displayScan ?  
-          this._TempStatusInput() : 
-          <React.Fragment><Text>{"\n"}User Temperatures:</Text>
-          {this._data()}
-         <Text>{"\n"}
-          {"\n"}User Locations
-          </Text>{this._places()}
-          </React.Fragment>
-          }
-          </React.Fragment>
-          
-      }          
-        </Modal>
-        
+      <View style={styles.container}>
+        {this._modal()}
       </View>
     );
   }

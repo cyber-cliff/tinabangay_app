@@ -10,8 +10,9 @@ import { connect } from 'react-redux';
 import { Dimensions } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import ViewMap from 'modules/checkMap';
+import DisplayScan from 'modules/scanQR';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faUserCircle, faMapMarker, faUniversity } from '@fortawesome/free-solid-svg-icons';
+import { faUserCircle, faMapMarker, faUniversity, faKaaba } from '@fortawesome/free-solid-svg-icons';
 const width = Math.round(Dimensions.get('window').width);
 const height = Math.round(Dimensions.get('window').height);
 class Dashboard extends Component{
@@ -21,7 +22,8 @@ class Dashboard extends Component{
       isLoading: false,
       selected: null,
       data: null,
-      showMapFlag: false
+      showMapFlag: false,
+      showScanner:false
     }
   }
 
@@ -355,7 +357,9 @@ class Dashboard extends Component{
                 justifyContent: 'center',
                 borderRadius: 5
               }}
-              onPress={() => {}}
+              onPress={() => {this.setState({
+                showScanner: true
+              })}}
               underlayColor={Color.gray}
                 >
               <Text style={{
@@ -407,6 +411,17 @@ class Dashboard extends Component{
                   showMapFlag: false
                 })}
               />
+            )
+          }
+          {
+            (data != null &&this.state.showScanner)&&(
+              <DisplayScan
+              visible={this.state.showScanner}
+              close={() => this.setState({
+                showScanner: false
+              })}
+             >
+              </DisplayScan>
             )
           }
           <View style={Style.MainContainer}>
