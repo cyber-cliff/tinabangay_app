@@ -88,7 +88,7 @@ const Profile_StackNavigator = createStackNavigator({
 });
 
 const Place_StackNavigator = createStackNavigator({
-  Profile: {
+  Place: {
     screen: Place,
     navigationOptions: ({ navigation }) => ({
       title: 'My Visited Places',
@@ -103,7 +103,7 @@ const Place_StackNavigator = createStackNavigator({
 });
 
 const Temperature_StackNavigator = createStackNavigator({
-  Profile: {
+  Temperature: {
     screen: Temperature,
     navigationOptions: ({ navigation }) => ({
       title: 'My Temperatures',
@@ -118,7 +118,7 @@ const Temperature_StackNavigator = createStackNavigator({
 });
 
 const Ride_StackNavigator = createStackNavigator({
-  Profile: {
+  Ride: {
     screen: Ride,
     navigationOptions: ({ navigation }) => ({
       title: 'My Rides',
@@ -133,7 +133,7 @@ const Ride_StackNavigator = createStackNavigator({
 });
 
 const GenQR_StackNavigator = createStackNavigator({
-  Profile: {
+  GenerateQR: {
     screen: GenerateQR,
     navigationOptions: ({ navigation }) => ({
       title: 'Generate QR',
@@ -148,7 +148,7 @@ const GenQR_StackNavigator = createStackNavigator({
 });
 
 const ScanQR_StackNavigator = createStackNavigator({
-  Profile: {
+  ScanQR: {
     screen: ScanQR,
     navigationOptions: ({ navigation }) => ({
       title: 'Scan QR',
@@ -163,7 +163,7 @@ const ScanQR_StackNavigator = createStackNavigator({
 });
 
 const CheckMap_StackNavigator = createStackNavigator({
-  Profile: {
+  CheckMap: {
     screen: CheckMap,
     navigationOptions: ({ navigation }) => ({
       title: 'Check Map',
@@ -221,7 +221,6 @@ const Drawer = createDrawerNavigator({
       drawerLabel: 'Generate QR',
     },
   },
-
   ScanQR: {
     screen: ScanQR_StackNavigator,
     navigationOptions: {
