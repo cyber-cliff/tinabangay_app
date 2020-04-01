@@ -13,7 +13,7 @@ import { Dimensions } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import RNPickerSelect from 'react-native-picker-select';
 const height = Math.round(Dimensions.get('window').height);
-class Temperature extends Component{
+class Temperatures extends Component{
   constructor(props){
     super(props);
     this.state = {
@@ -28,13 +28,13 @@ class Temperature extends Component{
   }
 
   retrieve = () => {
-    const { user } = this.props.state;
-    if(user === null){
+    const { scannedUser } = this.props.state;
+    if(scannedUser === null){
       return
     }
     let parameter = {
       condition: [{
-        value: user.id,
+        value: scannedUser.id,
         clause: '=',
         column: 'account_id'
       }]
@@ -166,4 +166,4 @@ const mapDispatchToProps = dispatch => {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(Temperature);
+)(Temperatures);

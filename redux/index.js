@@ -10,6 +10,7 @@ const types = {
   UPDATE_NOTIFICATIONS: 'UPDATE_NOTIFICATIONS',
   SET_LOCATION: 'SET_LOCATION',
   SET_PREVIOUS_ROUTE: 'SET_PREVIOUS_ROUTE',
+  SET_SCANNED_USER: 'SET_SCANNED_USER',
   nav: null,
 }
 
@@ -34,6 +35,9 @@ export const actions = {
   },
   setPreviousRoute(previousRoute){
     return { type: types.SET_PREVIOUS_ROUTE, previousRoute};
+  },
+  setScannedUser(scannedUser){
+    return { type: types.SET_SCANNED_USER, scannedUser};
   }
 };
 
@@ -42,7 +46,8 @@ const initialState = {
   user: null,
   notifications: null,
   location: null,
-  previousRoute: null
+  previousRoute: null,
+  scannedUser: null
 }
 
 storeData = async (key, value) => {
@@ -57,7 +62,7 @@ const reducer = (state = initialState, action) => {
   const { type, user, token } = action;
   const { unread } = action;
   const { notification, location } = action;
-  const { previousRoute } = action;
+  const { previousRoute, scannedUser } = action;
   switch (type) {
     case types.LOGOUT:
       AsyncStorage.clear();
@@ -128,6 +133,11 @@ const reducer = (state = initialState, action) => {
       return {
         ...state,
         previousRoute
+      }
+    case types.SET_SCANNED_USER:
+      return {
+        ...state,
+        scannedUser
       }
     default:
       return {...state, nav: state.nav};

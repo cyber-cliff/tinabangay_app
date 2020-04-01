@@ -13,17 +13,12 @@ import { Dimensions } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import RNPickerSelect from 'react-native-picker-select';
 const height = Math.round(Dimensions.get('window').height);
-class Place extends Component{
+class Places extends Component{
   constructor(props){
     super(props);
     this.state = {
       isLoading: false,
-      newPlaceFlag: false,
       date: null,
-      time: null,
-      selected: null,
-      errorMessage: null,
-      location: null
     }
   }
 
@@ -32,13 +27,13 @@ class Place extends Component{
   }
 
   retrieve = () => {
-    const { user } = this.props.state;
-    if(user === null){
+    const { scannedUser } = this.props.state;
+    if(scannedUser === null){
       return
     }
     let parameter = {
       condition: [{
-        value: user.id,
+        value: scannedUser.id,
         clause: '=',
         column: 'account_id'
       }],
@@ -59,126 +54,6 @@ class Place extends Component{
         this.setState({data: null})
       }
     });
-  }
-
-  manageLocation = (location) => {
-    this.setState({
-      location: location
-    })
-  }
-
-  submit = () => {
-    const { user } = this.props.state;
-    const { date, time, location } = this.state;
-    if(user == null){
-      this.setState({errorMessage: 'Invalid Account.'})
-      return
-    }
-    if(location == null || (location != null && location.route == null)){
-      this.setState({errorMessage: 'Location is required.'})
-      return
-    }
-    if(date == null){
-      this.setState({errorMessage: 'Date is required.'})
-      return
-    }
-    if(time == null){
-      this.setState({errorMessage: 'Time is required.'})
-      return
-    }
-    this.setState({errorMessage: null})
-    let parameter = {
-      account_id: user.id,
-      longitude: location.longitude,
-      latitude: location.latitude,
-      route: location.route,
-      region: location.region,
-      country: location.country,
-      locality: location.locality,
-      date: date,
-      time: time
-    }
-    this.setState({isLoading: true})
-    Api.request(Routes.visitedPlacesCreate, parameter, response => {
-      this.setState({isLoading: false})
-      if(response.data > 0){
-        this.setState({
-          newPlaceFlag: false,
-          showDatePicker: false,
-          dateFlag: false,
-          date: new Date(),
-          dateLabel: null
-        })
-        this.retrieve()
-      }
-    });
-    // this.setState({newPlaceFlag: false})
-  }
-
-  _newPlace = () => {
-    return (
-      <View>
-        {
-          this.state.errorMessage != null && (
-            <View>
-              <Text style={{
-                color: Color.danger,
-                paddingTop: 10,
-                paddingBottom: 10,
-                textAlign: 'center'
-              }}>{this.state.errorMessage}</Text>
-            </View>
-          )
-        }
-
-        <View>
-          <DateTime
-            type={'datetime'}
-            placeholder={'Select Date'}
-            onFinish={(date) => {
-              this.setState({
-                date: date.date,
-                time: date.time
-              })
-            }}
-          />
-        </View>
-        <View style={{
-          position: 'relative',
-          backgroundColor: Color.white,
-          zIndex: 2
-        }}>
-          <GooglePlacesAutoComplete 
-            onFinish={(location) => this.manageLocation(location)}
-            placeholder={'Start typing location'}
-            onChange={() => {}}
-          />
-        </View>
-
-        <View style={{
-          position: 'relative',
-          zIndex: 0
-        }}>
-          <TouchableHighlight style={{
-                height: 50,
-                backgroundColor: Color.primary,
-                width: '100%',
-                marginBottom: 20,
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: 5,
-              }}
-              onPress={() => {this.submit()}}
-              underlayColor={Color.gray}
-                >
-              <Text style={{
-                color: Color.white,
-                textAlign: 'center',
-              }}>Submit</Text>
-          </TouchableHighlight>
-        </View>
-      </View>
-    );
   }
 
   _places = () => {
@@ -363,44 +238,6 @@ class Place extends Component{
           }
         }}
         >
-        <View style={{
-          borderRadius: 5,
-          backgroundColor: Color.danger,
-          paddingTop: 10,
-          paddingLeft: 10,
-          paddingRight: 10,
-          paddingBottom: 10
-        }}>
-          <Text style={{
-            color: Color.white
-          }}>
-            Hi {user != null ? user.username : ''}! We would like to ask your help to input places you have been visited for the past months. Please, be honest and help us fight COVID-19. Don't worry your location is not viewable from other users.
-          </Text>
-        </View>
-        {isLoading ? <Spinner mode="overlay"/> : null }
-        {
-          newPlaceFlag == false && (
-            <TouchableHighlight
-              style={[BasicStyles.btn, {
-                backgroundColor: Color.primary,
-                width: '100%',
-                marginTop: 20
-              }]}
-              onPress={() => {
-                this.setState({newPlaceFlag: true})
-              }}
-            >
-              <Text style={{
-                color: Color.white
-              }}>Add visited places</Text>
-            </TouchableHighlight>
-          )
-        }
-        {
-          newPlaceFlag == true && (
-            this._newPlace()
-          )
-        }
         {
           data == null && (
             <Empty />
@@ -425,4 +262,4 @@ const mapDispatchToProps = dispatch => {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(Place);
+)(Places);

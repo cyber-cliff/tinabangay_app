@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import Style from './Style.js';
 import { View, Image, TouchableHighlight, Text, ScrollView, FlatList, TextInput, Picker} from 'react-native';
 import { Routes, Color, Helper, BasicStyles } from 'common';
-import { Spinner, ImageUpload } from 'components';
+import { Spinner, ImageUpload, DateTime } from 'components';
 import Api from 'services/api/index.js';
 import Currency from 'services/Currency.js';
 import { connect } from 'react-redux';
@@ -34,10 +34,7 @@ class Profile extends Component{
       sex: null,
       cellularNumber: null,
       address: null,
-      birthDate: new Date(),
-      dateFlag: false,
-      showDatePicker: false,
-      birthDateLabel: null,
+      birthDate: null,
       id: null,
       isImageUpload: false
     }
@@ -164,32 +161,6 @@ class Profile extends Component{
     });
   }
 
-  setDate = (event, date) => {
-    this.setState({
-      showDatePicker: false,
-      dateFlag: true,
-      birthDate: date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate(),
-      birthDateLabel: Currency.getMonth(date.getMonth()) + ' ' + date.getDate() + ', ' + date.getFullYear()
-    });
-    console.log('date', this.state.neededOn);
-  }
-
-  _datePicker = () => {
-    const { showDatePicker, birthDate } = this.state;
-    return (
-      <View>
-        { showDatePicker && <DateTimePicker value={new Date()}
-            mode={'date'}
-            display="default"
-            date={new Date()}
-            onCancel={() => this.setState({showDatePicker: false})}
-            onConfirm={this.setDate} 
-            onChange={this.setDate} />
-        }
-      </View>
-    );
-  }
-
   _inputs = () => {
     const { userLedger, user, location } = this.props.state;
     const { errorMessage } = this.state;
@@ -272,23 +243,18 @@ class Profile extends Component{
           <Text style={{
             paddingTop: 10
           }}>Bith Date</Text>
-          <TouchableHighlight style={{
-                height: 50,
-                backgroundColor: Color.secondary,
-                width: '100%',
-                marginBottom: 20,
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: 5,
-              }}
-              onPress={() => {this.setState({showDatePicker: true})}}
-              underlayColor={Color.gray}
-                >
-              <Text style={{
-                color: Color.white,
-                textAlign: 'center',
-              }}>{this.state.dateFlag == false ? 'Click to add date' : this.state.birthDateLabel}</Text>
-          </TouchableHighlight>
+          <DateTime
+            type={'date'}
+            placeholder={'Select Date'}
+            onFinish={(date) => {
+              this.setState({
+                birthDate: date.date
+              })
+            }}
+            style={{
+              marginTop: 5
+            }}
+          />
         </View>
         <View>
           <Text style={{
@@ -357,7 +323,7 @@ class Profile extends Component{
                <View style={Style.sectionHeadingStyle}>
                 <TouchableHighlight
                   onPress={() => {
-                    this.setState({isImageUpload: true})
+                    /*this.setState({isImageUpload: true})*/
                   }}
                   underlayColor={Color.white}>
                   <View>
@@ -384,13 +350,14 @@ class Profile extends Component{
                         />
                       )
                     }
-
-                    <Text  style={{
-                      fontSize: 11,
-                      textAlign: 'center'
-                    }}>
-                      Click to change
-                    </Text>
+                     {/* 
+                      <Text  style={{
+                        fontSize: 11,
+                        textAlign: 'center'
+                      }}>
+                        Click to change
+                      </Text>
+                    */}
                   </View>
                 </TouchableHighlight>
 
@@ -419,7 +386,6 @@ class Profile extends Component{
             onCLose={() => {
               this.setState({isImageUpload: false, isLoading: false})
             }}/> : null}
-        {this._datePicker()}
       </ScrollView>
     );
   }

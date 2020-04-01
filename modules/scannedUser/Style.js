@@ -6,7 +6,8 @@ export default {
     padding: 10
   },
   MainContainer: {
-    flex: 1
+    flex: 1,
+    justifyContent: 'center',
   },
   text: {
     color: Color.normalGray
