@@ -26,11 +26,21 @@ class ScannedUser extends Component{
       errorMessage: null,
       value: null,
       remarks: null,
-      patientStatus: null
+      patientStatus: null,
+      templocation:{},
     }
   }
 
   componentDidMount(){
+  }
+
+   manageLocation = (location) => {
+   
+    this.setState({
+      templocation: location
+    })
+
+    
   }
 
   submit = () => {
@@ -49,16 +59,32 @@ class ScannedUser extends Component{
         })
         return
       }
+      let location ={
+        id:this.props.state.scannedUser,
+        account_id:user.id,
+        temperature_id:null,
+        longitude:this.state.templocation.longitude,
+        latitude:this.state.templocation.latitude,
+        route:this.state.templocation.route,
+        locality:this.state.templocation.locality,
+        country:this.state.templocation.country,
+        region:this.state.templocation.region,
+        created_at:null,
+        updated_at:null,
+        deleted_at:null     
+      }
       let parameter = {
-        temperature_location: null,
+        temperature_location:location,
         account_id: scannedUser.id,
         added_by: user.id,
         value: this.state.value,
         remarks: this.state.remarks ? this.state.remarks : null
+        
       }
       this.setState({isLoading: true})
+      console.log(this.state.templocation)
       Api.request(Routes.temperaturesCreate, parameter, response => {
-        console.log(response)
+        console.log(response.data)
         this.setState({
           isLoading: false,
           addFlag: null,
@@ -178,6 +204,22 @@ class ScannedUser extends Component{
             placeholder={'Type Remarks'}
           />
         </View>
+          <View style={{
+          position: 'relative',
+          backgroundColor: Color.white,
+          zIndex: 2
+        }}>
+          <Text style={{
+            paddingTop: 10
+          }}>Location</Text>
+          <GooglePlacesAutoComplete 
+            onFinish={(location) => this.manageLocation(location)}
+            placeholder={'Start typing location'}
+            onChange={() => {}}
+          />
+        </View>
+
+      
       </View>
     );
   }

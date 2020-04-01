@@ -45,10 +45,12 @@ class Temperatures extends Component{
     Api.request(Routes.temperaturesRetrieve, parameter, response => {
       this.setState({isLoading: false})
       if(response.data.length > 0){
+        console.log(response.data)
         this.setState({data: response.data})
       }else{
         this.setState({data: null})
       }
+     
     });
   }
   
@@ -68,6 +70,7 @@ class Temperatures extends Component{
               borderWidth: 1,
               marginBottom: 10
             }}>
+              {console.log(item.temperature_location)}
                 <View style={Style.TextContainer}>
                   <View style={{
                     flexDirection: 'row'
@@ -109,6 +112,7 @@ class Temperatures extends Component{
                             paddingLeft: 0,
                             marginBottom: 10
                           }]}>
+                            
                           {item.temperature_location.route + ', ' + item.temperature_location.locality + ', ' + item.temperature_location.country}
                         </Text>
                       </View>

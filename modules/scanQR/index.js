@@ -626,6 +626,7 @@ _places = () => {
     }
     Api.request(Routes.accountRetrieve, parameter, response => {
       if(response.data.length > 0){
+       
           console.log(response)
           this.setState({scannedId:response.data[0].id})
           this.retrieveLoc(response.data[0].id)
@@ -930,6 +931,8 @@ let parameter2 = {
       isLoading: true
     })
     Api.request(Routes.temperaturesRetrieve, parameter, response => {
+      console.log("HERE")
+      console.log(response.data)
       this.setState({isLoading: false})
       if(response.data.length > 0){
         this.setState({dataTemp: response.data})
