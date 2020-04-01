@@ -140,7 +140,7 @@ class Places extends Component{
                           paddingLeft: 10,
                           paddingRight: 10
                         }}>
-                          There was a COVID Positve in this area.
+                          There was a COVID Positive in this area.
                         </Text>
                       </View>
                     )

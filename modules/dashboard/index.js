@@ -278,7 +278,7 @@ class Dashboard extends Component{
                         color: Color.white,
                         width: '80%'
                       }}>
-                        PUM 
+                        PUI
                       </Text>
                       <View style={{
                         backgroundColor: Color.white,
@@ -308,7 +308,7 @@ class Dashboard extends Component{
                         color: Color.white,
                         width: '80%'
                       }}>
-                        PUM 
+                        NEGATIVE 
                       </Text>
                       <View style={{
                         backgroundColor: Color.white,
@@ -321,7 +321,7 @@ class Dashboard extends Component{
                           padding: 2,
                           textAlign: 'center'
                         }}>
-                          {item.pui_size} 
+                          {item.negative_size} 
                         </Text>
                       </View>
                     </View>

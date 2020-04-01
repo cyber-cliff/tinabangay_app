@@ -144,7 +144,7 @@ class Rides extends Component{
                           paddingLeft: 10,
                           paddingRight: 10
                         }}>
-                          There was a COVID Positve in this route.
+                          There was a COVID Positive in this route.
                         </Text>
                       </View>
                     )
