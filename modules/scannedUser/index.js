@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import Style from './Style.js';
 import { View, Image, TouchableHighlight, Text, ScrollView, FlatList, TextInput, Picker, Platform} from 'react-native';
 import { Routes, Color, Helper, BasicStyles } from 'common';
-import { Spinner, Empty, ImageUpload, GooglePlacesAutoComplete, DateTime } from 'components';
+import { Confirmation, Spinner, Empty, ImageUpload, GooglePlacesAutoComplete, DateTime } from 'components';
 import Api from 'services/api/index.js';
 import Currency from 'services/Currency.js';
 import { connect } from 'react-redux';
@@ -26,14 +26,31 @@ class ScannedUser extends Component{
       errorMessage: null,
       value: null,
       remarks: null,
-      patientStatus: null
+      patientStatus: null,
+      showConfirmation: false
     }
   }
 
   componentDidMount(){
   }
 
-  submit = () => {
+  onCancel = () => {
+    this.setState({
+      showConfirmation: false,
+      patientStatus: false,
+      addFlag: null,
+      value: null,
+      remarks: null,
+      errorMessage: null
+    })
+  }
+
+  onContinue = () => {
+    this.submit()
+  }
+
+
+  validate = () => {
     const { user, scannedUser } = this.props.state;
     const { addFlag } = this.state;
     if(addFlag == null || user == null || scannedUser == null){
@@ -49,6 +66,32 @@ class ScannedUser extends Component{
         })
         return
       }
+      this.setState({
+        showConfirmation: true
+      })
+    }else if(addFlag == 'patient'){
+      if(this.state.patientStatus == null || this.state.patientStatus > 100){
+        this.setState({
+          errorMessage: 'Invalid Status!'
+        })
+        return
+      }
+      this.setState({
+        showConfirmation: true
+      })
+    }
+  }
+  submit = () => {
+    const { user, scannedUser } = this.props.state;
+    const { addFlag } = this.state;
+    if(addFlag == null || user == null || scannedUser == null){
+      this.setState({
+        errorMessage: 'Invalid Accessed!',
+        showConfirmation: false
+      })
+      return
+    }
+    if(addFlag == 'temperature'){
       let parameter = {
         temperature_location: null,
         account_id: scannedUser.id,
@@ -65,18 +108,13 @@ class ScannedUser extends Component{
           activePage: 'places',
           value: null,
           remarks: null,
-          errorMessage: null
+          errorMessage: null,
+          showConfirmation: false
         })
       }, error => {
         console.log(error)
       });
     }else if(addFlag == 'patient'){
-      if(this.state.patientStatus == null || this.state.patientStatus > 100){
-        this.setState({
-          errorMessage: 'Invalid Status!'
-        })
-        return
-      }
       let parameter = {
         temperature_location: null,
         account_id: scannedUser.id,
@@ -92,7 +130,8 @@ class ScannedUser extends Component{
           activePage: 'places',
           value: null,
           remarks: null,
-          errorMessage: null
+          errorMessage: null,
+          showConfirmation: false
         })
       }, error => {
         console.log(error)
@@ -271,7 +310,7 @@ class ScannedUser extends Component{
                       justifyContent: 'center',
                       borderRadius: 5
                     }}
-                    onPress={() => {this.submit()}}
+                    onPress={() => {this.validate()}}
                     underlayColor={Color.gray}
                       >
                     <Text style={{
@@ -514,6 +553,15 @@ class ScannedUser extends Component{
         {
           this.state.activePage == 'temperatures' && (
             this._temperatures()
+          )
+        }
+        {
+          this.state.showConfirmation && (
+            <Confirmation
+              visible={this.state.showConfirmation}
+              onCancel={() => this.onCancel()}
+              onContinue={() =>this.onContinue()}
+            />
           )
         }
       </ScrollView>
