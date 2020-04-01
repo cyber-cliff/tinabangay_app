@@ -356,7 +356,7 @@ class Ride extends Component{
                     {item.from_date_human} - {item.to_date_human}
                   </Text>
                   {
-                    item.status == 'death' && (
+                    (item.from_status == 'death' || item.to_status == 'death') && (
                       <View style={{
                         backgroundColor: 'black',
                         borderRadius: 2,
@@ -379,7 +379,7 @@ class Ride extends Component{
                   }
 
                   {
-                    item.status == 'positive' && (
+                    (item.from_status == 'positive' || item.to_status == 'positive') && (
                       <View style={{
                         backgroundColor: Color.danger,
                         borderRadius: 2,
@@ -401,7 +401,7 @@ class Ride extends Component{
                     )
                   }
                   {
-                    item.status == 'pum' && (
+                    (item.from_status == 'pum' || item.to_status == 'pum') && (
                       <View style={{
                         backgroundColor: Color.warning,
                         borderRadius: 2,
@@ -424,7 +424,7 @@ class Ride extends Component{
                   }
 
                   {
-                    item.status == 'pui' && (
+                    (item.from_status == 'pui' || item.to_status == 'pui') && (
                       <View style={{
                         backgroundColor: Color.primary,
                         borderRadius: 2,
@@ -446,7 +446,7 @@ class Ride extends Component{
                     )
                   }
                   {
-                    item.status == 'negative' && (
+                    (item.from_status == 'negative' || item.to_status == 'negative') && (
                       <View style={{
                         backgroundColor: 'green',
                         borderRadius: 2,
