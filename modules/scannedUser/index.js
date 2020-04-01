@@ -43,7 +43,8 @@ class ScannedUser extends Component{
     
   }
 
-  submit = () => {
+
+  validate = () => {
     const { user, scannedUser } = this.props.state;
     const { addFlag } = this.state;
     if(addFlag == null || user == null || scannedUser == null){
@@ -73,6 +74,22 @@ class ScannedUser extends Component{
         updated_at:null,
         deleted_at:null     
       }
+      this.setState({
+        showConfirmation: true
+      })
+    }
+  }
+  submit = () => {
+    const { user, scannedUser } = this.props.state;
+    const { addFlag } = this.state;
+    if(addFlag == null || user == null || scannedUser == null){
+      this.setState({
+        errorMessage: 'Invalid Accessed!',
+        showConfirmation: false
+      })
+      return
+    }
+    if(addFlag == 'temperature'){
       let parameter = {
         temperature_location:location,
         account_id: scannedUser.id,
