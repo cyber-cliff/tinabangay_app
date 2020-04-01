@@ -423,7 +423,7 @@ class Dashboard extends Component{
             )
           }
           {
-            (data != null && this.state.showScanner)&&(
+            (this.state.showScanner)&&(
               <DisplayScan
               visible={this.state.showScanner}
               close={(data) => this.manageScannedData(data)}
