@@ -59,6 +59,15 @@ class ScannedUser extends Component{
     }, 1000)
   }
 
+  addToTested = () => {
+    this.setState({
+      addFlag: 'test'
+    })
+    setTimeout(() => {
+      this.validate()
+    }, 1000)
+  }
+
   validate = () => {
     const { user, scannedUser } = this.props.state;
     const { addFlag } = this.state;
@@ -89,6 +98,10 @@ class ScannedUser extends Component{
         showConfirmation: true
       })
     }else if(addFlag == 'ride'){
+      this.setState({
+        showConfirmation: true
+      })
+    }else if(addFlag == 'test'){
       this.setState({
         showConfirmation: true
       })
@@ -129,7 +142,6 @@ class ScannedUser extends Component{
       });
     }else if(addFlag == 'patient'){
       let parameter = {
-        temperature_location: null,
         account_id: scannedUser.id,
         added_by: user.id,
         status: this.state.patientStatus,
@@ -170,6 +182,27 @@ class ScannedUser extends Component{
       }, error => {
         console.log(error)
       }); 
+    }else if(addFlag == 'test'){
+      let parameter = {
+        account_id: scannedUser.id,
+        added_by: user.id,
+        status: 'tested',
+      }
+      this.setState({isLoading: true})
+      Api.request(Routes.patientsCreate, parameter, response => {
+        console.log(response)
+        this.setState({
+          isLoading: false,
+          addFlag: null,
+          activePage: 'places',
+          value: null,
+          remarks: null,
+          errorMessage: null,
+          showConfirmation: false
+        })
+      }, error => {
+        console.log(error)
+      });
     }
   }
   _newPatient = () => {
@@ -258,21 +291,31 @@ class ScannedUser extends Component{
     const { user, scannedUser } = this.props.state;
     return (
       <View>
-       
+          {
+            (scannedUser.transportation != null || user.account_type != 'USER') && (
+              <View>
+                <Text style={{
+                  fontWeight: 'bold'
+                }}>Available Options</Text>
+              </View>
+            )
+          }
           <View style={{
-            flexDirection: 'row'
+            flexWrap: 'wrap',
+            alignItems: 'flex-start',
+            flexDirection: 'row',
+            marginTop: 20
           }}>
           {
             scannedUser.transportation != null && (
               <TouchableHighlight style={{
                 height: 50,
                 backgroundColor: Color.primary,
-                width: '32%',
-                marginBottom: 20,
+                width: '49%',
+                marginBottom: 10,
                 alignItems: 'center',
                 justifyContent: 'center',
-                borderRadius: 5,
-                marginTop: 20
+                borderRadius: 5
               }}
               onPress={() => {this.addRide()}}
               underlayColor={Color.gray}
@@ -285,16 +328,15 @@ class ScannedUser extends Component{
             )
           }
           {
-            (user.account_type == 'AGENCY' || user.account_type == 'AGENCY_LEVEL_1' || user.account_type == 'ADMIN') && (
+            (user.account_type == 'AGENCY_TEST_MNGT' || user.account_type == 'AGENCY_TEMP_MNGT' ||  user.account_type == 'AGENCY_GOV' || user.account_type == 'AGENCY_DOH' || user.account_type == 'ADMIN') && (
               <TouchableHighlight style={{
                   height: 50,
                   backgroundColor: Color.primary,
-                  width: '32%',
-                  marginBottom: 20,
+                  width: '49%',
+                  marginBottom: 10,
                   alignItems: 'center',
                   justifyContent: 'center',
                   borderRadius: 5,
-                  marginTop: 20,
                   marginLeft: '1%'
                 }}
                 onPress={() => {this.setState({
@@ -309,32 +351,54 @@ class ScannedUser extends Component{
               </TouchableHighlight>
             )
           }
-            {
-              (user.account_type == 'AGENCY_LEVEL_1' || user.account_type == 'ADMIN') && (
-                <TouchableHighlight style={{
-                    height: 50,
-                    backgroundColor: Color.primary,
-                    width: '32%',
-                    marginBottom: 20,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    borderRadius: 5,
-                    marginTop: 20,
-                    marginLeft: '1%'
-                  }}
-                  onPress={() => {this.setState({
-                    addFlag: 'patient'
-                  })}}
-                  underlayColor={Color.gray}
-                    >
-                  <Text style={{
-                    color: Color.white,
-                    textAlign: 'center',
-                  }}>Add Patient</Text>
-                </TouchableHighlight>
+          {
+            (user.account_type == 'AGENCY_DOH' || user.account_type == 'ADMIN') && (
+              <TouchableHighlight style={{
+                  height: 50,
+                  backgroundColor: Color.primary,
+                  width: '49%',
+                  marginBottom: 10,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: 5,
+                  marginLeft: '1%'
+                }}
+                onPress={() => {this.setState({
+                  addFlag: 'patient'
+                })}}
+                underlayColor={Color.gray}
+                  >
+                <Text style={{
+                  color: Color.white,
+                  textAlign: 'center',
+                }}>Add Patient</Text>
+              </TouchableHighlight>
 
-              )
-            }
+            )
+          }
+          {
+            (user.account_type == 'AGENCY_DOH' || user.account_type == 'AGENCY_TEST_MGNT' || user.account_type == 'ADMIN') && (
+              <TouchableHighlight style={{
+                  height: 50,
+                  backgroundColor: Color.primary,
+                  width: '49%',
+                  marginBottom: 10,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: 5,
+                  marginLeft: '1%'
+                }}
+                onPress={() => {this.addToTested()}}
+                underlayColor={Color.gray}
+                  >
+                <Text style={{
+                  color: Color.white,
+                  textAlign: 'center',
+                }}>Add To Tested</Text>
+              </TouchableHighlight>
+
+            )
+          }
           </View>
         {
           this.state.errorMessage != null && (
@@ -356,7 +420,7 @@ class ScannedUser extends Component{
           this.state.addFlag == 'patient' && (this._newPatient())
         }
         {
-          (this.state.addFlag != null && this.state.addFlag != 'ride') && (
+          (this.state.addFlag != null && this.state.addFlag != 'ride' && this.state.addFlag != 'test') && (
             <View>
               <View>
                 <TouchableHighlight style={{

@@ -39,7 +39,7 @@ const ScannedUserStack = createStackNavigator({
   scannedUserScreen: {
     screen: ScannerUser, 
     navigationOptions: ({ navigation }) => ({
-      title: 'Scanner User',
+      title: 'Scanned User',
       headerLeft: <HeaderOptions navigationProps={navigation} />,
       drawerLabel: 'Scanned User',
       headerStyle: {
