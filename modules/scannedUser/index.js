@@ -377,7 +377,7 @@ class ScannedUser extends Component{
             )
           }
           {
-            (user.account_type == 'AGENCY_DOH' || user.account_type == 'AGENCY_TEST_MGNT' || user.account_type == 'ADMIN') && (
+            (user.account_type == 'AGENCY_DOH' || user.account_type == 'AGENCY_TEST_MNGT' || user.account_type == 'ADMIN') && (
               <TouchableHighlight style={{
                   height: 50,
                   backgroundColor: Color.primary,
