@@ -7,6 +7,7 @@ import Api from 'services/api/index.js';
 import Currency from 'services/Currency.js';
 import { connect } from 'react-redux';
 import Config from 'src/config.js';
+import {NavigationActions} from 'react-navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faUserCircle, faMapMarker } from '@fortawesome/free-solid-svg-icons';
 import { Dimensions } from 'react-native';
@@ -179,6 +180,10 @@ class ScannedUser extends Component{
           errorMessage: null,
           showConfirmation: false
         })
+        const navigateAction = NavigationActions.navigate({
+          routeName: 'Ride'
+        });
+        this.props.navigation.dispatch(navigateAction);
       }, error => {
         console.log(error)
       }); 
@@ -694,6 +699,7 @@ class ScannedUser extends Component{
               visible={this.state.showConfirmation}
               onCancel={() => this.onCancel()}
               onContinue={() =>this.onContinue()}
+              message={null}
             />
           )
         }

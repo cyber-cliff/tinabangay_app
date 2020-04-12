@@ -23,5 +23,8 @@ export default {
   patientsCreate: apiUrl + 'patients/create',
   ridesRetrieve: apiUrl + 'rides/retrieve',
   ridesCreate: apiUrl + 'rides/create',
-  tracingPlaces: apiUrl + 'tracing_places/places'
+  tracingPlaces: apiUrl + 'tracing_places/places',
+  transportationCreate: apiUrl + 'transportations/create',
+  transportationUpdate: apiUrl + 'transportations/update',
+  transportationRetrieve: apiUrl + 'transportations/retrieve'
 }

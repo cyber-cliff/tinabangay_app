@@ -43,7 +43,7 @@ class Place extends Component{
         column: 'account_id'
       }],
       sort: {
-        route: 'asc'
+        created_at: 'desc'
       }
     }
     this.setState({

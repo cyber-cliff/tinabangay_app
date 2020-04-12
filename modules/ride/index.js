@@ -48,7 +48,10 @@ class Ride extends Component{
         value: user.id,
         clause: '=',
         column: 'account_id'
-      }]
+      }],
+      sort: {
+        created_at: 'desc'
+      }
     }
     this.setState({
       isLoading: true, 
