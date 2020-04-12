@@ -194,6 +194,7 @@ class ScannedUser extends Component{
         status: 'tested',
       }
       this.setState({isLoading: true})
+      console.log(parameter)
       Api.request(Routes.patientsCreate, parameter, response => {
         console.log(response)
         this.setState({
@@ -205,6 +206,10 @@ class ScannedUser extends Component{
           errorMessage: null,
           showConfirmation: false
         })
+        const navigateAction = NavigationActions.navigate({
+          routeName: 'Dashboard'
+        });
+        this.props.navigation.dispatch(navigateAction);
       }, error => {
         console.log(error)
       });

@@ -18,6 +18,9 @@ class Notifications extends Component{
     }
   }
 
+  componentDidMount(){
+    this.retrieve()
+  }
   FlatListItemSeparator = () => {
     return (
       <View style={BasicStyles.Separator}/>
@@ -31,120 +34,164 @@ class Notifications extends Component{
       return
     }
     let parameter = {
-      account_id: user.id
+      condition: [{
+        value: user.id,
+        clause: '=',
+        column: 'account_id'
+      }],
+      sort: {
+        created_at: 'desc'
+      }
     }
     this.setState({isLoading: true})
-    Api.request(Routes.notificationsRetrieve, parameter, notifications => {
+    console.log(parameter)
+    Api.request(Routes.notificationsRetrieve, parameter, response => {
+      console.log(response)
       this.setState({isLoading: false})
-      console.log(notifications.data.length)
-      setNotifications(notifications.size, notifications.data)
+      setNotifications(response.length, response.data)
     })
   }
 
-  retrieveRequest = (route) => {
-    const { user, searchParameter } = this.props.state;
-    const { setUserLedger } = this.props;
-    if(user == null){
-      return;
-    }
-    let parameter = {
-      account_id: user.id,
-      offset: 0,
-      limit: 10,
-      sort: {
-        column: 'created_at',
-        value: 'desc'
-      },
-      value: searchParameter == null ? '%' : searchParameter.value,
-      column: searchParameter == null ? 'created_at' : searchParameter.column,
-      type: user.account_type
-    }
-    Api.request(Routes.requestRetrieve, parameter, response => {
-      const { setRequests } = this.props;
-      setUserLedger(response.ledger)
-      if(response.data !=  null){
-        setRequests(response.data)
-      }else{
-        setRequests(null)
-      }
-      const navigateAction = NavigationActions.navigate({
-        routeName: route
-      });
-      this.props.navigation.dispatch(navigateAction);
-    });
-  }
-
-  updateNotification = (searchParameter, notification, route) => {
-    const { setSearchParameter, setNotifications } = this.props;
-    const { user } = this.props.state;
-    if(user == null){
-      return
-    }
-    let parameter = {
-      id: notification.id
-    }
-    Api.request(Routes.notificationUpdate, parameter, response => {
-      let retrieveParameter = {
-        account_id: user.id
-      }
-      Api.request(Routes.notificationsRetrieve, retrieveParameter, notifications => {
-        setNotifications(notifications.size, notifications.data);
-        setSearchParameter(searchParameter)
-        if(route == 'Requests'){
-          setTimeout(() => {
-            this.retrieveRequest(route)
-          }, 1000)
-          return
+  _status = (item) => {
+    return (
+      <View>
+        {
+          item.status == 'death' && (
+            <View style={{
+              backgroundColor: 'black',
+              borderRadius: 2,
+              marginRight: 20,
+              marginLeft: 20,
+              marginBottom: 10,
+              marginTop: 10
+            }}>
+              <Text style={{
+                color: Color.white,
+                paddingTop: 2,
+                paddingBottom: 2,
+                paddingLeft: 10,
+                paddingRight: 10
+              }}>
+                {item.status.toUpperCase()}
+              </Text>
+            </View>
+          )
         }
-        const navigateAction = NavigationActions.navigate({
-          routeName: route
-        });
-        this.props.navigation.dispatch(navigateAction);
-      });
-    })
-  }
 
-  viewNotification = (notification, index) => {
-    const { notifications } = this.props.state;
-    const { setSearchParameter } = this.props;
-    setSearchParameter(null)
-    let route = null;
-    let searchParameter = null
-    switch(notification.payload){
-      case 'request':
-        route = 'Requests';
-        searchParameter = {
-          column: 'id',
-          value: notification.payload_value
+        {
+          item.status == 'positive' && (
+            <View style={{
+              backgroundColor: Color.danger,
+              borderRadius: 2,
+              marginRight: 20,
+              marginLeft: 20,
+              marginBottom: 10,
+              marginTop: 10
+            }}>
+              <Text style={{
+                color: Color.white,
+                paddingTop: 2,
+                paddingBottom: 2,
+                paddingLeft: 10,
+                paddingRight: 10
+              }}>
+                {item.status.toUpperCase()}
+              </Text>
+            </View>
+          )
         }
-        break;
-      case 'ledger':
-        route = 'Dashboard'
-        break;
-      case 'thread':
-        route = 'Messenger';
-        // searchParameter = {
-        //   column: 'id',
-        //   value: notification.payload_value
-        // }
-        searchParameter = null
-        break;
-    }
-    if(notifications.unread > index){
-      this.updateNotification(searchParameter, notification, route);
-    }else{
-      setSearchParameter(searchParameter)
-      if(route == 'Requests'){
-        setTimeout(() => {
-          this.retrieveRequest(route)
-        }, 1000)
-        return
-      }
-      const navigateAction = NavigationActions.navigate({
-        routeName: route
-      });
-      this.props.navigation.dispatch(navigateAction);
-    }
+        {
+          item.status == 'pum' && (
+            <View style={{
+              backgroundColor: Color.warning,
+              borderRadius: 2,
+              marginRight: 20,
+              marginLeft: 20,
+              marginBottom: 10,
+              marginTop: 10
+            }}>
+              <Text style={{
+                color: Color.white,
+                paddingTop: 2,
+                paddingBottom: 2,
+                paddingLeft: 10,
+                paddingRight: 10
+              }}>
+                {item.status.toUpperCase()}
+              </Text>
+            </View>
+          )
+        }
+
+        {
+          item.status == 'pui' && (
+            <View style={{
+              backgroundColor: Color.primary,
+              borderRadius: 2,
+              marginRight: 20,
+              marginLeft: 20,
+              marginBottom: 10,
+              marginTop: 10
+            }}>
+              <Text style={{
+                color: Color.white,
+                paddingTop: 2,
+                paddingBottom: 2,
+                paddingLeft: 10,
+                paddingRight: 10
+              }}>
+                {item.status.toUpperCase()}
+              </Text>
+            </View>
+          )
+        }
+        {
+          item.status == 'negative' && (
+            <View style={{
+              backgroundColor: 'green',
+              borderRadius: 2,
+              marginRight: 20,
+              marginLeft: 20,
+              marginBottom: 10,
+              marginTop: 10
+            }}>
+              <Text style={{
+                color: Color.white,
+                paddingTop: 2,
+                paddingBottom: 2,
+                paddingLeft: 10,
+                paddingRight: 10
+              }}>
+                {item.status.toUpperCase()}
+              </Text>
+            </View>
+          )
+        }
+
+        {
+          item.status == 'tested' && (
+            <View style={{
+              backgroundColor: Color.warning,
+              borderRadius: 2,
+              marginRight: 20,
+              marginLeft: 20,
+              marginBottom: 10,
+              marginTop: 10
+            }}>
+              <Text style={{
+                color: Color.white,
+                paddingTop: 2,
+                paddingBottom: 2,
+                paddingLeft: 10,
+                paddingRight: 10
+              }}>
+                {item.status.toUpperCase()}. Please be responsible and be on quarantine until the results.
+              </Text>
+            </View>
+          )
+        }
+      </View>
+    );
   }
 
   render() {
@@ -181,7 +228,7 @@ class Notifications extends Component{
                 renderItem={({ item, index }) => (
                   <View>
                     <TouchableHighlight
-                      onPress={() => {this.viewNotification(item, index)}}
+                      onPress={() => {console.log('hi')}}
                       underlayColor={Color.gray}
                       >
                       <View style={[Style.TextContainer, {
@@ -191,12 +238,12 @@ class Notifications extends Component{
                           style={[BasicStyles.titleText, {
                             paddingTop: 10
                           }]}>
-                          {item.title}
+                          New Status
                         </Text>
-                        <Text
-                          style={BasicStyles.normalText}>
-                          {item.description}
-                        </Text>
+
+                        {
+                          this._status(item)
+                        }
 
                         <Text
                           style={[BasicStyles.normalText, {
