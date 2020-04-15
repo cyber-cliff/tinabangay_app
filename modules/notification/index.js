@@ -48,7 +48,7 @@ class Notifications extends Component{
     Api.request(Routes.notificationsRetrieve, parameter, response => {
       console.log(response)
       this.setState({isLoading: false})
-      setNotifications(response.length, response.data)
+      setNotifications(response.length, response.data.length > 0 ? response.data : null)
     })
   }
 

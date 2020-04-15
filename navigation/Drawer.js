@@ -13,6 +13,7 @@ import Temperature from 'modules/temperature';
 import Ride from 'modules/ride';
 import Profile from 'modules/profile';
 import Transportation from 'modules/transportation';
+import Location from 'modules/location';
 import GenerateQR from 'modules/generateQR';
 import ScanQR from 'modules/scanQR';
 import OptionRight from './OptionRight';
@@ -193,6 +194,21 @@ const Transportation_StackNavigator = createStackNavigator({
   },
 });
 
+const Location_StackNavigator = createStackNavigator({
+  Location: {
+    screen: Location,
+    navigationOptions: ({ navigation }) => ({
+      title: 'My Location',
+      headerLeft: <MenuDrawerStructure navigationProps={navigation} />,
+      headerRight: <OptionRight navigationProps={navigation} />,
+      headerStyle: {
+        backgroundColor: Color.primary,
+      },
+      headerTintColor: '#fff',
+    }),
+  },
+});
+
 
 const Drawer = createDrawerNavigator({
   Dashboard: {
@@ -253,6 +269,12 @@ const Drawer = createDrawerNavigator({
     screen: Transportation_StackNavigator,
     navigationOptions: {
       drawerLabel: 'My Transportation',
+    },
+  },
+  Location: {
+    screen: Location_StackNavigator,
+    navigationOptions: {
+      drawerLabel: 'My Location',
     },
   },
   

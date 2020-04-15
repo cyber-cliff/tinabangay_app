@@ -26,7 +26,7 @@ export default {
   transportationCreate: apiUrl + 'transportations/create',
   transportationUpdate: apiUrl + 'transportations/update',
   transportationRetrieve: apiUrl + 'transportations/retrieve',
-  locationsCreate: apiUrl + 'locations/create',
-  locationsRetrieve: apiUrl + 'locations/retrieve',
-  locationsUpdate: apiUrl + 'locations/update'
+  locationCreate: apiUrl + 'locations/create',
+  locationRetrieve: apiUrl + 'locations/retrieve',
+  locationUpdate: apiUrl + 'locations/update'
 }

@@ -91,14 +91,14 @@ class Places extends Component{
                         fontWeight: 'bold',
                         color: Color.primary
                       }]}>
-                      {item.date_human + ':' + item.time + ' - ' + item.route}
+                      {item.date_human + ':' + item.time + (item.route != 'xx' ? ' - ' + item.route : '')}
                     </Text>
                   </View>
                   <Text
                     style={[BasicStyles.normalText, {
                       color: Color.darkGray
                     }]}>
-                    {item.locality + ',' + item.country}
+                    {item.route != 'xx' ? item.locality + ',' + item.country : 'Custom Location'}
                   </Text>
                   {
                     item.status == 'death' && (

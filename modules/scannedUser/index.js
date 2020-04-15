@@ -119,14 +119,16 @@ class ScannedUser extends Component{
       return
     }
     if(addFlag == 'temperature'){
+      const { location } = this.props.state;
       let parameter = {
-        temperature_location: null,
+        location: location,
         account_id: scannedUser.id,
         added_by: user.id,
         value: this.state.value,
         remarks: this.state.remarks ? this.state.remarks : null
       }
       this.setState({isLoading: true})
+      console.log(parameter)
       Api.request(Routes.temperaturesCreate, parameter, response => {
         console.log(response)
         this.setState({
