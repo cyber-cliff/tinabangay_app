@@ -13,51 +13,17 @@ import { Dimensions } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import RNPickerSelect from 'react-native-picker-select';
 const height = Math.round(Dimensions.get('window').height);
-class Places extends Component{
+class Display extends Component{
+
   constructor(props){
     super(props);
     this.state = {
-      isLoading: false,
-      date: null,
+      selected: null
     }
   }
-
-  componentDidMount(){
-    this.retrieve()
-  }
-
-  retrieve = () => {
-    const { scannedUser } = this.props.state;
-    if(scannedUser === null){
-      return
-    }
-    let parameter = {
-      condition: [{
-        value: scannedUser.id,
-        clause: '=',
-        column: 'account_id'
-      }],
-      sort: {
-        created_at: 'desc'
-      }
-    }
-    this.setState({
-      isLoading: true, 
-      showDatePicker: false
-    })
-    Api.request(Routes.visitedPlacesRetrieve, parameter, response => {
-      console.log(response.data)
-      this.setState({isLoading: false})
-      if(response.data.length > 0){
-        this.setState({data: response.data})
-      }else{
-        this.setState({data: null})
-      }
-    });
-  }
-
-  _places = () => {
-    const { data, selected } = this.state;
+  render() {
+    const { data } = this.props;
+    const { selected} = this.state;
     return (
       <View style={{
         backgroundColor: Color.white,
@@ -82,26 +48,78 @@ class Places extends Component{
                 underlayColor={Color.gray}
                 >
                 <View style={Style.TextContainer}>
-                  <View style={{
-                    flexDirection: 'row'
-                  }}>
-                    <Text
-                      style={[BasicStyles.titleText, {
-                        paddingTop: 10,
-                        fontWeight: 'bold',
-                        color: Color.primary
-                      }]}>
-                      {item.date_human + ':' + item.time + (item.route != 'xx' ? ' - ' + item.route : '')}
-                    </Text>
-                  </View>
-                  <Text
-                    style={[BasicStyles.normalText, {
-                      color: Color.darkGray
-                    }]}>
-                    {item.route != 'xx' ? item.locality + ',' + item.country : 'Custom Location'}
-                  </Text>
                   {
-                    item.status == 'death' && (
+                    item.payload == 'manual' && (
+                      <View>
+                        <View style={{
+                          flexDirection: 'row'
+                          }}>
+                          <Text
+                            style={[BasicStyles.titleText, {
+                              paddingTop: 10,
+                              fontWeight: 'bold',
+                              color: Color.primary
+                            }]}>
+                            {item.code ? item.code: ''} {item.type}
+                          </Text>
+                        </View>
+                        <View>
+                          <Text
+                            style={[BasicStyles.normalText, {
+                              paddingTop: 10,
+                              color: Color.darkGray
+                            }]}>
+                            {item.from} - {item.to}
+                          </Text>
+                          <Text
+                            style={[BasicStyles.normalText, {
+                              color: Color.darkGray
+                            }]}>
+                            {item.from_date_human} - {item.to_date_human}
+                          </Text>
+                        </View>
+                      </View>
+                    )
+                  }
+                  {
+                    (item.payload == 'qr'  && item.transportation != null) && (
+                      <View>
+                        <Text
+                          style={[BasicStyles.normalText, {
+                            paddingTop: 10,
+                            color: Color.primary,
+                            fontWeight: 'bold'
+                          }]}>
+                          Type: {item.transportation.type.toUpperCase()}
+                        </Text>
+
+                        <Text
+                          style={[BasicStyles.normalText, {
+                            paddingTop: 10,
+                            color: Color.darkGray
+                          }]}>
+                          Model: {item.transportation.model.toUpperCase()}
+                        </Text>
+
+                        <Text
+                          style={[BasicStyles.normalText, {
+                            paddingTop: 10,
+                            color: Color.darkGray
+                          }]}>
+                          Code: {item.transportation.number.toUpperCase()}
+                        </Text>
+                        <Text
+                          style={[BasicStyles.normalText, {
+                            color: Color.darkGray
+                          }]}>
+                          {item.created_at_human}
+                        </Text>
+                      </View>
+                    )
+                  }
+                  
+                  {
+                    (item.from_status == 'death' || item.to_status == 'death') && (
                       <View style={{
                         backgroundColor: 'black',
                         borderRadius: 2,
@@ -117,14 +135,14 @@ class Places extends Component{
                           paddingLeft: 10,
                           paddingRight: 10
                         }}>
-                          There was death in this area.
+                          There was a death in this route.
                         </Text>
                       </View>
                     )
                   }
 
                   {
-                    item.status == 'positive' && (
+                    (item.from_status == 'positive' || item.to_status == 'positive') && (
                       <View style={{
                         backgroundColor: Color.danger,
                         borderRadius: 2,
@@ -140,13 +158,13 @@ class Places extends Component{
                           paddingLeft: 10,
                           paddingRight: 10
                         }}>
-                          There was a COVID Positive in this area.
+                          There was a COVID Positive in this route.
                         </Text>
                       </View>
                     )
                   }
                   {
-                    item.status == 'pum' && (
+                    (item.from_status == 'pum' || item.to_status == 'pum') && (
                       <View style={{
                         backgroundColor: Color.warning,
                         borderRadius: 2,
@@ -162,14 +180,14 @@ class Places extends Component{
                           paddingLeft: 10,
                           paddingRight: 10
                         }}>
-                          There was a PUM in this area.
+                          There was a PUM in this route.
                         </Text>
                       </View>
                     )
                   }
 
                   {
-                    item.status == 'pui' && (
+                    (item.from_status == 'pui' || item.to_status == 'pui') && (
                       <View style={{
                         backgroundColor: Color.primary,
                         borderRadius: 2,
@@ -185,13 +203,13 @@ class Places extends Component{
                           paddingLeft: 10,
                           paddingRight: 10
                         }}>
-                          There was a PUI in this area.
+                          There was a PUI in this route.
                         </Text>
                       </View>
                     )
                   }
                   {
-                    item.status == 'negative' && (
+                    (item.from_status == 'negative' || item.to_status == 'negative') && (
                       <View style={{
                         backgroundColor: 'green',
                         borderRadius: 2,
@@ -207,7 +225,7 @@ class Places extends Component{
                           paddingLeft: 10,
                           paddingRight: 10
                         }}>
-                          This area is clear.
+                          This route is clear.
                         </Text>
                       </View>
                     )
@@ -223,33 +241,8 @@ class Places extends Component{
       </View>
     );
   }
-
-  render() {
-    const { user } = this.props.state;
-    const { isLoading, newPlaceFlag, data } = this.state;
-    return (
-      <ScrollView
-        style={Style.ScrollView}
-        onScroll={(event) => {
-          if(event.nativeEvent.contentOffset.y <= 0) {
-            if(this.state.isLoading == false){
-              this.retrieve()
-            }
-          }
-        }}
-        >
-        {
-          data == null && (
-            <Empty />
-          )
-        }
-        {
-          data !== null && (this._places())
-        }
-      </ScrollView>
-    );
-  }
 }
+
 const mapStateToProps = state => ({ state: state });
 
 const mapDispatchToProps = dispatch => {
@@ -262,4 +255,4 @@ const mapDispatchToProps = dispatch => {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(Places);
+)(Display);

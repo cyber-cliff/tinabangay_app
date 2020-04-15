@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { View, TouchableOpacity, Text, Platform } from 'react-native';
 import {NavigationActions} from 'react-navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faEnvelope, faBell} from '@fortawesome/free-solid-svg-icons';
+import { faEnvelope, faBell, faBus, faMapMarker} from '@fortawesome/free-solid-svg-icons';
 import { faCopy } from '@fortawesome/free-regular-svg-icons';
 import { Color, BasicStyles } from 'common';
 
@@ -23,31 +23,34 @@ class NavigationDrawerStructureRight extends Component {
   }
   
   render() {
-    const { messenger, notifications } = this.props.state;;
+    const { notifications, user } = this.props.state;;
     return (
       <View style={{ flexDirection: 'row' }}>
+        {
+          (user != null && user.account_type != 'USER') &&
+          (
+            <View>
+              <TouchableOpacity onPress={() => this.navigateToScreen('Location')}>
+                <View style={{ flexDirection: 'row'}}>
+                  <FontAwesomeIcon icon={ faMapMarker } size={BasicStyles.iconSize} style={BasicStyles.iconStyle}/>
+                </View>
+              </TouchableOpacity>
+            </View>
+          )
+        }
+        <View>
+          <TouchableOpacity onPress={() => this.navigateToScreen('Transportation')}>
+            <View style={{ flexDirection: 'row'}}>
+              <FontAwesomeIcon icon={ faBus } size={BasicStyles.iconSize} style={BasicStyles.iconStyle}/>
+            </View>
+          </TouchableOpacity>   
+        </View>
         <View>
           <TouchableOpacity onPress={() => this.navigateToScreen('Notification')}>
             <View style={{ flexDirection: 'row'}}>
               <FontAwesomeIcon icon={ faBell } size={BasicStyles.iconSize} style={BasicStyles.iconStyle}/>
               {
                 notifications && notifications.unread > 0 &&
-                (
-                  <Text style={{
-                    color: Color.white,
-                    backgroundColor: Color.danger,
-                    borderRadius: 2,
-                    paddingLeft: 6,
-                    paddingRight: 6,
-                    paddingTop: 4,
-                    paddingBottom: 4,
-                    fontSize: 11,
-                    marginLeft: -20
-                  }}>{notifications.unread}</Text>
-                )
-              }
-              {
-                notifications && notifications.unread > 0 && Platform.OS == 'ios' &&
                 (
                   <View style={{
                     ackgroundColor: Color.danger,

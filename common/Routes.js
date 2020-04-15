@@ -9,8 +9,7 @@ export default {
   accountRetrieve: apiUrl + 'accounts/retrieve',
   accountUpdate: apiUrl + 'accounts/update',
   accountCreate: apiUrl + 'accounts/create',
-  notificationsRetrieve: apiUrl + 'notifications/retrieve',
-  notificationUpdate: apiUrl + 'notifications/update',
+  notificationsRetrieve: apiUrl + 'patients/retrieve_notifications',
   accountProfileCreate: apiUrl + 'account_profiles/create',
   accountProfileUpdate: apiUrl + 'account_profiles/update',
   accountInformationRetrieve: apiUrl + 'account_informations/retrieve',
@@ -23,5 +22,11 @@ export default {
   patientsCreate: apiUrl + 'patients/create',
   ridesRetrieve: apiUrl + 'rides/retrieve',
   ridesCreate: apiUrl + 'rides/create',
-  tracingPlaces: apiUrl + 'tracing_places/places'
+  tracingPlaces: apiUrl + 'tracing_places/places',
+  transportationCreate: apiUrl + 'transportations/create',
+  transportationUpdate: apiUrl + 'transportations/update',
+  transportationRetrieve: apiUrl + 'transportations/retrieve',
+  locationCreate: apiUrl + 'locations/create',
+  locationRetrieve: apiUrl + 'locations/retrieve',
+  locationUpdate: apiUrl + 'locations/update'
 }

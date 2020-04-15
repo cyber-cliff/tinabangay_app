@@ -12,6 +12,7 @@ import { faUserCircle, faMapMarker } from '@fortawesome/free-solid-svg-icons';
 import { Dimensions } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import RNPickerSelect from 'react-native-picker-select';
+import DisplayRides from './Display.js';
 const height = Math.round(Dimensions.get('window').height);
 class Ride extends Component{
   constructor(props){
@@ -47,7 +48,10 @@ class Ride extends Component{
         value: user.id,
         clause: '=',
         column: 'account_id'
-      }]
+      }],
+      sort: {
+        created_at: 'desc'
+      }
     }
     this.setState({
       isLoading: true, 
@@ -304,181 +308,6 @@ class Ride extends Component{
     );
   }
 
-  _data = () => {
-    const { data, selected } = this.state;
-    return (
-      <View style={{
-        backgroundColor: Color.white,
-        position: 'relative',
-        zIndex: -1
-      }}>
-        <FlatList
-          data={data}
-          extraData={selected}
-          ItemSeparatorComponent={this.FlatListItemSeparator}
-          renderItem={({ item, index }) => (
-            <View style={{
-              borderRadius: 5,
-              marginBottom: 10,
-              borderColor: Color.gray,
-              borderWidth: 1,
-              position: 'relative',
-              zIndex: -1
-            }}>
-              <TouchableHighlight
-                onPress={() => {console.log('hello list')}}
-                underlayColor={Color.gray}
-                >
-                <View style={Style.TextContainer}>
-                  <View style={{
-                    flexDirection: 'row'
-                  }}>
-                    <Text
-                      style={[BasicStyles.titleText, {
-                        paddingTop: 10,
-                        fontWeight: 'bold',
-                        color: Color.primary
-                      }]}>
-                      {item.code ? item.code: ''} {item.type}
-                    </Text>
-                  </View>
-                  <Text
-                    style={[BasicStyles.normalText, {
-                      paddingTop: 10,
-                      color: Color.darkGray
-                    }]}>
-                    {item.from} - {item.to}
-                  </Text>
-                  <Text
-                    style={[BasicStyles.normalText, {
-                      color: Color.darkGray
-                    }]}>
-                    {item.from_date_human} - {item.to_date_human}
-                  </Text>
-                  {
-                    (item.from_status == 'death' || item.to_status == 'death') && (
-                      <View style={{
-                        backgroundColor: 'black',
-                        borderRadius: 2,
-                        marginRight: 20,
-                        marginLeft: 20,
-                        marginBottom: 10,
-                        marginTop: 10
-                      }}>
-                        <Text style={{
-                          color: Color.white,
-                          paddingTop: 2,
-                          paddingBottom: 2,
-                          paddingLeft: 10,
-                          paddingRight: 10
-                        }}>
-                          There was a death in this route.
-                        </Text>
-                      </View>
-                    )
-                  }
-
-                  {
-                    (item.from_status == 'positive' || item.to_status == 'positive') && (
-                      <View style={{
-                        backgroundColor: Color.danger,
-                        borderRadius: 2,
-                        marginRight: 20,
-                        marginLeft: 20,
-                        marginBottom: 10,
-                        marginTop: 10
-                      }}>
-                        <Text style={{
-                          color: Color.white,
-                          paddingTop: 2,
-                          paddingBottom: 2,
-                          paddingLeft: 10,
-                          paddingRight: 10
-                        }}>
-                          There was a COVID Positive in this route.
-                        </Text>
-                      </View>
-                    )
-                  }
-                  {
-                    (item.from_status == 'pum' || item.to_status == 'pum') && (
-                      <View style={{
-                        backgroundColor: Color.warning,
-                        borderRadius: 2,
-                        marginRight: 20,
-                        marginLeft: 20,
-                        marginBottom: 10,
-                        marginTop: 10
-                      }}>
-                        <Text style={{
-                          color: Color.white,
-                          paddingTop: 2,
-                          paddingBottom: 2,
-                          paddingLeft: 10,
-                          paddingRight: 10
-                        }}>
-                          There was a PUM in this route.
-                        </Text>
-                      </View>
-                    )
-                  }
-
-                  {
-                    (item.from_status == 'pui' || item.to_status == 'pui') && (
-                      <View style={{
-                        backgroundColor: Color.primary,
-                        borderRadius: 2,
-                        marginRight: 20,
-                        marginLeft: 20,
-                        marginBottom: 10,
-                        marginTop: 10
-                      }}>
-                        <Text style={{
-                          color: Color.white,
-                          paddingTop: 2,
-                          paddingBottom: 2,
-                          paddingLeft: 10,
-                          paddingRight: 10
-                        }}>
-                          There was a PUI in this route.
-                        </Text>
-                      </View>
-                    )
-                  }
-                  {
-                    (item.from_status == 'negative' || item.to_status == 'negative') && (
-                      <View style={{
-                        backgroundColor: 'green',
-                        borderRadius: 2,
-                        marginRight: 20,
-                        marginLeft: 20,
-                        marginBottom: 10,
-                        marginTop: 10
-                      }}>
-                        <Text style={{
-                          color: Color.white,
-                          paddingTop: 2,
-                          paddingBottom: 2,
-                          paddingLeft: 10,
-                          paddingRight: 10
-                        }}>
-                          This route is clear.
-                        </Text>
-                      </View>
-                    )
-                  }
-
-                  
-                </View>
-              </TouchableHighlight>
-            </View>
-          )}
-          keyExtractor={(item, index) => index.toString()}
-        />
-      </View>
-    );
-  }
-
   render() {
     const { user } = this.props.state;
     const { isLoading, newDataFlag, data } = this.state;
@@ -538,7 +367,9 @@ class Ride extends Component{
           )
         }
         {
-          data !== null && (this._data())
+          data !== null && (
+            <DisplayRides data={data}/>
+          )
         }
       </ScrollView>
     );

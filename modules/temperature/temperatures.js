@@ -79,7 +79,8 @@ class Temperatures extends Component{
                       style={[BasicStyles.titleText, {
                         paddingTop: 10,
                         color: Color.primary,
-                        fontWeight: 'bold'
+                        fontWeight: 'bold',
+                        paddingBottom: 10
                       }]}>
                       {item.value} Degree Celsius
                     </Text>
@@ -88,12 +89,14 @@ class Temperatures extends Component{
                     item.remarks != null && (
                         <Text
                           style={[BasicStyles.normalText, {
-                            color: Color.darkGray
+                            color: Color.darkGray,
+                            paddingBottom: 10
                           }]}>
                           {item.remarks}
                         </Text>
                       )
                   }
+<<<<<<< HEAD
                   {
                     item.temperature_location && (
                       <View style={{
@@ -118,6 +121,8 @@ class Temperatures extends Component{
                       </View>
                     )
                   }
+=======
+>>>>>>> a43c2c7d440685f3b69bf9429d76b03c185bb2d4
                 </View>
             </View>
           )}

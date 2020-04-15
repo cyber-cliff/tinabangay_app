@@ -76,7 +76,8 @@ class Temperature extends Component{
                       style={[BasicStyles.titleText, {
                         paddingTop: 10,
                         color: Color.primary,
-                        fontWeight: 'bold'
+                        fontWeight: 'bold',
+                        paddingBottom: 10
                       }]}>
                       {item.value} Degree Celsius
                     </Text>
@@ -85,34 +86,12 @@ class Temperature extends Component{
                     item.remarks != null && (
                         <Text
                           style={[BasicStyles.normalText, {
-                            color: Color.darkGray
+                            color: Color.darkGray,
+                            paddingBottom: 10
                           }]}>
                           {item.remarks}
                         </Text>
                       )
-                  }
-                  {
-                    item.temperature_location && (
-                      <View style={{
-                        flexDirection: 'row'
-                      }}>
-                        <FontAwesomeIcon
-                          icon={faMapMarker}
-                          style={{
-                            color: Color.darkGray,
-                            marginLeft: 17
-                          }}
-                        ></FontAwesomeIcon>
-                        <Text
-                          style={[BasicStyles.normalText, {
-                            color: Color.darkGray,
-                            paddingLeft: 0,
-                            marginBottom: 10
-                          }]}>
-                          {item.temperature_location.route + ', ' + item.temperature_location.locality + ', ' + item.temperature_location.country}
-                        </Text>
-                      </View>
-                    )
                   }
                 </View>
             </View>
