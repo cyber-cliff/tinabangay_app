@@ -34,14 +34,7 @@ class ScannedUser extends Component{
   componentDidMount(){
   }
 
-   manageLocation = (location) => {
-   
-    this.setState({
-      templocation: location
-    })
-
-    
-  }
+  
 
 
   validate = () => {
@@ -60,20 +53,7 @@ class ScannedUser extends Component{
         })
         return
       }
-      let location ={
-        id:this.props.state.scannedUser,
-        account_id:user.id,
-        temperature_id:null,
-        longitude:this.state.templocation.longitude,
-        latitude:this.state.templocation.latitude,
-        route:this.state.templocation.route,
-        locality:this.state.templocation.locality,
-        country:this.state.templocation.country,
-        region:this.state.templocation.region,
-        created_at:null,
-        updated_at:null,
-        deleted_at:null     
-      }
+   
       this.setState({
         showConfirmation: true
       })
@@ -221,20 +201,7 @@ class ScannedUser extends Component{
             placeholder={'Type Remarks'}
           />
         </View>
-          <View style={{
-          position: 'relative',
-          backgroundColor: Color.white,
-          zIndex: 2
-        }}>
-          <Text style={{
-            paddingTop: 10
-          }}>Location</Text>
-          <GooglePlacesAutoComplete 
-            onFinish={(location) => this.manageLocation(location)}
-            placeholder={'Start typing location'}
-            onChange={() => {}}
-          />
-        </View>
+         
 
       
       </View>
