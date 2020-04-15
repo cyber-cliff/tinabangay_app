@@ -25,5 +25,8 @@ export default {
   tracingPlaces: apiUrl + 'tracing_places/places',
   transportationCreate: apiUrl + 'transportations/create',
   transportationUpdate: apiUrl + 'transportations/update',
-  transportationRetrieve: apiUrl + 'transportations/retrieve'
+  transportationRetrieve: apiUrl + 'transportations/retrieve',
+  locationsCreate: apiUrl + 'locations/create',
+  locationsRetrieve: apiUrl + 'locations/retrieve',
+  locationsUpdate: apiUrl + 'locations/update'
 }
