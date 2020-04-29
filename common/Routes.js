@@ -28,5 +28,8 @@ export default {
   transportationRetrieve: apiUrl + 'transportations/retrieve',
   locationCreate: apiUrl + 'locations/create',
   locationRetrieve: apiUrl + 'locations/retrieve',
-  locationUpdate: apiUrl + 'locations/update'
+  locationUpdate: apiUrl + 'locations/update',
+  linkedAccountsCreate: apiUrl + 'linked_accounts/create',
+  linkedAccountsDelete: apiUrl + 'linked_accounts/delete',
+  linkedAccountsRetrieve: apiUrl + 'linked_accounts/retrieve'
 }

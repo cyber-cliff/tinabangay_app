@@ -36,6 +36,23 @@ class ScannedUser extends Component{
   componentDidMount(){
   }
 
+  getColor = (status) => {
+    switch(status){
+      case 'positive':
+        return Color.danger;
+      case 'death':
+        return Color.black;
+      case 'pum':
+        return Color.warning;
+      case 'pui':
+        return Color.primary;
+      case 'negative':
+        return Color.success;
+      case 'recovered':
+        return Color.success;
+    }
+  }
+
   onCancel = () => {
     this.setState({
       showConfirmation: false,
@@ -51,6 +68,14 @@ class ScannedUser extends Component{
     this.submit()
   }
 
+  linkedMyAccount = () => {
+    this.setState({
+      addFlag: 'link'
+    })
+    setTimeout(() => {
+      this.validate()
+    }, 1000)
+  }
   addRide = () => {
     this.setState({
       addFlag: 'ride'
@@ -103,6 +128,10 @@ class ScannedUser extends Component{
         showConfirmation: true
       })
     }else if(addFlag == 'test'){
+      this.setState({
+        showConfirmation: true
+      })
+    }else if(addFlag == 'link'){
       this.setState({
         showConfirmation: true
       })
@@ -215,6 +244,31 @@ class ScannedUser extends Component{
       }, error => {
         console.log(error)
       });
+    }else if(addFlag == 'link'){
+      let parameter = {
+        owner: scannedUser.id,
+        account_id: user.id
+      }
+      this.setState({isLoading: true})
+      console.log(parameter)
+      Api.request(Routes.linkedAccountsCreate, parameter, response => {
+        console.log(response)
+        this.setState({
+          isLoading: false,
+          addFlag: null,
+          activePage: null,
+          value: null,
+          remarks: null,
+          errorMessage: null,
+          showConfirmation: false
+        })
+        const navigateAction = NavigationActions.navigate({
+          routeName: 'LinkedAccounts'
+        });
+        this.props.navigation.dispatch(navigateAction);
+      }, error => {
+        console.log(error)
+      });
     }
   }
   _newPatient = () => {
@@ -303,21 +357,36 @@ class ScannedUser extends Component{
     const { user, scannedUser } = this.props.state;
     return (
       <View>
-          {
-            (scannedUser.transportation != null || user.account_type != 'USER') && (
-              <View>
-                <Text style={{
-                  fontWeight: 'bold'
-                }}>Available Options</Text>
-              </View>
-            )
-          }
+          <View>
+            <Text style={{
+              fontWeight: 'bold'
+            }}>Available Options</Text>
+          </View>
           <View style={{
             flexWrap: 'wrap',
             alignItems: 'flex-start',
             flexDirection: 'row',
             marginTop: 20
           }}>
+            <TouchableHighlight style={{
+              height: 50,
+              backgroundColor: Color.primary,
+              width: '49%',
+              marginBottom: 10,
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: 5,
+                marginLeft: '1%'
+            }}
+            onPress={() => {this.linkedMyAccount()}}
+            underlayColor={Color.gray}
+              >
+              <Text style={{
+                color: Color.white,
+                textAlign: 'center',
+              }}>Linked my account</Text>
+            </TouchableHighlight>
+
           {
             scannedUser.transportation != null && (
               <TouchableHighlight style={{
@@ -327,7 +396,8 @@ class ScannedUser extends Component{
                 marginBottom: 10,
                 alignItems: 'center',
                 justifyContent: 'center',
-                borderRadius: 5
+                borderRadius: 5,
+                marginLeft: '1%'
               }}
               onPress={() => {this.addRide()}}
               underlayColor={Color.gray}
@@ -432,7 +502,7 @@ class ScannedUser extends Component{
           this.state.addFlag == 'patient' && (this._newPatient())
         }
         {
-          (this.state.addFlag != null && this.state.addFlag != 'ride' && this.state.addFlag != 'test') && (
+          (this.state.addFlag != null && this.state.addFlag != 'ride' && this.state.addFlag != 'test' && this.state.addFlag  != 'link') && (
             <View>
               <View>
                 <TouchableHighlight style={{
@@ -651,6 +721,29 @@ class ScannedUser extends Component{
     );
   }
 
+  _overallStatus = (status) => {
+    return (
+      <View>
+        <View
+          style={{
+            backgroundColor: this.getColor(status.status),
+            borderRadius: 5,
+            paddingTop: 100,
+            paddingBottom: 100,
+            marginTop: 25,
+            marginBottom: 100
+          }}
+        >
+          <Text style={{
+            fontSize: 16,
+            textAlign: 'center',
+            color: Color.white
+          }}>{status.status_label}</Text>
+        </View>
+      </View>
+    );
+  }
+
   render() {
     const { user, scannedUser } = this.props.state;
     const { isLoading} = this.state;
@@ -682,23 +775,26 @@ class ScannedUser extends Component{
         {
           scannedUser !== null && (this._userInfo(scannedUser))
         }
-        {
+        {/*
           scannedUser !== null && (this._userHistory())
-        }
-        {
+        /*}
+        {/*
           this.state.activePage == 'places' && (
             this._places()
           )
-        }
-        {
+        /*}
+        {/*
           this.state.activePage == 'rides' && (
             this._rides()
           )
-        }
-        {
+        */}
+        {/*
           this.state.activePage == 'temperatures' && (
             this._temperatures()
           )
+        */}
+        {
+          (scannedUser != null && scannedUser.overall_status != null) && (this._overallStatus(scannedUser.overall_status))
         }
         {
           this.state.showConfirmation && (

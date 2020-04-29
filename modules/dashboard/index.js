@@ -385,7 +385,7 @@ class Dashboard extends Component{
           }}>
 
           <QRCode
-            value={user.username}
+            value={user.code}
             size={width - 40}
             color="black"
             backgroundColor="white"

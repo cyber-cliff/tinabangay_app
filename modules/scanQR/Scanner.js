@@ -26,12 +26,12 @@ class Scanner extends Component {
     };
   }
 
-  retrieveUserInfo = (username) => {
+  retrieveUserInfo = (code) => {
     let parameter = {
       condition: [{
-        value: username,
+        value: code,
         clause: '=',
-        column: 'username'
+        column: 'code'
       }]
     }
     this.setState({
@@ -39,6 +39,7 @@ class Scanner extends Component {
     })
     Api.request(Routes.accountRetrieve, parameter, response => {
       this.setState({isLoading: false})
+      console.log('scannedUser', response)
       const { setScannedUser } = this.props;
       if(response.data.length > 0){
         console.log(response)
@@ -48,6 +49,8 @@ class Scanner extends Component {
         setScannedUser(null)
         this.props.close(null)
       }
+    }, error => {
+      console.log(error)
     });
   }
 

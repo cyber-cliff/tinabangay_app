@@ -14,6 +14,7 @@ import Ride from 'modules/ride';
 import Profile from 'modules/profile';
 import Transportation from 'modules/transportation';
 import Location from 'modules/location';
+import LinkedAccounts from 'modules/linkedAccounts';
 import GenerateQR from 'modules/generateQR';
 import ScanQR from 'modules/scanQR';
 import OptionRight from './OptionRight';
@@ -47,7 +48,6 @@ const Dashboard_StackNavigator = createStackNavigator({
   Dashboard: {
     screen: Dashboard,
     navigationOptions: ({ navigation }) => ({
-      title: 'Dashboard',
       headerLeft: <MenuDrawerStructure navigationProps={navigation} />,
       headerRight: <OptionRight navigationProps={navigation} />,
       headerStyle: {
@@ -62,7 +62,6 @@ const Notification_StackNavigator = createStackNavigator({
   Notification: {
     screen: Notification,
     navigationOptions: ({ navigation }) => ({
-      title: 'Notification',
       headerLeft: <MenuDrawerStructure navigationProps={navigation} />,
       headerRight: <OptionRight navigationProps={navigation} />,
       headerStyle: {
@@ -78,7 +77,6 @@ const Profile_StackNavigator = createStackNavigator({
   Profile: {
     screen: Profile,
     navigationOptions: ({ navigation }) => ({
-      title: 'Profile',
       headerLeft: <MenuDrawerStructure navigationProps={navigation} />,
       headerRight: <OptionRight navigationProps={navigation} />,
       headerStyle: {
@@ -93,7 +91,6 @@ const Place_StackNavigator = createStackNavigator({
   Place: {
     screen: Place,
     navigationOptions: ({ navigation }) => ({
-      title: 'My Visited Places',
       headerLeft: <MenuDrawerStructure navigationProps={navigation} />,
       headerRight: <OptionRight navigationProps={navigation} />,
       headerStyle: {
@@ -108,7 +105,6 @@ const Temperature_StackNavigator = createStackNavigator({
   Temperature: {
     screen: Temperature,
     navigationOptions: ({ navigation }) => ({
-      title: 'My Temperatures',
       headerLeft: <MenuDrawerStructure navigationProps={navigation} />,
       headerRight: <OptionRight navigationProps={navigation} />,
       headerStyle: {
@@ -123,7 +119,6 @@ const Ride_StackNavigator = createStackNavigator({
   Ride: {
     screen: Ride,
     navigationOptions: ({ navigation }) => ({
-      title: 'My Rides',
       headerLeft: <MenuDrawerStructure navigationProps={navigation} />,
       headerRight: <OptionRight navigationProps={navigation} />,
       headerStyle: {
@@ -138,7 +133,6 @@ const GenQR_StackNavigator = createStackNavigator({
   GenerateQR: {
     screen: GenerateQR,
     navigationOptions: ({ navigation }) => ({
-      title: 'Generate QR',
       headerLeft: <MenuDrawerStructure navigationProps={navigation} />,
       headerRight: <OptionRight navigationProps={navigation} />,
       headerStyle: {
@@ -153,7 +147,6 @@ const ScanQR_StackNavigator = createStackNavigator({
   ScanQR: {
     screen: ScanQR,
     navigationOptions: ({ navigation }) => ({
-      title: 'Scan QR',
       headerLeft: <MenuDrawerStructure navigationProps={navigation} />,
       headerRight: <OptionRight navigationProps={navigation} />,
       headerStyle: {
@@ -168,7 +161,6 @@ const CheckMap_StackNavigator = createStackNavigator({
   CheckMap: {
     screen: CheckMap,
     navigationOptions: ({ navigation }) => ({
-      title: 'Check Map',
       headerLeft: <MenuDrawerStructure navigationProps={navigation} />,
       headerRight: <OptionRight navigationProps={navigation} />,
       headerStyle: {
@@ -183,7 +175,6 @@ const Transportation_StackNavigator = createStackNavigator({
   Transportation: {
     screen: Transportation,
     navigationOptions: ({ navigation }) => ({
-      title: 'My Transportation',
       headerLeft: <MenuDrawerStructure navigationProps={navigation} />,
       headerRight: <OptionRight navigationProps={navigation} />,
       headerStyle: {
@@ -198,7 +189,19 @@ const Location_StackNavigator = createStackNavigator({
   Location: {
     screen: Location,
     navigationOptions: ({ navigation }) => ({
-      title: 'My Location',
+      headerLeft: <MenuDrawerStructure navigationProps={navigation} />,
+      headerRight: <OptionRight navigationProps={navigation} />,
+      headerStyle: {
+        backgroundColor: Color.primary,
+      },
+      headerTintColor: '#fff',
+    }),
+  },
+});
+const LinkedAccounts_StackNavigator = createStackNavigator({
+  Location: {
+    screen: LinkedAccounts,
+    navigationOptions: ({ navigation }) => ({
       headerLeft: <MenuDrawerStructure navigationProps={navigation} />,
       headerRight: <OptionRight navigationProps={navigation} />,
       headerStyle: {
@@ -214,67 +217,73 @@ const Drawer = createDrawerNavigator({
   Dashboard: {
     screen: Dashboard_StackNavigator,
     navigationOptions: {
-      drawerLabel: 'Dashboard',
+      drawerLabel: '',
     },
   },
   Profile: {
     screen: Profile_StackNavigator,
     navigationOptions: {
-      drawerLabel: 'Profile',
+      drawerLabel: '',
     },
   },
   Place: {
     screen: Place_StackNavigator,
     navigationOptions: {
-      drawerLabel: 'Place',
+      drawerLabel: '',
     },
   },
   Temperature: {
     screen: Temperature_StackNavigator,
     navigationOptions: {
-      drawerLabel: 'Temperature',
+      drawerLabel: '',
     },
   },
   Ride: {
     screen: Ride_StackNavigator,
     navigationOptions: {
-      drawerLabel: 'Ride',
+      drawerLabel: '',
     },
   },
   Notification: {
     screen: Notification_StackNavigator,
     navigationOptions: {
-      drawerLabel: 'Notification',
+      drawerLabel: '',
     },
   },
   GenerateQR: {
     screen: GenQR_StackNavigator,
     navigationOptions: {
-      drawerLabel: 'Generate QR',
+      drawerLabel: '',
     },
   },
   ScanQR: {
     screen: ScanQR_StackNavigator,
     navigationOptions: {
-      drawerLabel: 'Scan QR',
+      drawerLabel: '',
     },
   },
   CheckMap: {
     screen: CheckMap_StackNavigator,
     navigationOptions: {
-      drawerLabel: 'Check Map',
+      drawerLabel: '',
     },
   },
   Transportation: {
     screen: Transportation_StackNavigator,
     navigationOptions: {
-      drawerLabel: 'My Transportation',
+      drawerLabel: '',
     },
   },
   Location: {
     screen: Location_StackNavigator,
     navigationOptions: {
-      drawerLabel: 'My Location',
+      drawerLabel: '',
+    },
+  },
+  LinkedAccounts: {
+    screen: LinkedAccounts_StackNavigator,
+    navigationOptions: {
+      drawerLabel: '',
     },
   },
   

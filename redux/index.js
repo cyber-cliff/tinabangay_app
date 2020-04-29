@@ -12,6 +12,7 @@ const types = {
   SET_ALL_LOCATION: 'SET_ALL_LOCATION',
   SET_PREVIOUS_ROUTE: 'SET_PREVIOUS_ROUTE',
   SET_SCANNED_USER: 'SET_SCANNED_USER',
+  SET_ACTIVE_ROUTE: 'SET_ACTIVE_ROUTE',
   nav: null,
 }
 
@@ -42,6 +43,9 @@ export const actions = {
   },
   setScannedUser(scannedUser){
     return { type: types.SET_SCANNED_USER, scannedUser};
+  },
+  setActiveRoute(activeRoute){
+    return { type: types.SET_ACTIVE_ROUTE, activeRoute};
   }
 };
 
@@ -52,7 +56,8 @@ const initialState = {
   location: null,
   locations: null,
   previousRoute: null,
-  scannedUser: null
+  scannedUser: null,
+  activeRoute: null
 }
 
 storeData = async (key, value) => {
@@ -68,6 +73,7 @@ const reducer = (state = initialState, action) => {
   const { unread } = action;
   const { notification, location, locations } = action;
   const { previousRoute, scannedUser } = action;
+  const { activeRoute } = action;
   switch (type) {
     case types.LOGOUT:
       AsyncStorage.clear();
@@ -148,6 +154,11 @@ const reducer = (state = initialState, action) => {
       return {
         ...state,
         scannedUser
+      }
+    case types.SET_ACTIVE_ROUTE:
+      return {
+        ...state,
+        activeRoute
       }
     default:
       return {...state, nav: state.nav};
