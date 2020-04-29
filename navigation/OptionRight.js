@@ -20,12 +20,12 @@ class NavigationDrawerStructureRight extends Component {
   }
 
   navigateToScreen = (route) => {
-    const { setActiveRoute } = this.props;
-    setActiveRoute(route)
     const navigateAction = NavigationActions.navigate({
       routeName: route
     });
     this.props.navigationProps.dispatch(navigateAction);
+    // const { setActiveRoute } = this.props;
+    // setActiveRoute(route)
   }
   
   render() {
@@ -44,23 +44,17 @@ class NavigationDrawerStructureRight extends Component {
             </View>
           </TouchableOpacity>   
         </View>
-
-        {
-          (user != null && user.account_type != 'USER') &&
-          (
-            <View style={{
+        <View style={{
           width: '25%'
-        }}>
-              <TouchableOpacity onPress={() => this.navigateToScreen('Location')}>
-                <View style={{ flexDirection: 'row'}}>
-                  <FontAwesomeIcon icon={ faMapMarker } size={BasicStyles.iconSize} style={[BasicStyles.iconStyle, {
-                color: activeRoute == 'Location' ? Color.secondary : Color.white
-              }]}/>
-                </View>
-              </TouchableOpacity>
+          }}>
+          <TouchableOpacity onPress={() => this.navigateToScreen('Location')}>
+            <View style={{ flexDirection: 'row'}}>
+              <FontAwesomeIcon icon={ faMapMarker } size={BasicStyles.iconSize} style={[BasicStyles.iconStyle, {
+            color: activeRoute == 'Location' ? Color.secondary : Color.white
+          }]}/>
             </View>
-          )
-        }
+          </TouchableOpacity>
+        </View>
         <View style={{
           width: '25%'
         }}>
