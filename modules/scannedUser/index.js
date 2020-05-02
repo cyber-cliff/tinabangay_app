@@ -270,6 +270,7 @@ class ScannedUser extends Component{
       const { location } = this.props.state;
       let parameter = {
         account_id: scannedUser.id,
+        code: location.code ? location.code : null,
         route: location.route,
         locality: location.locality,
         region: location.region,
