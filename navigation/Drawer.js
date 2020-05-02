@@ -15,6 +15,7 @@ import Profile from 'modules/profile';
 import Transportation from 'modules/transportation';
 import Location from 'modules/location';
 import LinkedAccounts from 'modules/linkedAccounts';
+import Symptoms from 'modules/symptoms';
 import GenerateQR from 'modules/generateQR';
 import ScanQR from 'modules/scanQR';
 import OptionRight from './OptionRight';
@@ -198,9 +199,24 @@ const Location_StackNavigator = createStackNavigator({
     }),
   },
 });
+
 const LinkedAccounts_StackNavigator = createStackNavigator({
-  Location: {
+  LinkedAccounts: {
     screen: LinkedAccounts,
+    navigationOptions: ({ navigation }) => ({
+      headerLeft: <MenuDrawerStructure navigationProps={navigation} />,
+      headerRight: <OptionRight navigationProps={navigation} />,
+      headerStyle: {
+        backgroundColor: Color.primary,
+      },
+      headerTintColor: '#fff',
+    }),
+  },
+});
+
+const Symptoms_StackNavigator = createStackNavigator({
+  Symptoms: {
+    screen: Symptoms,
     navigationOptions: ({ navigation }) => ({
       headerLeft: <MenuDrawerStructure navigationProps={navigation} />,
       headerRight: <OptionRight navigationProps={navigation} />,
@@ -282,6 +298,12 @@ const Drawer = createDrawerNavigator({
   },
   LinkedAccounts: {
     screen: LinkedAccounts_StackNavigator,
+    navigationOptions: {
+      drawerLabel: '',
+    },
+  },
+  Symptoms: {
+    screen: Symptoms_StackNavigator,
     navigationOptions: {
       drawerLabel: '',
     },

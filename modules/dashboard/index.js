@@ -168,7 +168,7 @@ class Dashboard extends Component{
                     marginRight: 10
                   }}>
                     <View style={{
-                      width: '30%',
+                      width: '50%',
                       flexDirection: 'row',
                       backgroundColor: Color.black,
                       borderRadius: 2,
@@ -176,7 +176,7 @@ class Dashboard extends Component{
                     }}>
                       <Text style={{
                         color: Color.white,
-                        width: '80%'
+                        width: '60%'
                       }}>
                         DEATH 
                       </Text>
@@ -184,7 +184,8 @@ class Dashboard extends Component{
                         backgroundColor: Color.white,
                         marginLeft: 1,
                         borderRadius: 2,
-                        width: '20%'
+                        minWidth: '20%',
+                        marginRight: 5
                       }}>
                         <Text style={{
                           color: 'black',
@@ -199,16 +200,17 @@ class Dashboard extends Component{
 
 
                     <View style={{
-                      width: '30%',
+                      width: '50%',
                       flexDirection: 'row',
                       backgroundColor: Color.danger,
                       borderRadius: 2,
                       padding: 5,
-                      marginLeft: 10
+                      marginLeft: 10,
+                      marginRight: 10
                     }}>
                       <Text style={{
                         color: Color.white,
-                        width: '80%'
+                        width: '60%'
                       }}>
                         POSITIVE 
                       </Text>
@@ -216,7 +218,8 @@ class Dashboard extends Component{
                         backgroundColor: Color.white,
                         marginLeft: 1,
                         borderRadius: 2,
-                        width: '20%'
+                        minWidth: '20%',
+                        marginRight: 5
                       }}>
                         <Text style={{
                           color: 'black',
@@ -227,19 +230,24 @@ class Dashboard extends Component{
                         </Text>
                       </View>
                     </View>
+                  </View>
 
-
+                   <View style={{
+                    flexDirection: 'row',
+                    marginLeft: 10,
+                    marginBottom: 10,
+                    marginRight: 10
+                  }}>
                     <View style={{
-                      width: '30%',
+                      width: '50%',
                       flexDirection: 'row',
                       backgroundColor: Color.warning,
                       borderRadius: 2,
-                      padding: 5,
-                      marginLeft: 10
+                      padding: 5
                     }}>
                       <Text style={{
                         color: Color.white,
-                        width: '80%'
+                        width: '60%'
                       }}>
                         PUM 
                       </Text>
@@ -247,7 +255,8 @@ class Dashboard extends Component{
                         backgroundColor: Color.white,
                         marginLeft: 1,
                         borderRadius: 2,
-                        width: '20%'
+                        minWidth: '20%',
+                        marginRight: 5
                       }}>
                         <Text style={{
                           color: 'black',
@@ -259,24 +268,18 @@ class Dashboard extends Component{
                       </View>
                     </View>
 
-                  </View>
-
-                  <View style={{
-                    flexDirection: 'row',
-                    marginLeft: 10,
-                    marginBottom: 10,
-                    marginRight: 10
-                  }}>
                     <View style={{
-                      width: '30%',
+                      width: '50%',
                       flexDirection: 'row',
                       backgroundColor: Color.primary,
                       borderRadius: 2,
-                      padding: 5
+                      padding: 5,
+                      marginLeft: 10,
+                      marginRight: 10
                     }}>
                       <Text style={{
                         color: Color.white,
-                        width: '80%'
+                        width: '60%'
                       }}>
                         PUI
                       </Text>
@@ -284,7 +287,8 @@ class Dashboard extends Component{
                         backgroundColor: Color.white,
                         marginLeft: 1,
                         borderRadius: 2,
-                        width: '20%'
+                        minWidth: '20%',
+                        marginRight: 5
                       }}>
                         <Text style={{
                           color: 'black',
@@ -295,18 +299,25 @@ class Dashboard extends Component{
                         </Text>
                       </View>
                     </View>
+                  </View>
 
+                  <View style={{
+                    flexDirection: 'row',
+                    marginLeft: 10,
+                    marginBottom: 10,
+                    marginRight: 10
+                  }}>
                     <View style={{
-                      width: '30%',
+                      width: '50%',
                       flexDirection: 'row',
                       backgroundColor: 'green',
                       borderRadius: 2,
                       padding: 5,
-                      marginLeft: 10
+                      marginRight: 10
                     }}>
                       <Text style={{
                         color: Color.white,
-                        width: '80%'
+                        width: '60%'
                       }}>
                         NEGATIVE 
                       </Text>
@@ -314,7 +325,8 @@ class Dashboard extends Component{
                         backgroundColor: Color.white,
                         marginLeft: 1,
                         borderRadius: 2,
-                        width: '20%'
+                        minWidth: '20%',
+                        marginRight: 5
                       }}>
                         <Text style={{
                           color: 'black',
@@ -325,11 +337,9 @@ class Dashboard extends Component{
                         </Text>
                       </View>
                     </View>
-
-
-
                   </View>
-                </View>
+
+              </View>
             </View>
           )}
           keyExtractor={(item, index) => index.toString()}
@@ -395,6 +405,37 @@ class Dashboard extends Component{
     );
   }
 
+  _status = (status) => {
+    return (
+      <View style={{
+        width: '100%'
+      }}>
+        <View style={{
+          marginBottom: 10
+        }}>
+          <Text>My Status</Text>
+        </View>
+        <View style={{
+          paddingLeft: 20,
+          paddingRight: 20,
+          borderRadius: 5,
+          backgroundColor: Helper.getColor(status.status),
+          width: '100%',
+          marginBottom: 20
+        }}>
+          <Text style={{
+            color: Color.white,
+            textAlign: 'center',
+            paddingTop: 10,
+            paddingBottom: 10
+          }}>
+            {status.status_label}
+          </Text>
+        </View>
+      </View>
+    );
+  }
+
   render() {
     const { isLoading, data } = this.state;
     const { user } = this.props.state;
@@ -432,6 +473,7 @@ class Dashboard extends Component{
             )
           }
           <View style={Style.MainContainer}>
+            {(user != null && user.overall_status != null) && (this._status(user.overall_status))}
             {user != null && (this._qrCode())}
             {data != null && (this._data())}
           </View>

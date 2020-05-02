@@ -20,6 +20,7 @@ export default {
   temperaturesCreate: apiUrl + 'temperatures/create',
   temperaturesRetrieve: apiUrl + 'temperatures/retrieve',
   patientsCreate: apiUrl + 'patients/create',
+  patientsRetrieve: apiUrl + 'patients/retrieve',
   ridesRetrieve: apiUrl + 'rides/retrieve',
   ridesCreate: apiUrl + 'rides/create',
   tracingPlaces: apiUrl + 'tracing_places/places',
@@ -31,5 +32,7 @@ export default {
   locationUpdate: apiUrl + 'locations/update',
   linkedAccountsCreate: apiUrl + 'linked_accounts/create',
   linkedAccountsDelete: apiUrl + 'linked_accounts/delete',
-  linkedAccountsRetrieve: apiUrl + 'linked_accounts/retrieve'
+  linkedAccountsRetrieve: apiUrl + 'linked_accounts/retrieve',
+  symptomsCreate: apiUrl + 'symptoms/create',
+  symptomsRetrieve: apiUrl + 'symptoms/retrieve',
 }

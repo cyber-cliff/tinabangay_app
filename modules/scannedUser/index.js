@@ -36,23 +36,6 @@ class ScannedUser extends Component{
   componentDidMount(){
   }
 
-  getColor = (status) => {
-    switch(status){
-      case 'positive':
-        return Color.danger;
-      case 'death':
-        return Color.black;
-      case 'pum':
-        return Color.warning;
-      case 'pui':
-        return Color.primary;
-      case 'negative':
-        return Color.success;
-      case 'recovered':
-        return Color.success;
-    }
-  }
-
   onCancel = () => {
     this.setState({
       showConfirmation: false,
@@ -787,7 +770,7 @@ class ScannedUser extends Component{
       <View>
         <View
           style={{
-            backgroundColor: this.getColor(status.status),
+            backgroundColor: Helper.getColor(status.status),
             borderRadius: 5,
             paddingTop: 100,
             paddingBottom: 100,
