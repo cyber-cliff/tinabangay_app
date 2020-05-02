@@ -217,7 +217,7 @@ class Place extends Component{
                         fontWeight: 'bold',
                         color: Color.primary
                       }]}>
-                      {item.date_human + ':' + item.time + (item.route != 'xx' ? ' - ' + item.route : '')}
+                      {(item.route != 'xx' ? item.route : '')}
                     </Text>
                   </View>
                   <Text
@@ -225,6 +225,13 @@ class Place extends Component{
                       color: Color.darkGray
                     }]}>
                     {item.route != 'xx' ? item.locality + ',' + item.country : 'Custom Location'}
+                  </Text>
+
+                  <Text
+                    style={[BasicStyles.normalText, {
+                      color: Color.darkGray
+                    }]}>
+                    {item.date_human}
                   </Text>
                   {
                     item.status == 'death' && (

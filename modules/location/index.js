@@ -292,7 +292,7 @@ class Location extends Component{
         >
         {isLoading ? <Spinner mode="overlay"/> : null }
         {
-          newFlag == false && (
+          (newFlag == false && user != null && user.account_type != 'USER')&& (
             <TouchableHighlight
               style={[BasicStyles.btn, {
                 backgroundColor: Color.primary,

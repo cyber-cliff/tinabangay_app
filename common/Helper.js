@@ -20,6 +20,9 @@ export default {
     title: 'My Temperature',
     route: 'Temperature'
   }, {
+    title: 'Symptoms Reporting',
+    route: 'Symptoms'
+  }, {
     title: 'My Profile',
     route: 'Profile'
   }
@@ -122,6 +125,22 @@ export default {
     title: 'Recovered',
     value: 'recovered'
   }],
+  symptoms: [{
+    title: 'Fever',
+    value: 'fever'
+  }, {
+    title: 'LBM',
+    value: 'lbm'
+  }, {
+    title: 'Cough and colds',
+    value: 'cough and colds'
+  }, {
+    title: 'Sore Throat',
+    value: 'sort throat'
+  }, {
+    title: 'Others',
+    value: 'others'
+  }],
   retrieveDataFlag: 1,
   validateEmail(email){
     let reg = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+.[a-zA-Z0-9]*$/
@@ -129,6 +148,22 @@ export default {
       return false
     }else{
       return true
+    }
+  },
+  getColor(status){
+    switch(status){
+      case 'positive':
+        return Color.danger;
+      case 'death':
+        return Color.black;
+      case 'pum':
+        return Color.warning;
+      case 'pui':
+        return Color.primary;
+      case 'negative':
+        return Color.success;
+      case 'recovered':
+        return Color.success;
     }
   }
 }

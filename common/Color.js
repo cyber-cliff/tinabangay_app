@@ -9,5 +9,6 @@ export default {
   lightGray: '#eeeeee',
   darkGray: '#555555',
   normalGray: '#999',
-  black: '#000'
+  black: '#000',
+  success: '#4BB543'
 }
