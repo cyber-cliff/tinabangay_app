@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import Style from './Style.js';
 import { View, Image, TouchableHighlight, Text, ScrollView, FlatList, TextInput, Picker, Platform} from 'react-native';
 import { Routes, Color, Helper, BasicStyles } from 'common';
-import { Spinner, Empty, ImageUpload, GooglePlacesAutoComplete, DateTime } from 'components';
+import { Confirmation, Spinner, Empty, ImageUpload, GooglePlacesAutoComplete, DateTime } from 'components';
 import Api from 'services/api/index.js';
 import Currency from 'services/Currency.js';
 import { connect } from 'react-redux';
@@ -17,6 +17,7 @@ import ScannedUserPlaces from 'modules/place/places.js';
 import ScannedUserRides from 'modules/ride/rides.js';
 import ScannedUserTemperatures from 'modules/temperature/temperatures.js';
 const height = Math.round(Dimensions.get('window').height);
+const width = Math.round(Dimensions.get('window').width);
 class ScannedUser extends Component{
   constructor(props){
     super(props);
@@ -28,15 +29,36 @@ class ScannedUser extends Component{
       value: null,
       remarks: null,
       patientStatus: null,
-      templocation:{},
+      showConfirmation: false
     }
   }
 
   componentDidMount(){
   }
 
-  
+  onCancel = () => {
+    this.setState({
+      showConfirmation: false,
+      patientStatus: false,
+      addFlag: null,
+      value: null,
+      remarks: null,
+      errorMessage: null
+    })
+  }
 
+  onContinue = () => {
+    this.submit()
+  }
+
+  addRide = () => {
+    this.setState({
+      addFlag: 'ride'
+    })
+    setTimeout(() => {
+      this.validate()
+    }, 1000)
+  }
 
   addToTested = () => {
     this.setState({
@@ -63,7 +85,20 @@ class ScannedUser extends Component{
         })
         return
       }
-   
+      this.setState({
+        showConfirmation: true
+      })
+    }else if(addFlag == 'patient'){
+      if(this.state.patientStatus == null || this.state.patientStatus > 100){
+        this.setState({
+          errorMessage: 'Invalid Status!'
+        })
+        return
+      }
+      this.setState({
+        showConfirmation: true
+      })
+    }else if(addFlag == 'ride'){
       this.setState({
         showConfirmation: true
       })
@@ -86,43 +121,29 @@ class ScannedUser extends Component{
     if(addFlag == 'temperature'){
       const { location } = this.props.state;
       let parameter = {
-<<<<<<< HEAD
-        temperature_location:location,
-=======
         location: location,
->>>>>>> a43c2c7d440685f3b69bf9429d76b03c185bb2d4
         account_id: scannedUser.id,
         added_by: user.id,
         value: this.state.value,
         remarks: this.state.remarks ? this.state.remarks : null
-        
       }
       this.setState({isLoading: true})
-<<<<<<< HEAD
-      console.log(this.state.templocation)
-=======
       console.log(parameter)
->>>>>>> a43c2c7d440685f3b69bf9429d76b03c185bb2d4
       Api.request(Routes.temperaturesCreate, parameter, response => {
-        console.log(response.data)
+        console.log(response)
         this.setState({
           isLoading: false,
           addFlag: null,
           activePage: 'places',
           value: null,
           remarks: null,
-          errorMessage: null
+          errorMessage: null,
+          showConfirmation: false
         })
       }, error => {
         console.log(error)
       });
     }else if(addFlag == 'patient'){
-      if(this.state.patientStatus == null || this.state.patientStatus > 100){
-        this.setState({
-          errorMessage: 'Invalid Status!'
-        })
-        return
-      }
       let parameter = {
         account_id: scannedUser.id,
         added_by: user.id,
@@ -137,13 +158,12 @@ class ScannedUser extends Component{
           activePage: 'places',
           value: null,
           remarks: null,
-          errorMessage: null
+          errorMessage: null,
+          showConfirmation: false
         })
       }, error => {
         console.log(error)
       });
-<<<<<<< HEAD
-=======
     }else if(addFlag == 'ride'){
      let parameter = {
         account_id: user.id,
@@ -195,7 +215,6 @@ class ScannedUser extends Component{
       }, error => {
         console.log(error)
       });
->>>>>>> a43c2c7d440685f3b69bf9429d76b03c185bb2d4
     }
   }
   _newPatient = () => {
@@ -277,28 +296,13 @@ class ScannedUser extends Component{
             placeholder={'Type Remarks'}
           />
         </View>
-         
-
-      
       </View>
     );
   }
   _agentOption = () => {
-    const { user } = this.props.state;
+    const { user, scannedUser } = this.props.state;
     return (
       <View>
-<<<<<<< HEAD
-        <View style={{
-          flexDirection: 'row'
-        }}>
-        {
-          (user.account_type == 'AGENCY' || user.account_type == 'AGENCY_LEVEL_1' || user.account_type == 'ADMIN') && (
-            <TouchableHighlight style={{
-                height: 50,
-                backgroundColor: Color.primary,
-                width: '49%',
-                marginBottom: 20,
-=======
           {
             (scannedUser.transportation != null || user.account_type != 'USER') && (
               <View>
@@ -321,59 +325,44 @@ class ScannedUser extends Component{
                 backgroundColor: Color.primary,
                 width: '49%',
                 marginBottom: 10,
->>>>>>> a43c2c7d440685f3b69bf9429d76b03c185bb2d4
                 alignItems: 'center',
                 justifyContent: 'center',
                 borderRadius: 5
               }}
-              onPress={() => {this.setState({
-                addFlag: 'temperature'
-              })}}
+              onPress={() => {this.addRide()}}
               underlayColor={Color.gray}
                 >
-              <Text style={{
-                color: Color.white,
-                textAlign: 'center',
-              }}>Add Temperature</Text>
-            </TouchableHighlight>
-          )
-        }
+                <Text style={{
+                  color: Color.white,
+                  textAlign: 'center',
+                }}>Add Ride</Text>
+              </TouchableHighlight>
+            )
+          }
           {
-<<<<<<< HEAD
-            (user.account_type == 'AGENCY_LEVEL_1' || user.account_type == 'ADMIN') && (
-=======
             (user.account_type == 'AGENCY_TEST_MNGT' || user.account_type == 'AGENCY_TEMP_MNGT' ||  user.account_type == 'AGENCY_GOV' || user.account_type == 'AGENCY_DOH' || user.account_type == 'ADMIN') && (
->>>>>>> a43c2c7d440685f3b69bf9429d76b03c185bb2d4
               <TouchableHighlight style={{
                   height: 50,
                   backgroundColor: Color.primary,
                   width: '49%',
-<<<<<<< HEAD
-                  marginBottom: 20,
-=======
                   marginBottom: 10,
->>>>>>> a43c2c7d440685f3b69bf9429d76b03c185bb2d4
                   alignItems: 'center',
                   justifyContent: 'center',
                   borderRadius: 5,
                   marginLeft: '1%'
                 }}
                 onPress={() => {this.setState({
-                  addFlag: 'patient'
+                  addFlag: 'temperature'
                 })}}
                 underlayColor={Color.gray}
                   >
                 <Text style={{
                   color: Color.white,
                   textAlign: 'center',
-                }}>Add Patient</Text>
+                }}>Add Temperature</Text>
               </TouchableHighlight>
-
             )
           }
-<<<<<<< HEAD
-        </View>
-=======
           {
             (user.account_type == 'AGENCY_DOH' || user.account_type == 'ADMIN') && (
               <TouchableHighlight style={{
@@ -423,7 +412,6 @@ class ScannedUser extends Component{
             )
           }
           </View>
->>>>>>> a43c2c7d440685f3b69bf9429d76b03c185bb2d4
         {
           this.state.errorMessage != null && (
             <View>
@@ -444,11 +432,7 @@ class ScannedUser extends Component{
           this.state.addFlag == 'patient' && (this._newPatient())
         }
         {
-<<<<<<< HEAD
-          this.state.addFlag != null && (
-=======
           (this.state.addFlag != null && this.state.addFlag != 'ride' && this.state.addFlag != 'test') && (
->>>>>>> a43c2c7d440685f3b69bf9429d76b03c185bb2d4
             <View>
               <View>
                 <TouchableHighlight style={{
@@ -460,7 +444,7 @@ class ScannedUser extends Component{
                       justifyContent: 'center',
                       borderRadius: 5
                     }}
-                    onPress={() => {this.submit()}}
+                    onPress={() => {this.validate()}}
                     underlayColor={Color.gray}
                       >
                     <Text style={{
@@ -651,6 +635,17 @@ class ScannedUser extends Component{
               </Text>
             )
           }
+          {
+            scannedUser.transportation != null && (
+              <Text style={{
+                fontWeight: 'bold'
+              }}>
+              {
+                scannedUser.transportation.type.toUpperCase() + '(' + scannedUser.transportation.model.toUpperCase() + ':' + scannedUser.transportation.number.toUpperCase() + ')'
+              }
+            </Text>
+            )
+          }
         </View>
       </View>
     );
@@ -705,8 +700,6 @@ class ScannedUser extends Component{
             this._temperatures()
           )
         }
-<<<<<<< HEAD
-=======
         {
           this.state.showConfirmation && (
             <Confirmation
@@ -717,7 +710,6 @@ class ScannedUser extends Component{
             />
           )
         }
->>>>>>> a43c2c7d440685f3b69bf9429d76b03c185bb2d4
       </ScrollView>
     );
   }

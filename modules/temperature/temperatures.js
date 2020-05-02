@@ -45,12 +45,10 @@ class Temperatures extends Component{
     Api.request(Routes.temperaturesRetrieve, parameter, response => {
       this.setState({isLoading: false})
       if(response.data.length > 0){
-        console.log(response.data)
         this.setState({data: response.data})
       }else{
         this.setState({data: null})
       }
-     
     });
   }
   
@@ -70,7 +68,6 @@ class Temperatures extends Component{
               borderWidth: 1,
               marginBottom: 10
             }}>
-              {console.log(item.temperature_location)}
                 <View style={Style.TextContainer}>
                   <View style={{
                     flexDirection: 'row'
@@ -96,33 +93,6 @@ class Temperatures extends Component{
                         </Text>
                       )
                   }
-<<<<<<< HEAD
-                  {
-                    item.temperature_location && (
-                      <View style={{
-                        flexDirection: 'row'
-                      }}>
-                        <FontAwesomeIcon
-                          icon={faMapMarker}
-                          style={{
-                            color: Color.darkGray,
-                            marginLeft: 17
-                          }}
-                        ></FontAwesomeIcon>
-                        <Text
-                          style={[BasicStyles.normalText, {
-                            color: Color.darkGray,
-                            paddingLeft: 0,
-                            marginBottom: 10
-                          }]}>
-                            
-                          {item.temperature_location.route + ', ' + item.temperature_location.locality + ', ' + item.temperature_location.country}
-                        </Text>
-                      </View>
-                    )
-                  }
-=======
->>>>>>> a43c2c7d440685f3b69bf9429d76b03c185bb2d4
                 </View>
             </View>
           )}
