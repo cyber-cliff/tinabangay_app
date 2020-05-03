@@ -547,7 +547,7 @@ class ScannedUser extends Component{
           this.state.addFlag == 'patient' && (this._newPatient())
         }
         {
-          (this.state.addFlag != null && this.state.addFlag == 'patient' && this.state.addFlag == 'temperature') && (
+          (this.state.addFlag != null && (this.state.addFlag == 'patient' || this.state.addFlag == 'temperature')) && (
             <View>
               <View>
                 <TouchableHighlight style={{
