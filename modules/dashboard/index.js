@@ -63,6 +63,10 @@ class Dashboard extends Component{
     this.props.navigation.navigate(route)
   }
 
+  addComplaints = () => {
+
+  }
+
   manageScannedData = (data) => {
     this.setState({
       showScanner: false
@@ -405,7 +409,7 @@ class Dashboard extends Component{
     );
   }
 
-  _status = (status) => {
+  _status = (status, location) => {
     return (
       <View style={{
         width: '100%'
@@ -418,10 +422,9 @@ class Dashboard extends Component{
         <View style={{
           paddingLeft: 20,
           paddingRight: 20,
-          borderRadius: 5,
           backgroundColor: Helper.getColor(status.status),
           width: '100%',
-          marginBottom: 20
+          marginBottom: 10
         }}>
           <Text style={{
             color: Color.white,
@@ -432,6 +435,27 @@ class Dashboard extends Component{
             {status.status_label}
           </Text>
         </View>
+        {
+          location != null && (
+            <TouchableHighlight style={{
+              height: 50,
+              backgroundColor: Color.primary,
+              width: '100%',
+              marginBottom: 10,
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: 5,
+            }}
+            onPress={() => {this.addComplaints()}}
+            underlayColor={Color.gray}
+              >
+            <Text style={{
+              color: Color.white,
+              textAlign: 'center',
+            }}>Send complaints to your barangay(Coming soon)</Text>
+          </TouchableHighlight>
+          )
+        }
       </View>
     );
   }
@@ -473,7 +497,7 @@ class Dashboard extends Component{
             )
           }
           <View style={Style.MainContainer}>
-            {(user != null && user.overall_status != null) && (this._status(user.overall_status))}
+            {(user != null && user.overall_status != null) && (this._status(user.overall_status, user.location))}
             {user != null && (this._qrCode())}
             {data != null && (this._data())}
           </View>

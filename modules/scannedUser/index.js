@@ -779,7 +779,6 @@ class ScannedUser extends Component{
         <View
           style={{
             backgroundColor: Helper.getColor(status.status),
-            borderRadius: 5,
             paddingTop: 25,
             paddingBottom: 25,
             paddingLeft: 10,
@@ -799,7 +798,6 @@ class ScannedUser extends Component{
             <View
               style={{
                 backgroundColor: Color.danger,
-                borderRadius: 5,
                 paddingTop: 25,
                 paddingBottom: 25,
                 marginTop: 10,
