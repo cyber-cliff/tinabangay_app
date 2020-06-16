@@ -43,8 +43,26 @@ class Scanner extends Component {
       const { setScannedUser } = this.props;
       if(response.data.length > 0){
         console.log(response)
-        setScannedUser(response.data[0])
-        this.props.close(response.data[0])
+        let scannedUser = response.data[0]
+        if(scannedUser.overall_status != null && (scannedUser.overall_status.status != 'negative' && scannedUser.overall_status.status != 'recovered')){
+          // send email
+          const { user } = this.props.state;
+          if(user == null || (user != null && user.linked_account == null)){
+            setScannedUser(response.data[0])
+            this.props.close(response.data[0])
+            return
+          }
+          let alertParameter = {
+            account_id: user.linked_account.owner
+          }
+          Api.request(Routes.emailAlert, alertParameter, alertResponse => {
+            setScannedUser(response.data[0])
+            this.props.close(response.data[0])
+          })
+        }else{
+          setScannedUser(response.data[0])
+          this.props.close(response.data[0])
+        }
       }else{
         setScannedUser(null)
         this.props.close(null)

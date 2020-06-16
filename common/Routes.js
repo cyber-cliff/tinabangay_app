@@ -35,4 +35,5 @@ export default {
   linkedAccountsRetrieve: apiUrl + 'linked_accounts/retrieve',
   symptomsCreate: apiUrl + 'symptoms/create',
   symptomsRetrieve: apiUrl + 'symptoms/retrieve',
+  emailAlert: apiUrl + 'emails/alert',
 }

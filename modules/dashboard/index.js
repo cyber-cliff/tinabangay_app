@@ -341,6 +341,40 @@ class Dashboard extends Component{
                         </Text>
                       </View>
                     </View>
+
+                    <View style={{
+                      width: '50%',
+                      flexDirection: 'row',
+                      backgroundColor: 'green',
+                      borderRadius: 2,
+                      padding: 5,
+                      marginRight: 10
+                    }}>
+                      <Text style={{
+                        color: Color.white,
+                        width: '60%'
+                      }}>
+                        RECOVERED 
+                      </Text>
+                      <View style={{
+                        backgroundColor: Color.white,
+                        marginLeft: 1,
+                        borderRadius: 2,
+                        minWidth: '20%',
+                        marginRight: 5
+                      }}>
+                        <Text style={{
+                          color: 'black',
+                          padding: 2,
+                          textAlign: 'center'
+                        }}>
+                          {item.recovered_size} 
+                        </Text>
+                      </View>
+                    </View>
+
+
+
                   </View>
 
               </View>
