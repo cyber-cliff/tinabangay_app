@@ -23,7 +23,7 @@ class Symptoms extends Component{
       selected: null,
       errorMessage: null,
       data: null,
-      type: null,
+      type: 'fever',
       remarks: null
     }
   }
@@ -97,7 +97,7 @@ class Symptoms extends Component{
           showDatePicker: false,
           dateFlag: false,
           date: null,
-          type: null,
+          type: 'fever',
           remarks: null
         })
         this.retrieve()

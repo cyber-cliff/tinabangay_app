@@ -128,7 +128,13 @@ class ScannedUser extends Component{
       this.setState({
         showConfirmation: true
       })
-    }else if(addFlag == 'location' && location){
+    }else if(addFlag == 'location'){
+      if(user.location == null || (user.location != null && user.location.code == null)){
+        this.setState({
+          errorMessage: 'Invalid address!'
+        })
+        return
+      }
       this.setState({
         showConfirmation: true
       })
@@ -267,16 +273,23 @@ class ScannedUser extends Component{
         console.log(error)
       });
     }else if(addFlag == 'location'){
-      const { location } = this.props.state;
+      const { user } = this.props.state;
+      if(user.location == null || (user.location != null && user.location.code == null)){
+        this.setState({
+          errorMessage: 'Invalid address.',
+          showConfirmation: false
+        })
+        return
+      }
       let parameter = {
         account_id: scannedUser.id,
-        code: location.code ? location.code : null,
-        route: location.route,
-        locality: location.locality,
-        region: location.region,
-        country: location.country,
-        longitude: location.longitude,
-        latitude: location.latitude
+        code: user.location.code,
+        route: user.location.route,
+        locality: user.location.locality,
+        region: user.location.region,
+        country: user.location.country,
+        longitude: user.location.longitude,
+        latitude: user.location.latitude
       }
       this.setState({isLoading: true})
       Api.request(Routes.locationCreate, parameter, response => {
@@ -289,6 +302,10 @@ class ScannedUser extends Component{
           errorMessage: null,
           showConfirmation: false
         })
+        const navigateAction = NavigationActions.navigate({
+          routeName: 'Dashboard'
+        });
+        this.props.navigation.dispatch(navigateAction);
       }, error => {
         console.log(error)
       });
@@ -457,28 +474,6 @@ class ScannedUser extends Component{
             )
           }
           {
-            (user.account_type != 'AGENCY_BRGY' && location != null) && (
-              <TouchableHighlight style={{
-                  height: 50,
-                  backgroundColor: Color.primary,
-                  width: '49%',
-                  marginBottom: 10,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  borderRadius: 5,
-                  marginLeft: '1%'
-                }}
-                onPress={() => {this.addLocation()}}
-                underlayColor={Color.gray}
-                  >
-                <Text style={{
-                  color: Color.white,
-                  textAlign: 'center',
-                }}>Add Address</Text>
-              </TouchableHighlight>
-            )
-          }
-          {
             (user.account_type == 'AGENCY_DOH' || user.account_type == 'ADMIN') && (
               <TouchableHighlight style={{
                   height: 50,
@@ -547,7 +542,7 @@ class ScannedUser extends Component{
           this.state.addFlag == 'patient' && (this._newPatient())
         }
         {
-          (this.state.addFlag != null && this.state.addFlag == 'patient' && this.state.addFlag == 'temperature') && (
+          (this.state.addFlag != null && (this.state.addFlag == 'patient' || this.state.addFlag == 'temperature')) && (
             <View>
               <View>
                 <TouchableHighlight style={{
@@ -761,22 +756,35 @@ class ScannedUser extends Component{
             </Text>
             )
           }
+          {
+            scannedUser.location !== null && (
+              <Text style={{
+                fontWeight: 'bold'
+                }}>
+                {
+                  'Address Code: ' + scannedUser.location.code
+                }
+              </Text>
+            )
+          }
         </View>
       </View>
     );
   }
 
-  _overallStatus = (status) => {
+  _overallStatus = (status, scannedUser) => {
+    const { user } = this.props.state;
     return (
       <View>
         <View
           style={{
             backgroundColor: Helper.getColor(status.status),
-            borderRadius: 5,
-            paddingTop: 100,
-            paddingBottom: 100,
+            paddingTop: 25,
+            paddingBottom: 25,
+            paddingLeft: 10,
+            paddingRight: 10,
             marginTop: 25,
-            marginBottom: 100
+            marginBottom: scannedUser.location === null ? 10 : 100
           }}
         >
           <Text style={{
@@ -785,6 +793,49 @@ class ScannedUser extends Component{
             color: Color.white
           }}>{status.status_label}</Text>
         </View>
+        {
+          scannedUser.location === null && (
+            <View
+              style={{
+                backgroundColor: Color.danger,
+                paddingTop: 25,
+                paddingBottom: 25,
+                marginTop: 10,
+                paddingLeft: 10,
+                paddingRight: 10,
+                marginBottom: 10
+              }}
+            >
+              <Text style={{
+                fontSize: 16,
+                textAlign: 'center',
+                color: Color.white
+              }}>No assigned address. If this individual belongs to your barangay, click add address button.</Text>
+            </View>
+          )
+        }
+
+          {
+            ((user != null  && (user.account_type == 'AGENCY_BRGY' || user.account_type === 'ADMIN')) && scannedUser.location === null)&& (
+              <TouchableHighlight style={{
+                  height: 50,
+                  backgroundColor: Color.primary,
+                  width: '100%',
+                  marginBottom: 100,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: 5,
+                }}
+                onPress={() => {this.addLocation()}}
+                underlayColor={Color.gray}
+                  >
+                <Text style={{
+                  color: Color.white,
+                  textAlign: 'center',
+                }}>Add Address</Text>
+              </TouchableHighlight>
+            )
+          }
       </View>
     );
   }
@@ -839,7 +890,7 @@ class ScannedUser extends Component{
           )
         */}
         {
-          (scannedUser != null && scannedUser.overall_status != null) && (this._overallStatus(scannedUser.overall_status))
+          (scannedUser != null && scannedUser.overall_status != null) && (this._overallStatus(scannedUser.overall_status, scannedUser))
         }
         {
           this.state.showConfirmation && (
