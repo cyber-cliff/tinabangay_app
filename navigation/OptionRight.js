@@ -78,7 +78,7 @@ class NavigationDrawerStructureRight extends Component {
                 notifications && notifications.unread > 0 &&
                 (
                   <View style={{
-                    ackgroundColor: Color.danger,
+                    backgroundColor: Color.danger,
                     borderRadius: 5,
                     fontSize: 11,
                     marginLeft: -20

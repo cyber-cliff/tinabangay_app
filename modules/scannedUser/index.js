@@ -34,6 +34,18 @@ class ScannedUser extends Component{
   }
 
   componentDidMount(){
+    const { scannedUser } = this.props.state;
+    if(scannedUser.overall_status != null && (scannedUser.overall_status.status != 'negative' && scannedUser.overall_status.status != 'recovered')){
+      const { user } = this.props.state;
+      if(user == null || (user != null && user.linked_account == null)){
+        return
+      }
+      let alertParameter = {
+        account_id: user.linked_account.owner
+      }
+      Api.request(Routes.emailAlert, alertParameter, alertResponse => {
+      })
+    }
   }
 
   onCancel = () => {
@@ -49,6 +61,16 @@ class ScannedUser extends Component{
 
   onContinue = () => {
     this.submit()
+  }
+
+  sendForm = () => {
+    const { scannedUser } = this.props.state;
+    this.setState({
+      addFlag: 'form'
+    })
+    setTimeout(() => {
+      this.validate()
+    }, 1000)
   }
 
   linkedMyAccount = () => {
@@ -135,6 +157,10 @@ class ScannedUser extends Component{
         })
         return
       }
+      this.setState({
+        showConfirmation: true
+      })
+    }else if(addFlag == 'form'){
       this.setState({
         showConfirmation: true
       })
@@ -309,6 +335,35 @@ class ScannedUser extends Component{
       }, error => {
         console.log(error)
       });
+    }else if(addFlag == 'form'){
+      let parameter = {
+        account_id: scannedUser.id,
+        owner: user.id
+      }
+      this.setState({isLoading: true})
+      console.log(parameter)
+      Api.request(Routes.healthDeclarationCreate, parameter, response => {
+        this.setState({
+          isLoading: false,
+          addFlag: null,
+          activePage: null,
+          value: null,
+          remarks: null,
+          errorMessage: null,
+          showConfirmation: false
+        })
+      }, error => {
+        console.log(error)
+        this.setState({
+          isLoading: false,
+          addFlag: null,
+          activePage: null,
+          value: null,
+          remarks: null,
+          errorMessage: null,
+          showConfirmation: false
+        })
+      });
     }
   }
   _newPatient = () => {
@@ -470,6 +525,28 @@ class ScannedUser extends Component{
                   color: Color.white,
                   textAlign: 'center',
                 }}>Add Temperature</Text>
+              </TouchableHighlight>
+            )
+          }
+          {
+            (user.account_type != 'USER' && user.linked_account != null) && (
+              <TouchableHighlight style={{
+                  height: 50,
+                  backgroundColor: Color.primary,
+                  width: '49%',
+                  marginBottom: 10,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: 5,
+                  marginLeft: '1%'
+                }}
+                onPress={() => {this.sendForm()}}
+                underlayColor={Color.gray}
+                  >
+                <Text style={{
+                  color: Color.white,
+                  textAlign: 'center',
+                }}>Send form</Text>
               </TouchableHighlight>
             )
           }
@@ -751,7 +828,7 @@ class ScannedUser extends Component{
                 fontWeight: 'bold'
               }}>
               {
-                scannedUser.transportation.type.toUpperCase() + '(' + scannedUser.transportation.model.toUpperCase() + ':' + scannedUser.transportation.number.toUpperCase() + ')'
+                scannedUser.transportation.type.toUpperCase() + '(' + scannedUser.transportation.model.toUpperCase() + (scannedUser.transportation.number ? ':' + scannedUser.transportation.number.toUpperCase() : '') + ')'
               }
             </Text>
             )

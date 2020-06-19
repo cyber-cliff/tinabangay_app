@@ -23,7 +23,7 @@ const gender = [{
   title: 'Others',
   value: 'others'
 }]
-class Declaration extends Component{
+class Profile extends Component{
   constructor(props){
     super(props);
     this.state = {
@@ -45,53 +45,25 @@ class Declaration extends Component{
   }
 
   retrieve = () => {
-    const { user } = this.props.state;
-    if(user === null){
+    const { user, declaration } = this.props.state;
+    if(user === null || declaration == null){
       return
     }
     let parameter = {
       condition: [{
-        value: user.id,
+        value: declaration.value,
         clause: '=',
-        column: 'account_id'
+        column: 'id'
       }]
     }
     this.setState({
       isLoading: true, 
       showDatePicker: false
     })
-    Api.request(Routes.accountInformationRetrieve, parameter, response => {
+    console.log('parameter', parameter)
+    Api.request(Routes.healthDeclaratioRetrieve, parameter, response => {
+      console.log('declaration', response.data[0].merchant)
       this.setState({isLoading: false})
-      if(response.data.length > 0){
-        let data = response.data[0]
-        this.setState({
-          id: data.id,
-          firstName: data.first_name,
-          middleName: data.middle_name,
-          lastName: data.last_name,
-          sex: data.sex,
-          cellularNumber: data.cellular_number,
-          address: data.address,
-          birthDate: data.birth_date
-        })
-        if(data.birth_date != null){
-          this.setState({
-            dateFlag: true,
-            birthDateLabel: data.birth_date
-          })
-        }
-      }else{
-        this.setState({
-          id: null,
-          firstName: null,
-          middleName: null,
-          lastName: null,
-          sex: null,
-          cellularNumber: null,
-          address: null,
-          birthDate: new Date(),
-        })
-      }
     });
   }
 
@@ -124,42 +96,7 @@ class Declaration extends Component{
     });
   }
 
-  reloadProfile = () => {
-    const { user, token } = this.props.state;
-    if(user == null){
-      return
-    }
-    let parameter = {
-      condition: [{
-        value: user.id,
-        clause: '=',
-        column: 'id'
-      }]
-    }
-    this.setState({isLoading: true})
-    Api.request(Routes.accountRetrieve, parameter, response => {
-      this.setState({isLoading: false})
-      const { updateUser } = this.props;
-      updateUser(response.data[0])
-    });
-  }
-  updateProfile = (url) => {
-    const { user } = this.props.state;
-    if(user == null){
-      return
-    }
-    let parameter = {
-      account_id: user.id,
-      url: url
-    }
-    this.setState({isLoading: true})
-    Api.request(Routes.accountProfileCreate, parameter, response => {
-      this.setState({isLoading: false})
-      this.reloadProfile()
-    }, error => {
-      console.log(error)
-    });
-  }
+ 
 
   _inputs = () => {
     const { userLedger, user, location } = this.props.state;
@@ -295,7 +232,7 @@ class Declaration extends Component{
               <Text style={{
                 color: Color.white,
                 textAlign: 'center',
-              }}>Update</Text>
+              }}>Next</Text>
           </TouchableHighlight>
         </View>
       </View>
@@ -320,51 +257,14 @@ class Declaration extends Component{
         }]}>
           {
             user != null && (
-               <View style={Style.sectionHeadingStyle}>
-                <TouchableHighlight
-                  onPress={() => {
-                    /*this.setState({isImageUpload: true})*/
-                  }}
-                  underlayColor={Color.white}>
-                  <View>
-                    {
-                      user.account_profile != null && user.account_profile.url != null && (
-                        <Image
-                          source={{uri: Config.BACKEND_URL  + user.account_profile.url}}
-                          style={[BasicStyles.profileImageSize, {
-                            height: 100,
-                            width: 100,
-                            borderRadius: 50
-                          }]}/>
-                      )
-                    }
-
-                    {
-                      (user.account_profile == null || (user.account_profile != null && user.account_profile.url == null)) && (
-                        <FontAwesomeIcon
-                          icon={faUserCircle}
-                          size={100}
-                          style={{
-                            color: Color.primary
-                          }}
-                        />
-                      )
-                    }
-                     {/* 
-                      <Text  style={{
-                        fontSize: 11,
-                        textAlign: 'center'
-                      }}>
-                        Click to change
-                      </Text>
-                    */}
-                  </View>
-                </TouchableHighlight>
-
+               <View style={{
+                width: '100%'
+               }}>
                 <Text  style={{
                   color: Color.primary,
                   fontWeight: 'bold',
-                  fontSize: 16
+                  textAlign: 'left',
+                  paddingBottom: 10
                 }}>
                   Hi {user.username}!
                 </Text>
@@ -376,16 +276,6 @@ class Declaration extends Component{
           }
         </View>
         {isLoading ? <Spinner mode="overlay"/> : null }
-        {isImageUpload ? 
-          <ImageUpload
-            visible={isImageUpload}
-            onSelect={(url) => {
-              this.setState({isImageUpload: false, isLoading: false})
-              this.updateProfile(url)
-            }}
-            onCLose={() => {
-              this.setState({isImageUpload: false, isLoading: false})
-            }}/> : null}
       </ScrollView>
     );
   }
@@ -395,13 +285,10 @@ const mapStateToProps = state => ({ state: state });
 const mapDispatchToProps = dispatch => {
   const { actions } = require('@redux');
   return {
-    setLedger: (ledger) => dispatch(actions.setLedger(ledger)),
-    setUserLedger: (userLedger) => dispatch(actions.setUserLedger(userLedger)),
-    updateUser: (user) => dispatch(actions.updateUser(user)),
   };
 };
 
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(Declaration);
+)(Profile);

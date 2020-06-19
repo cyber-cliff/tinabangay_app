@@ -9,7 +9,8 @@ export default {
   accountRetrieve: apiUrl + 'accounts/retrieve',
   accountUpdate: apiUrl + 'accounts/update',
   accountCreate: apiUrl + 'accounts/create',
-  notificationsRetrieve: apiUrl + 'patients/retrieve_notifications',
+  notificationsRetrieve: apiUrl + 'notifications/retrieve',
+  notificationUpdate: apiUrl + 'notifications/update',
   accountProfileCreate: apiUrl + 'account_profiles/create',
   accountProfileUpdate: apiUrl + 'account_profiles/update',
   accountInformationRetrieve: apiUrl + 'account_informations/retrieve',
@@ -36,4 +37,6 @@ export default {
   symptomsCreate: apiUrl + 'symptoms/create',
   symptomsRetrieve: apiUrl + 'symptoms/retrieve',
   emailAlert: apiUrl + 'emails/alert',
+  healthDeclarationCreate: apiUrl + 'health_declarations/create',
+  healthDeclaratioRetrieve: apiUrl + 'health_declarations/retrieve'
 }
