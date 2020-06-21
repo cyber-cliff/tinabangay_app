@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import Style from './Style.js';
 import { View, Text, ScrollView, FlatList, TouchableHighlight} from 'react-native';
-import {NavigationActions} from 'react-navigation';
+import {NavigationActions, StackActions} from 'react-navigation';
 import { Routes, Color, Helper, BasicStyles } from 'common';
 import { Spinner } from 'components';
 import { connect } from 'react-redux';
@@ -46,6 +46,16 @@ class Notifications extends Component{
     })
   }
 
+  redirect(route){
+    const reset = StackActions.reset({
+      index: 0,
+      key: null,
+      actions: [NavigationActions.navigate({
+          routeName: 'declarationStack'
+      })]
+    });
+    this.props.navigation.dispatch(reset);
+  }
   updateNotification = (searchParameter, notification, route) => {
     const { setDeclaration, setNotifications } = this.props;
     const { user } = this.props.state;
@@ -62,10 +72,7 @@ class Notifications extends Component{
       Api.request(Routes.notificationsRetrieve, retrieveParameter, notifications => {
         setNotifications(notifications.size, notifications.data);
         setDeclaration(searchParameter)
-        const navigateAction = NavigationActions.navigate({
-          routeName: route
-        });
-        this.props.navigation.dispatch(navigateAction);
+        this.redirect(route)
       });
     })
   }
@@ -98,10 +105,7 @@ class Notifications extends Component{
     }else{
       console.log('hi')
       setDeclaration(searchParameter)
-      const navigateAction = NavigationActions.navigate({
-        routeName: route
-      });
-      this.props.navigation.dispatch(navigateAction);
+      this.redirect(route)
     }
   }
 

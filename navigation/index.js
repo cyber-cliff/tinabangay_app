@@ -7,6 +7,7 @@ import Drawer from './Drawer';
 import NotificationStack from 'modules/notification/Drawer.js';
 import LocationStack from 'components/Location/Drawer.js';
 import ScannedUserStack from 'modules/scannedUser/Drawer.js';
+import DeclarationStack from 'modules/declaration/Drawer.js';
 
 
 // login stack
@@ -46,6 +47,7 @@ const PrimaryNav = createStackNavigator({
   notificationStack: { screen: NotificationStack},
   locationStack: { screen: LocationStack},
   scannedUserStack: { screen: ScannedUserStack},
+  declarationStack: { screen: DeclarationStack},
 }, {
   // Default config for all screens
   headerMode: 'none',

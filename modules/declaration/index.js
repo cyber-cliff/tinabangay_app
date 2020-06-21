@@ -8,7 +8,7 @@ import Currency from 'services/Currency.js';
 import { connect } from 'react-redux';
 import Config from 'src/config.js';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faUserCircle } from '@fortawesome/free-solid-svg-icons';
+import { faUserCircle, faTrash, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { Dimensions } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import RNPickerSelect from 'react-native-picker-select';
@@ -71,19 +71,20 @@ const safetyRelated = [{
   question: 'Do you have any household member/s, or close friend/s who have met a person currently having fever, cough and/or respiratory problems?',
   answer: null
 }]
-class Profile extends Component{
+class Declaration extends Component{
   constructor(props){
     super(props);
     this.state = {
       isLoading: false,
       data: null,
-      step: 2,
+      step: 0,
+      errorMessage: null,
       personalInformation: {
         first_name: null,
         middle_name: null,
         last_name: null,
         email: null,
-        gender: null,
+        gender: 'male',
         birth_date: null,
         occupation: null,
         contact_number: null,
@@ -94,7 +95,19 @@ class Profile extends Component{
       others: {
         question: null,
         answer: 'no'
-      }
+      },
+      countries: [],
+      localities: [],
+      transportation: [],
+      newCountry: null,
+      newLocality: null,
+      newTransportation: {
+        date: null,
+        origin: null,
+        flight: null,
+        seat: null
+      },
+      viewFlag: null
     }
   }
 
@@ -122,19 +135,110 @@ class Profile extends Component{
     Api.request(Routes.healthDeclaratioRetrieve, parameter, response => {
       console.log('merchant', response.data[0])
       this.setState({isLoading: false, data: response.data[0]})
+      if(response.data[0].content != null && response.data[0].content != ''){
+        let parse = JSON.parse(response.data[0].content)
+        console.log('personalInformation', parse.personalInformation)
+        console.log('symptomsQuestions', parse.symptoms)
+        console.log('countries', parse.travelHistory.countries)
+        console.log('localities', parse.travelHistory.localities)
+        console.log('transportation', parse.travelHistory.transportation)
+        console.log('safetyRelatedQuestions', parse.safety_questions)
+        this.setState({
+          personalInformation: parse.personalInformation,
+          symptomsQuestions: parse.symptoms,
+          countries: parse.travelHistory.countries,
+          localities: parse.travelHistory.localities,
+          transportation: parse.travelHistory.transportation,
+          safetyRelatedQuestions: parse.safety_questions,
+          viewFlag: true
+        })
+      }else{
+        this.setState({
+          viewFlag: false
+        })
+      }
+    });
+  }
+
+
+  submit(){
+    const { data } = this.state;
+    if(this.state.step == 3){
+      for (var i = 0; i < this.state.safetyRelatedQuestions.length; i++) {
+        let item = this.state.safetyRelatedQuestions[i]
+        if(item.answer == null){
+          this.setState({
+            errorMessage: 'Please answer each question.'
+          })
+          return
+        }
+      }
+    }
+    if(data === null){
+      return
+    }
+    let content = {
+      personalInformation: this.state.personalInformation,
+      symptoms: this.state.symptomsQuestions,
+      travelHistory: {
+        countries: this.state.countries,
+        localities: this.state.localities,
+        transportation: this.state.transportation
+      },
+      safety_questions: this.state.safetyRelatedQuestions
+    }
+    this.setState({
+      isLoading: true, 
+      showDatePicker: false
+    })
+    let parameter = data
+    parameter.content = JSON.stringify(content)
+    Api.request(Routes.healthDeclaratinUpdate, parameter, response => {
+      this.setState({isLoading: false, data: response.data[0]})
     });
   }
 
   validate = () => {
     const { user } = this.props.state;
-    console.log('personalInformation', this.state.personalInformation)
+    const { personalInformation } = this.state;
     this.setState({
-      step: this.state.step + 1
+      errorMessage: null
     })
-  }
-
-  submit(){
-
+    if(this.state.step == 0){
+      console.log('personalInformation', personalInformation)
+      if(personalInformation.first_name == null || personalInformation.middle_name == null || personalInformation.last_name == null
+        || personalInformation.birth_date == null || personalInformation.email == null || personalInformation.address == null || personalInformation.contact_number == null
+        || personalInformation.occupation == null || personalInformation.gender == null){
+        this.setState({
+          errorMessage: 'All fields are required.'
+        })
+        return
+      }else if(Helper.validateEmail(personalInformation.email) == false){
+        this.setState({
+          errorMessage: 'Invalid e-mail address.'
+        })
+        return
+      }
+    }
+    if(this.state.step == 2){
+      let symptoms = this.state.symptomsQuestions;
+      if(this.state.others.answer == 'yes' && (this.state.others.question == null || this.state.others.question == '')){
+        this.setState({
+          errorMessage: 'Others(Specify) is required once selected.'
+        })
+        return
+      }
+      if(this.state.others.answer == 'yes' && this.state.others.question != null){
+        symptoms.push(this.state.others)
+        this.setState({
+          symptomsQuestions: symptoms
+        })
+      }
+    }
+    this.setState({
+      step: this.state.step + 1,
+      errorMessage: null
+    })
   }
 
   updateSafety(indexParam, flag){
@@ -169,10 +273,359 @@ class Profile extends Component{
     })
   }
 
-  _step3 = () => {
-    const { safetyRelatedQuestions } = this.state;
+  addCountry(){
+    if(this.state.newCountry === null || this.state.newCountry === ''){
+      return
+    }
+    let flag = false
+    for (var i = 0; i < this.state.countries.length; i++) {
+      let item = this.state.countries[i]
+      if(item.title.toLowerCase() == this.state.newCountry.toLowerCase()){
+        flag = true
+        break
+      }
+    }
+    if(flag == false){
+      let countries = this.state.countries
+      countries.push({
+        title: this.state.newCountry
+      })
+      this.setState({
+        countries: countries
+      })
+    }
+    this.setState({
+      newCountry: null
+    })
+  }
+
+  removeCountry(indexParam){
+    let countries = this.state.countries.filter((item, index) => {
+      if(index != indexParam){
+        return item
+      }
+    })
+    this.setState({
+      countries: countries
+    })
+  }
+
+  addLocality(){
+    if(this.state.newLocality === null || this.state.newLocality === ''){
+      return
+    }
+    let flag = false
+    for (var i = 0; i < this.state.localities.length; i++) {
+      let item = this.state.localities[i]
+      if(item.title.toLowerCase() == this.state.newLocality.toLowerCase()){
+        flag = true
+        break
+      }
+    }
+    if(flag == false){
+      let localities = this.state.localities
+      localities.push({
+        title: this.state.newLocality
+      })
+      this.setState({
+        localities: localities
+      })
+    }
+    this.setState({
+      newLocality: null
+    })
+  }
+
+  removeLocality(indexParam){
+    let localities = this.state.localities.filter((item, index) => {
+      if(index != indexParam){
+        return item
+      }
+    })
+    this.setState({
+      localities: localities
+    })
+  }
+
+  addTransportation(){
+    if(this.state.newTransportation.date === null || this.state.newTransportation.origin === null || this.state.newTransportation.flight === null
+      || this.state.newTransportation.seat == null){
+      this.setState({
+        errorMessage: 'Transportation fields are required.'
+      })
+      return
+    }
+    
+    let transportation = this.state.transportation
+    transportation.push(this.state.newTransportation)
+    this.setState({
+      transportation: transportation,
+      newTransportation: {
+        date: null,
+        origin: null,
+        flight: null,
+        seat: null
+      }
+    })
+  }
+
+  removeTransportation(indexParam){
+    let transportation = this.state.transportation.filter((item, index) => {
+      if(index != indexParam){
+        return item
+      }
+    })
+    this.setState({
+      transportation: transportation
+    })
+  }
+
+  _viewDetails = () => {
+    const { data, personalInformation, transportation, countries, localities, symptomsQuestions, safetyRelatedQuestions } = this.state;
     return (
       <View>
+        {
+          <View>
+              <Text style={{
+                paddingTop: 10,
+                paddingBottom: 10,
+                color: Color.danger
+              }}>
+                Submitted on {data.updated_at}
+              </Text>
+          </View>
+        }
+        {
+          personalInformation && (
+            <View>
+              <Text style={{
+                textAlign: 'justify',
+                fontWeight: 'bold'
+              }}>
+                PERSONAL INFORMATION
+              </Text>
+              <Text style={{
+                paddingTop: 2,
+                paddingBottom: 2
+              }}>
+                {
+                  personalInformation.first_name + ' ' + personalInformation.middle_name + ' ' + personalInformation.last_name + '(' + personalInformation.gender.toUpperCase() + ')'
+                }
+              </Text>
+
+              <Text style={{
+                paddingTop: 2,
+                paddingBottom: 2
+              }}>
+                {
+                  personalInformation.occupation + ' from ' + personalInformation.address
+                }
+              </Text>
+              <Text style={{
+                paddingTop: 2,
+                paddingBottom: 2
+              }}>
+                {
+                  'Birth Date: ' + personalInformation.birth_date
+                }
+              </Text>
+
+              <Text style={{
+                paddingTop: 2,
+                paddingBottom: 2
+              }}>
+                {
+                  'E-mail address: ' + personalInformation.email.toLowerCase()
+                }
+              </Text>
+
+              <Text style={{
+                paddingTop: 2,
+                paddingBottom: 2
+              }}>
+                {
+                  'Contact number: ' + personalInformation.contact_number
+                }
+              </Text>
+            </View>
+          )
+        }
+        {
+          transportation && transportation.length > 0 && (
+            <View style={{
+              paddingBottom: 10,
+              paddingTop: 10
+            }}>
+              <Text style={{
+                textAlign: 'justify',
+                fontWeight: 'bold'
+              }}>
+                TRANSPORTATION USED
+              </Text>
+              {
+                transportation.map((item, index) => {
+                  return(
+                    <View>
+                      <Text style={{
+                        paddingTop: 10
+                      }}>
+                        {
+                          item.date + ' from ' + item.origin
+                        }
+                      </Text>
+                      <Text>
+                        {
+                          'Flight #: ' + item.flight + ' / Seat #: ' + item.seat
+                        }
+                      </Text>
+                    </View>
+                  )
+                })
+              }
+            </View>
+          )
+        }
+
+        {
+          countries && countries.length > 0 && (
+            <View style={{
+              paddingBottom: 10,
+              paddingTop: 10
+            }}>
+              <Text style={{
+                textAlign: 'justify',
+                fontWeight: 'bold'
+              }}>
+                VISITED COUNTRIES
+              </Text>
+              {
+                countries.map((item, index) => {
+                  return (
+                    <Text style={{
+                      paddingTop: 10
+                    }}>
+                      {
+                        item.title
+                      }
+                    </Text> 
+                  )
+                })
+              }
+          </View>
+        )}
+
+
+        {
+          localities && localities.length > 0 && (
+            <View style={{
+              paddingBottom: 10,
+              paddingTop: 10
+            }}>
+              <Text style={{
+                textAlign: 'justify',
+                fontWeight: 'bold'
+              }}>
+                VISITED CITIES/MUNICIPALITIES
+              </Text>
+              {
+                localities.map((item, index) => {
+                  return (
+                    <Text style={{
+                      paddingTop: 10
+                    }}>
+                      {
+                        item.title
+                      }
+                    </Text> 
+                  )
+                })
+              }
+          </View>
+        )}
+
+        {
+          symptomsQuestions && symptomsQuestions.length > 0 && (
+            <View style={{
+              paddingBottom: 10,
+              paddingTop: 10
+            }}>
+              <Text style={{
+                textAlign: 'justify',
+                fontWeight: 'bold'
+              }}>
+                SYMPTOMS
+              </Text>
+              {
+                symptomsQuestions.map((item, index) => {
+                  return (
+                    <Text style={{
+                      color: item.answer == 'yes' ? Color.danger : Color.black,
+                      paddingTop: 10
+                    }}>
+                      {
+                        '[' + item.answer.toUpperCase() + ']' + item.question
+                      }
+                    </Text> 
+                  )
+                })
+              }
+          </View>
+        )}
+
+
+        {
+          safetyRelatedQuestions && safetyRelatedQuestions.length > 0 && (
+            <View style={{
+              paddingBottom: 10,
+              paddingTop: 10
+            }}>
+              <Text style={{
+                textAlign: 'justify',
+                fontWeight: 'bold'
+              }}>
+                HEALTH AND SAFETY - RELATED QUESTIONS
+              </Text>
+              {
+                safetyRelatedQuestions.map((item, index) => {
+                  return (
+                    <Text style={{
+                      color: item.answer == 'yes' ? Color.danger : Color.black,
+                      paddingTop: 10
+                    }}>
+                      {
+                        '[' + item.answer.toUpperCase() + ']' + item.question
+                      }
+                    </Text> 
+                  )
+                })
+              }
+          </View>
+        )}
+
+
+
+      </View>
+    )
+  }
+
+  _step3 = () => {
+    const { safetyRelatedQuestions, errorMessage } = this.state;
+    return (
+      <View>
+
+        {
+          errorMessage != null && (
+            <View style={{
+              alignItems: 'center',
+              paddingTop: 5,
+              paddingBottom: 5
+            }}>
+              <Text style={{
+                color: Color.danger
+              }}>{errorMessage}</Text>
+            </View>
+          )
+        }
 
         {
           safetyRelatedQuestions.map((item, index) => {
@@ -251,7 +704,7 @@ class Profile extends Component{
               <Text style={{
                 color: Color.white,
                 textAlign: 'center',
-              }}>Submit</Text>
+              }}>Next</Text>
           </TouchableHighlight>
         </View>
       </View>
@@ -259,9 +712,25 @@ class Profile extends Component{
   }
 
  _step2 = () => {
-    const { symptomsQuestions } = this.state;
+    const { symptomsQuestions, errorMessage } = this.state;
     return (
       <View>
+
+
+        {
+          errorMessage != null && (
+            <View style={{
+              alignItems: 'center',
+              paddingTop: 5,
+              paddingBottom: 5
+            }}>
+              <Text style={{
+                color: Color.danger
+              }}>{errorMessage}</Text>
+            </View>
+          )
+        }
+
         <View>
           <Text style={{
             textAlign: 'justify'
@@ -382,26 +851,383 @@ class Profile extends Component{
 
  
   _step1 = () => {
-    const { userLedger, user, location } = this.props.state;
-    const { errorMessage } = this.state;
-    const iOSGender = gender.map((item, index) => {
-                      return {
-                        label: item.title,
-                        value: item.value
-                      };
-                    });
+    const { countries, localities, errorMessage, transportation } = this.state;
     return (
       <View>
+        
+
+        {
+          errorMessage != null && (
+            <View style={{
+              alignItems: 'center',
+              paddingTop: 5,
+              paddingBottom: 5
+            }}>
+              <Text style={{
+                color: Color.danger
+              }}>{errorMessage}</Text>
+            </View>
+          )
+        }
+
+
         <View>
           <Text style={{
-          }}>First Name</Text>
-          <TextInput
-            style={BasicStyles.formControlCreate}
-            onChangeText={(firstName) => this.setState({firstName})}
-            value={this.state.firstName}
-            placeholder={'Enter first name'}
+            textAlign: 'justify',
+            fontWeight: 'bold'
+          }}>
+          Transportation used the past 14 days:
+          </Text>
+        </View>
+
+
+        <View style={{
+          paddingTop: 10,
+          paddingBottom: 10
+        }}>
+          {
+            transportation.length > 0 && transportation.map((item, index) => {
+              return(
+                <View style={{
+                  flexDirection: 'row',
+                  marginBottom: 10
+                }}>
+                  <View style={{
+                    width: '80%',
+                    marginRight: '1%'
+                  }}>
+                    <Text>
+                      {
+                        item.date + ' from ' + item.origin
+                      }
+                    </Text>
+
+                    <Text>
+                      {
+                        'Flight #: ' + item.flight + ' / Seat #: ' + item.seat
+                      }
+                    </Text>
+                  </View>
+
+                  <TouchableOpacity style={{
+                      height: 50,
+                      backgroundColor: Color.danger,
+                      width: '19%',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      borderRadius: 5,
+                    }}
+                    onPress={() => {
+                      this.removeTransportation(index)
+                    }}
+                    underlayColor={Color.gray}
+                      >
+                      <FontAwesomeIcon icon={faTrash} style={{
+                        color: Color.white
+                      }}/>
+                  </TouchableOpacity>
+
+                </View>
+
+              )
+            })
+          }
+        </View>
+
+
+        <View style={{
+          paddingTop: 10,
+          paddingBottom: 10
+        }}>
+        
+        <View>
+          <Text style={{
+            paddingTop: 10
+          }}>Date</Text>
+          <DateTime
+            type={'date'}
+            placeholder={'Select Date'}
+            onFinish={(date) => {
+              this.setState({
+                newTransportation: {
+                  ...this.state.newTransportation,
+                  date: date.date
+                }
+              })
+            }}
+            style={{
+              marginTop: 5
+            }}
           />
         </View>
+
+          <View style={{
+            paddingBottom: 10
+          }}>
+            <Text>Flight Origin</Text>
+            <TextInput
+              style={BasicStyles.formControlCreate}
+              onChangeText={(origin) => this.setState({
+                newTransportation: {
+                  ...this.state.newTransportation,
+                  origin
+                }
+              })}
+              value={this.state.newTransportation.origin}
+              placeholder={'Type port origin here'}
+            />
+            </View>
+
+
+
+            <View style={{
+              paddingBottom: 10
+            }}>
+            <Text>Flight #</Text>
+            <TextInput
+              style={BasicStyles.formControlCreate}
+              onChangeText={(flight) => this.setState({
+                newTransportation: {
+                  ...this.state.newTransportation,
+                  flight
+                }
+              })}
+              value={this.state.newTransportation.flight}
+              placeholder={'Type flight # here'}
+            />
+            </View>
+
+
+
+            <View style={{
+              paddingBottom: 10
+            }}>
+            <Text>Seat #</Text>
+            <TextInput
+              style={BasicStyles.formControlCreate}
+              onChangeText={(seat) => this.setState({
+                newTransportation: {
+                  ...this.state.newTransportation,
+                  seat
+                }
+              })}
+              value={this.state.newTransportation.seat}
+              placeholder={'Type seat # here'}
+            />
+            </View>
+
+
+
+            <TouchableHighlight style={{
+                height: 50,
+                backgroundColor: Color.primary,
+                width: '100%',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: 5,
+              }}
+              onPress={() => {
+                this.addTransportation()
+              }}
+              underlayColor={Color.gray}
+                >
+              <Text style={{
+                color: Color.white,
+                textAlign: 'center',
+              }}>Add</Text>
+          </TouchableHighlight>
+        </View>
+
+
+
+
+        <View>
+          <Text style={{
+            textAlign: 'justify',
+            fontWeight: 'bold'
+          }}>
+          Countries visited for the past fourteen (14) days:
+          </Text>
+        </View>
+        <View style={{
+          paddingTop: 10,
+          paddingBottom: 10
+        }}>
+          {
+            countries.length > 0 && countries.map((item, index) => {
+              return(
+                <View style={{
+                  flexDirection: 'row',
+                  marginBottom: 10
+                }}>
+                  <Text style={{
+                    width: '80%',
+                    marginRight: '1%',
+                    lineHeight: 50
+                  }}>
+                    {
+                      item.title
+                    }
+                  </Text>
+
+                  <TouchableOpacity style={{
+                      height: 50,
+                      backgroundColor: Color.danger,
+                      width: '19%',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      borderRadius: 5,
+                    }}
+                    onPress={() => {
+                      this.removeCountry(index)
+                    }}
+                    underlayColor={Color.gray}
+                      >
+                      <FontAwesomeIcon icon={faTrash} style={{
+                        color: Color.white
+                      }}/>
+                  </TouchableOpacity>
+
+                </View>
+
+              )
+            })
+          }
+        </View>
+
+        <View style={{
+          flexDirection: 'row',
+          paddingTop: 10,
+          paddingBottom: 10
+        }}>
+            <TextInput
+              style={[BasicStyles.formControlCreate, {
+                width: '80%',
+                marginRight: '1%'
+              }]}
+              onChangeText={(newCountry) => this.setState({
+                newCountry
+              })}
+              value={this.state.newCountry}
+              placeholder={'Type country here'}
+            />
+
+            <TouchableOpacity style={{
+                height: 50,
+                backgroundColor: Color.primary,
+                width: '19%',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: 5,
+              }}
+              onPress={() => {
+                this.addCountry()
+              }}
+              underlayColor={Color.gray}
+                >
+                <FontAwesomeIcon icon={faPlus} style={{
+                  color: Color.white
+                }} />
+            </TouchableOpacity>
+        </View>
+
+
+
+
+        <View>
+          <Text style={{
+            textAlign: 'justify',
+            fontWeight: 'bold'
+          }}>
+          Cities / municipalities in the Philippines visited for the past fourteen (14) days:
+          </Text>
+        </View>
+
+        <View style={{
+          paddingTop: 10,
+          paddingBottom: 10
+        }}>
+          {
+            localities.length > 0 && localities.map((item, index) => {
+              return(
+                <View style={{
+                  flexDirection: 'row',
+                  marginBottom: 10
+                }}>
+                  <Text style={{
+                    width: '80%',
+                    marginRight: '1%',
+                    lineHeight: 50
+                  }}>
+                    {
+                      item.title
+                    }
+                  </Text>
+
+                  <TouchableOpacity style={{
+                      height: 50,
+                      backgroundColor: Color.danger,
+                      width: '19%',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      borderRadius: 5,
+                    }}
+                    onPress={() => {
+                      this.removeLocality(index)
+                    }}
+                    underlayColor={Color.gray}
+                      >
+                      <FontAwesomeIcon icon={faTrash} style={{
+                        color: Color.white
+                      }}/>
+                  </TouchableOpacity>
+
+                </View>
+
+              )
+            })
+          }
+        </View>
+
+        <View style={{
+          flexDirection: 'row',
+          paddingTop: 10,
+          paddingBottom: 10
+        }}>
+            <TextInput
+              style={[BasicStyles.formControlCreate, {
+                width: '80%',
+                marginRight: '1%'
+              }]}
+              onChangeText={(newLocality) => this.setState({
+                newLocality
+              })}
+              value={this.state.newLocality}
+              placeholder={'Type city or town here'}
+            />
+
+            <TouchableOpacity style={{
+                height: 50,
+                backgroundColor: Color.primary,
+                width: '19%',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: 5,
+              }}
+              onPress={() => {
+                this.addLocality()
+              }}
+              underlayColor={Color.gray}
+                >
+                <FontAwesomeIcon icon={faPlus} style={{
+                  color: Color.white
+                }} />
+            </TouchableOpacity>
+        </View>
+
+
+
+
         <View style={{
           marginBottom: 10
         }}>
@@ -429,7 +1255,6 @@ class Profile extends Component{
   }
 
   _step0 = () => {
-    const { userLedger, user, location } = this.props.state;
     const { errorMessage } = this.state;
     const iOSGender = gender.map((item, index) => {
                       return {
@@ -439,6 +1264,20 @@ class Profile extends Component{
                     });
     return (
       <View>
+
+        {
+          errorMessage != null && (
+            <View style={{
+              alignItems: 'center',
+              paddingTop: 5,
+              paddingBottom: 5
+            }}>
+              <Text style={{
+                color: Color.danger
+              }}>{errorMessage}</Text>
+            </View>
+          )
+        }
         <View>
           <Text style={{
           }}>First Name</Text>
@@ -500,6 +1339,26 @@ class Profile extends Component{
             placeholder={'Enter e-mail address'}
           />
         </View>
+
+
+        <View>
+          <Text style={{
+          }}>Occupation</Text>
+          <TextInput
+            style={BasicStyles.formControlCreate}
+            onChangeText={(occupation) => this.setState({
+              personalInformation: {
+                ...this.state.personalInformation,
+                occupation
+              }
+            })}
+            value={this.state.personalInformation.occupation}
+            placeholder={'Enter occupation'}
+          />
+        </View>
+
+
+
         <View style={{
         }}>
           <Text>Gender</Text>
@@ -625,7 +1484,7 @@ class Profile extends Component{
 
   render() {
     const { user } = this.props.state;
-    const { isLoading, data, step } = this.state;
+    const { isLoading, data, step, viewFlag } = this.state;
     return (
       <ScrollView
         style={Style.ScrollView}
@@ -677,19 +1536,31 @@ class Profile extends Component{
                     }}>{data.merchant.name}</Text>
                   )
                 }
-                <Text  style={{
-                  textAlign: 'justify',
-                  paddingBottom: 10
+                <Text style={{
+                  paddingTop: 10,
+                  paddingBottom: 10,
+                  textAlign: 'center',
+                  fontWeight: 'bold'
                 }}>
-                  Hi {user.username}! IMPORTANT REMINDER: Kindly complete this health declaration form honestly. Failure to answer or giving false information is punishable in accordance with Philippine laws.
+                  HEALTH DECLARATION FORM
                 </Text>
+                {
+                  viewFlag == false && (
+                    <Text  style={{
+                      textAlign: 'justify',
+                      paddingBottom: 10
+                    }}>
+                      Hi {user.username}! IMPORTANT REMINDER: Kindly complete this health declaration form honestly. Failure to answer or giving false information is punishable in accordance with Philippine laws.
+                    </Text>
+                  )
+                }
                 <View style={{
                   flexDirection: 'row',
                   alignItems: 'center'
                 }}>
 
                   {
-                    steps.map((item, index) => {
+                    viewFlag == false && steps.map((item, index) => {
                       return(
                       <View style={{
                         width: 50,
@@ -707,22 +1578,27 @@ class Profile extends Component{
                     )})  
                   }
                 </View>
-                <View>
-                  <Text style={{
-                    fontWeight: 'bold',
-                    paddingTop: 10,
-                    paddingBottom: 10
-                  }}>
-                    {steps[this.state.step].description.toUpperCase()}
-                  </Text>
-                </View>
+                {
+                  viewFlag == false && (
+                    <View>
+                      <Text style={{
+                        fontWeight: 'bold',
+                        paddingTop: 10,
+                        paddingBottom: 10
+                      }}>
+                        {steps[this.state.step].description.toUpperCase()}
+                      </Text>
+                    </View>
+                  )
+                }                
               </View>
             )
           }
-          { step == 0 && (this._step0())}
-          { step == 1 && (this._step1())}
-          { step == 2 && (this._step2())}
-          { step == 3 && (this._step3())}
+          { (step == 0 && viewFlag == false) && (this._step0())}
+          { (step == 1 && viewFlag == false) && (this._step1())}
+          { (step == 2 && viewFlag == false) && (this._step2())}
+          { (step == 3 && viewFlag == false) && (this._step3())}
+          { viewFlag == true && (this._viewDetails())}
 
           {
             data != null && data.merchant != null && (
@@ -774,4 +1650,4 @@ const mapDispatchToProps = dispatch => {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(Profile);
+)(Declaration);
