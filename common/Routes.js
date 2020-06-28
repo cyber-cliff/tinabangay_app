@@ -36,4 +36,6 @@ export default {
   symptomsCreate: apiUrl + 'symptoms/create',
   symptomsRetrieve: apiUrl + 'symptoms/retrieve',
   emailAlert: apiUrl + 'emails/alert',
+  consentCreate: apiUrl + 'consents/create',
+  consentRetrieve: apiUrl + 'consents/retrieve',
 }
