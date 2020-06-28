@@ -23,7 +23,7 @@ const gender = [{
   title: 'Others',
   value: 'others'
 }]
-class Profile extends Component{
+class Declaration extends Component{
   constructor(props){
     super(props);
     this.state = {
@@ -404,4 +404,4 @@ const mapDispatchToProps = dispatch => {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(Profile);
+)(Declaration);

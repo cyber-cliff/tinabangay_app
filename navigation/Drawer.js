@@ -20,6 +20,7 @@ import GenerateQR from 'modules/generateQR';
 import ScanQR from 'modules/scanQR';
 import OptionRight from './OptionRight';
 import CheckMap from 'modules/checkMap';
+import Declaration from 'modules/declaration';
 class MenuDrawerStructure extends Component {
   constructor(props){
     super(props);
@@ -228,6 +229,20 @@ const Symptoms_StackNavigator = createStackNavigator({
   },
 });
 
+const Declaration_StackNavigator = createStackNavigator({
+  Declaration: {
+    screen: Declaration,
+    navigationOptions: ({ navigation }) => ({
+      headerLeft: <MenuDrawerStructure navigationProps={navigation} />,
+      headerRight: <OptionRight navigationProps={navigation} />,
+      headerStyle: {
+        backgroundColor: Color.primary,
+      },
+      headerTintColor: '#fff',
+    }),
+  },
+});
+
 
 const Drawer = createDrawerNavigator({
   Dashboard: {
@@ -308,7 +323,12 @@ const Drawer = createDrawerNavigator({
       drawerLabel: '',
     },
   },
-  
+  Declaration: {
+    screen: Declaration_StackNavigator,
+    navigationOptions: {
+      drawerLabel: '',
+    },
+  },
 }, {
   contentComponent: Slider
 });

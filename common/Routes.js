@@ -9,7 +9,8 @@ export default {
   accountRetrieve: apiUrl + 'accounts/retrieve',
   accountUpdate: apiUrl + 'accounts/update',
   accountCreate: apiUrl + 'accounts/create',
-  notificationsRetrieve: apiUrl + 'patients/retrieve_notifications',
+  notificationsRetrieve: apiUrl + 'notifications/retrieve',
+  notificationUpdate: apiUrl + 'notifications/update',
   accountProfileCreate: apiUrl + 'account_profiles/create',
   accountProfileUpdate: apiUrl + 'account_profiles/update',
   accountInformationRetrieve: apiUrl + 'account_informations/retrieve',
@@ -38,4 +39,7 @@ export default {
   emailAlert: apiUrl + 'emails/alert',
   consentCreate: apiUrl + 'consents/create',
   consentRetrieve: apiUrl + 'consents/retrieve',
+  healthDeclarationCreate: apiUrl + 'health_declarations/create',
+  healthDeclaratioRetrieve: apiUrl + 'health_declarations/retrieve',
+  healthDeclaratinUpdate: apiUrl + 'health_declarations/update'
 }

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import Style from './Style.js';
 import { View, Text, ScrollView, FlatList, TouchableHighlight} from 'react-native';
-import {NavigationActions} from 'react-navigation';
+import {NavigationActions, StackActions} from 'react-navigation';
 import { Routes, Color, Helper, BasicStyles } from 'common';
 import { Spinner } from 'components';
 import { connect } from 'react-redux';
@@ -18,14 +18,15 @@ class Notifications extends Component{
     }
   }
 
-  componentDidMount(){
-    this.retrieve()
-  }
   FlatListItemSeparator = () => {
     return (
       <View style={BasicStyles.Separator}/>
     );
   };
+
+  componentDidMount(){
+    this.retrieve()
+  }
 
   retrieve = () => {
     const { setNotifications } = this.props;
@@ -34,164 +35,78 @@ class Notifications extends Component{
       return
     }
     let parameter = {
-      condition: [{
-        value: user.id,
-        clause: '=',
-        column: 'account_id'
-      }],
-      sort: {
-        created_at: 'desc'
-      }
+      account_id: user.id
     }
     this.setState({isLoading: true})
-    console.log(parameter)
-    Api.request(Routes.notificationsRetrieve, parameter, response => {
-      console.log(response)
+    Api.request(Routes.notificationsRetrieve, parameter, notifications => {
       this.setState({isLoading: false})
-      setNotifications(response.length, response.data.length > 0 ? response.data : null)
+      setNotifications(notifications.size, notifications.data)
+    }, error => {
+      console.log('error', error)
     })
   }
 
-  _status = (item) => {
-    return (
-      <View>
-        {
-          item.status == 'death' && (
-            <View style={{
-              backgroundColor: 'black',
-              borderRadius: 2,
-              marginRight: 20,
-              marginLeft: 20,
-              marginBottom: 10,
-              marginTop: 10
-            }}>
-              <Text style={{
-                color: Color.white,
-                paddingTop: 2,
-                paddingBottom: 2,
-                paddingLeft: 10,
-                paddingRight: 10
-              }}>
-                {item.status.toUpperCase()}
-              </Text>
-            </View>
-          )
-        }
+  redirect(route){
+    const reset = StackActions.reset({
+      index: 0,
+      key: null,
+      actions: [NavigationActions.navigate({
+          routeName: 'declarationStack'
+      })]
+    });
+    this.props.navigation.dispatch(reset);
+  }
+  updateNotification = (searchParameter, notification, route) => {
+    const { setDeclaration, setNotifications } = this.props;
+    const { user } = this.props.state;
+    if(user == null){
+      return
+    }
+    let parameter = {
+      id: notification.id
+    }
+    Api.request(Routes.notificationUpdate, parameter, response => {
+      let retrieveParameter = {
+        account_id: user.id
+      }
+      Api.request(Routes.notificationsRetrieve, retrieveParameter, notifications => {
+        setNotifications(notifications.size, notifications.data);
+        setDeclaration(searchParameter)
+        this.redirect(route)
+      });
+    })
+  }
 
-        {
-          item.status == 'positive' && (
-            <View style={{
-              backgroundColor: Color.danger,
-              borderRadius: 2,
-              marginRight: 20,
-              marginLeft: 20,
-              marginBottom: 10,
-              marginTop: 10
-            }}>
-              <Text style={{
-                color: Color.white,
-                paddingTop: 2,
-                paddingBottom: 2,
-                paddingLeft: 10,
-                paddingRight: 10
-              }}>
-                {item.status.toUpperCase()}
-              </Text>
-            </View>
-          )
+  viewNotification = (notification, index) => {
+    const { notifications } = this.props.state;
+    const { setDeclaration } = this.props;
+    setDeclaration(null)
+    let route = null;
+    let searchParameter = null
+    switch(notification.payload){
+      case 'form_request':
+        route = 'Declaration';
+        searchParameter = {
+          column: 'id',
+          value: notification.payload_value
         }
-        {
-          item.status == 'pum' && (
-            <View style={{
-              backgroundColor: Color.warning,
-              borderRadius: 2,
-              marginRight: 20,
-              marginLeft: 20,
-              marginBottom: 10,
-              marginTop: 10
-            }}>
-              <Text style={{
-                color: Color.white,
-                paddingTop: 2,
-                paddingBottom: 2,
-                paddingLeft: 10,
-                paddingRight: 10
-              }}>
-                {item.status.toUpperCase()}
-              </Text>
-            </View>
-          )
+        break;
+      case 'form_submitted':
+        route = 'Declaration'
+        searchParameter = {
+          column: 'id',
+          value: notification.payload_value
         }
-
-        {
-          item.status == 'pui' && (
-            <View style={{
-              backgroundColor: Color.primary,
-              borderRadius: 2,
-              marginRight: 20,
-              marginLeft: 20,
-              marginBottom: 10,
-              marginTop: 10
-            }}>
-              <Text style={{
-                color: Color.white,
-                paddingTop: 2,
-                paddingBottom: 2,
-                paddingLeft: 10,
-                paddingRight: 10
-              }}>
-                {item.status.toUpperCase()}
-              </Text>
-            </View>
-          )
-        }
-        {
-          item.status == 'negative' && (
-            <View style={{
-              backgroundColor: 'green',
-              borderRadius: 2,
-              marginRight: 20,
-              marginLeft: 20,
-              marginBottom: 10,
-              marginTop: 10
-            }}>
-              <Text style={{
-                color: Color.white,
-                paddingTop: 2,
-                paddingBottom: 2,
-                paddingLeft: 10,
-                paddingRight: 10
-              }}>
-                {item.status.toUpperCase()}
-              </Text>
-            </View>
-          )
-        }
-
-        {
-          item.status == 'tested' && (
-            <View style={{
-              backgroundColor: Color.warning,
-              borderRadius: 2,
-              marginRight: 20,
-              marginLeft: 20,
-              marginBottom: 10,
-              marginTop: 10
-            }}>
-              <Text style={{
-                color: Color.white,
-                paddingTop: 2,
-                paddingBottom: 2,
-                paddingLeft: 10,
-                paddingRight: 10
-              }}>
-                {item.status.toUpperCase()}. Please be responsible and be on quarantine until the results.
-              </Text>
-            </View>
-          )
-        }
-      </View>
-    );
+        break;
+    }
+    if(notifications.unread > index){
+      console.log('hello')
+      this.updateNotification(searchParameter, notification, route);
+    }else{
+      console.log('hi')
+      setDeclaration(searchParameter)
+      this.redirect(route)
+    }
   }
 
   render() {
@@ -215,11 +130,6 @@ class Notifications extends Component{
           minHeight: height
         }]}>
           {
-            !notifications && (
-              <Empty />
-            )
-          }
-          {
             notifications && (
               <FlatList
                 data={notifications.notifications}
@@ -228,7 +138,7 @@ class Notifications extends Component{
                 renderItem={({ item, index }) => (
                   <View>
                     <TouchableHighlight
-                      onPress={() => {console.log('hi')}}
+                      onPress={() => {this.viewNotification(item, index)}}
                       underlayColor={Color.gray}
                       >
                       <View style={[Style.TextContainer, {
@@ -238,12 +148,12 @@ class Notifications extends Component{
                           style={[BasicStyles.titleText, {
                             paddingTop: 10
                           }]}>
-                          New Status
+                          {item.title}
                         </Text>
-
-                        {
-                          this._status(item)
-                        }
+                        <Text
+                          style={BasicStyles.normalText}>
+                          {item.description}
+                        </Text>
 
                         <Text
                           style={[BasicStyles.normalText, {
@@ -270,9 +180,7 @@ const mapStateToProps = state => ({ state: state });
 const mapDispatchToProps = dispatch => {
   const { actions } = require('@redux');
   return {
-    setRequests: (requests) => dispatch(actions.setRequests(requests)),
-    setUserLedger: (userLedger) => dispatch(actions.setUserLedger(userLedger)),
-    setSearchParameter: (searchParameter) => dispatch(actions.setSearchParameter(searchParameter)),
+    setDeclaration: (declaration) => dispatch(actions.setDeclaration(declaration)),
     setNotifications: (unread, notifications) => dispatch(actions.setNotifications(unread, notifications))
   };
 };
