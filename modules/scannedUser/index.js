@@ -463,7 +463,9 @@ class ScannedUser extends Component{
             flexDirection: 'row',
             marginTop: 20
           }}>
-            <TouchableHighlight style={{
+          {
+            user.account_type !== 'USER' && (
+              <TouchableHighlight style={{
               height: 50,
               backgroundColor: Color.primary,
               width: '49%',
@@ -479,8 +481,10 @@ class ScannedUser extends Component{
               <Text style={{
                 color: Color.white,
                 textAlign: 'center',
-              }}>Linked my account</Text>
+              }}>Linked to my account</Text>
             </TouchableHighlight>
+            )
+          }
 
           {
             scannedUser.transportation != null && (

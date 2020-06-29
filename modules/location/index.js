@@ -12,6 +12,7 @@ import { faUserCircle, faMapMarker } from '@fortawesome/free-solid-svg-icons';
 import { Dimensions } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import RNPickerSelect from 'react-native-picker-select';
+import QRCode from 'react-native-qrcode-svg';
 const height = Math.round(Dimensions.get('window').height);
 class Location extends Component{
   constructor(props){
@@ -22,7 +23,8 @@ class Location extends Component{
       selected: null,
       location: null,
       errorMessage: null,
-      showConfirmation: false
+      showConfirmation: false,
+      updateFlag: false
     }
   }
 
@@ -32,7 +34,8 @@ class Location extends Component{
 
   manageLocation = (location) => {
     this.setState({
-      location: location
+      location: location,
+      updateFlag: location.route === null ? true : false
     })
   }
 
@@ -98,6 +101,7 @@ class Location extends Component{
       region: location.region,
       country: location.country,
       locality: location.locality,
+      autogenerate: true
     }
     this.setState({isLoading: true})
     Api.request(Routes.locationCreate, parameter, response => {
@@ -118,6 +122,7 @@ class Location extends Component{
   }
 
   _new = () => {
+    const { updateFlag } = this.state;
     return (
       <View>
         {
@@ -133,17 +138,81 @@ class Location extends Component{
           )
         }
 
-        <View style={{
-          position: 'relative',
-          backgroundColor: Color.white,
-          zIndex: 2
-        }}>
-          <GooglePlacesAutoCompleteWithMap 
-            onFinish={(location) => this.manageLocation(location)}
-            placeholder={'Start typing location'}
-            onChange={() => {}}
-          />
-        </View>
+        {
+          updateFlag == false && (
+            <View style={{
+              position: 'relative',
+              backgroundColor: Color.white,
+              zIndex: 2
+            }}>
+              <GooglePlacesAutoCompleteWithMap 
+                onFinish={(location) => this.manageLocation(location)}
+                placeholder={'Start typing location'}
+                onChange={() => {}}
+              />
+            </View>
+          )
+        }
+
+        {
+          updateFlag == true && (
+
+            <View>
+
+              <View>
+                <Text style={{
+                }}>Address</Text>
+                <TextInput
+                  style={BasicStyles.formControlCreate}
+                  onChangeText={(route) => this.setState({
+                    location: {
+                      ...this.state.location,
+                      route
+                    }
+                  })}
+                  value={this.state.location.route}
+                  placeholder={'Business name and address'}
+                />
+              </View>
+
+
+              <View>
+                <Text style={{
+                }}>Town/Municipality</Text>
+                <TextInput
+                  style={BasicStyles.formControlCreate}
+                  onChangeText={(locality) => this.setState({
+                    location: {
+                      ...this.state.location,
+                      locality
+                    }
+                  })}
+                  value={this.state.location.locality}
+                  placeholder={'Town'}
+                />
+              </View>
+
+              <View>
+                <Text style={{
+                }}>Province</Text>
+                <TextInput
+                  style={BasicStyles.formControlCreate}
+                  onChangeText={(region) => this.setState({
+                    location: {
+                      ...this.state.location,
+                      region
+                    }
+                  })}
+                  value={this.state.location.region}
+                  placeholder={'Province'}
+                />
+              </View>
+
+
+            </View>
+
+          )
+        }
 
         <View style={{
           position: 'relative',
@@ -185,7 +254,8 @@ class Location extends Component{
                 newFlag: false,
                 type: null,
                 model: null,
-                number: null
+                number: null,
+                updateFlag: false
               })}}
               underlayColor={Color.gray}
                 >
@@ -229,42 +299,72 @@ class Location extends Component{
                 })}}
                 underlayColor={Color.gray}
                 >
-                <View style={Style.TextContainer}>
                   <View style={{
                     flexDirection: 'row'
                   }}>
-                    {
-                      (item.route != 'xx' && item.locality != 'xx') && (
-                        <Text
-                          style={[BasicStyles.titleText, {
-                            paddingTop: 10,
-                            fontWeight: 'bold',
-                            color: (location != null && item.id == location.id) ? Color.white : Color.primary
-                          }]}>
-                          {item.route + ', ' + item.locality + ', ' + item.country}
-                        </Text>
-                      )
-                    }
-                    {
-                      (item.route == 'xx' && item.locality == 'xx') && (
-                        <Text
-                          style={[BasicStyles.titleText, {
-                            paddingTop: 10,
-                            fontWeight: 'bold',
-                            color: (location != null && item.id == location.id) ? Color.white : Color.primary
-                          }]}>
-                          Custom Location
-                        </Text>
-                      )
-                    }
-                  </View>
-                  <Text
-                    style={[BasicStyles.normalText, {
-                      color: (location != null && item.id == location.id) ? Color.white : Color.darkGray,
-                      paddingBottom: 10
-                    }]}>
-                    {item.longitude + '/' + item.latitude}
-                  </Text>
+                  {
+                    item.code != null && item.code.length > 12 && (
+                      <View style={{
+                        width: '10%',
+                        paddingTop: 2,
+                        paddingBottom: 2,
+                        paddingLeft: 2,
+                        paddingRight: 2,
+                        justifyContent: 'center'
+                      }}>
+                        <QRCode
+                          value={'location/' + item.code}
+                          size={40}
+                          color="black"
+                          style={{
+                            textAlign: 'center'
+                          }}
+                          backgroundColor="white"
+                        />
+                      </View>
+                    )
+                  }
+                    
+                    <View style={{
+                      width: (item.code == null ||  item.code.length <= 12) ? '100%' : '90%'
+                    }}>
+                      <View style={{
+                        flexDirection: 'row',
+                      }}>
+                        {
+                          (item.route != 'xx' && item.locality != 'xx') && (
+                            <Text
+                              style={[BasicStyles.titleText, {
+                                paddingTop: 10,
+                                fontWeight: 'bold',
+                                color: (location != null && item.id == location.id) ? Color.white : Color.primary
+                              }]}>
+                              {item.route + ', ' + item.locality + ', ' + item.country}
+                            </Text>
+                          )
+                        }
+                        {
+                          (item.route == 'xx' && item.locality == 'xx') && (
+                            <Text
+                              style={[BasicStyles.titleText, {
+                                paddingTop: 10,
+                                fontWeight: 'bold',
+                                color: (location != null && item.id == location.id) ? Color.white : Color.primary
+                              }]}>
+                              Custom Location
+                            </Text>
+                          )
+                        }
+                      </View>
+                      <Text
+                        style={[BasicStyles.normalText, {
+                          color: (location != null && item.id == location.id) ? Color.white : Color.darkGray,
+                          paddingBottom: 10
+                        }]}>
+                        {item.longitude + '/' + item.latitude}
+                      </Text>  
+                    </View>
+                    
                 </View>
               </TouchableHighlight>
             </View>
