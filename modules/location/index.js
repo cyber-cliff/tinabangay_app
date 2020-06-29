@@ -293,10 +293,7 @@ class Location extends Component{
               backgroundColor: (location != null && item.id == location.id) ? Color.primary : '#fff'
             }}>
               <TouchableHighlight
-                onPress={() => {this.setState({
-                  showConfirmation: true,
-                  selected: item
-                })}}
+                onPress={() => {}}
                 underlayColor={Color.gray}
                 >
                   <View style={{
