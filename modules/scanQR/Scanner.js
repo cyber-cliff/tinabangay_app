@@ -22,21 +22,28 @@ class Scanner extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      isLoading: false
+      isLoading: false,
+      payload: null
     };
   }
 
   retrieveUserInfo = (code) => {
+    let payload=code.split("/")[1];
+    let acctType=code.split("/")[0];
+    console.log(payload)
     let parameter = {
       condition: [{
-        value: code,
+        value: payload,
         clause: '=',
         column: 'code'
       }]
     }
+
     this.setState({
       isLoading: true
     })
+    if(acctType=="account"){
+      this.props.setScannedLocation(null)
     Api.request(Routes.accountRetrieve, parameter, response => {
       this.setState({isLoading: false})
       console.log('scannedUser', response)
@@ -46,6 +53,7 @@ class Scanner extends Component {
         let scannedUser = response.data[0]
         setScannedUser(response.data[0])
         this.props.close(response.data[0])
+       
       }else{
         setScannedUser(null)
         this.props.close(null)
@@ -54,6 +62,29 @@ class Scanner extends Component {
       console.log(error)
     });
   }
+
+  else if (acctType=="location"){
+    this.props.setScannedUser(null)
+    console.log("payload:",payload)
+    Api.request(Routes.locationRetrieve, parameter, response => {
+      this.setState({isLoading: false})
+      console.log('scannedLocation', response)
+      const { setScannedLocation } = this.props;
+      if(response.data.length > 0){
+        console.log(response)
+        let scannedLocation = response.data[0]
+        setScannedLocation(response.data[0])
+        this.props.close(response.data[0])
+        
+      }else{
+        setScannedLocation(null)
+        this.props.close(null)
+      }
+    }, error => {
+      console.log(error)
+    });
+  }
+}
 
   onSuccess = (e) => {
     this.retrieveUserInfo(e.data)
@@ -131,7 +162,11 @@ const mapStateToProps = state => ({ state: state });
 const mapDispatchToProps = dispatch => {
   const { actions } = require('@redux');
   return {
-    setScannedUser: (scannedUser) => dispatch(actions.setScannedUser(scannedUser))
+    setScannedUser: (scannedUser) => dispatch(actions.setScannedUser(scannedUser)),
+    setScannedLocation: (scannedLocation) => dispatch(actions.setScannedLocation(scannedLocation)),
+ 
+   
+
   };
 };
 

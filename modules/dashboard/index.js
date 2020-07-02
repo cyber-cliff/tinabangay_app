@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import Style from './Style.js';
-import { View, Image, TouchableHighlight, Text, ScrollView, FlatList} from 'react-native';
+import { View, Image, TouchableHighlight, Text, ScrollView, FlatList,TouchableOpacity,Button} from 'react-native';
 import { Routes, Color, Helper, BasicStyles } from 'common';
 import { Spinner, Empty, SystemNotification } from 'components';
 import Api from 'services/api/index.js';
@@ -12,13 +12,17 @@ import QRCode from 'react-native-qrcode-svg';
 import ViewMap from 'modules/checkMap';
 import DisplayScan from 'modules/scanQR/Scanner.js';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faUserCircle, faMapMarker, faUniversity, faKaaba } from '@fortawesome/free-solid-svg-icons';
+import { faUserCircle, faMapMarker, faUniversity, faKaaba, faBold } from '@fortawesome/free-solid-svg-icons';
+import Modal from 'react-native-modal';
+var screen = Dimensions.get("window");
+
 const width = Math.round(Dimensions.get('window').width);
 const height = Math.round(Dimensions.get('window').height);
 class Dashboard extends Component{
   constructor(props){
     super(props);
     this.state = {
+      modalState:false,
       isLoading: false,
       selected: null,
       data: null,
@@ -29,16 +33,37 @@ class Dashboard extends Component{
 
   componentDidMount(){
     const { user } = this.props.state;
+    let consentparameter = {
+      condition: [{
+        value: this.props.state.user.id,
+        clause: '=',
+        column: 'account_id'
+      }]
+    }
+
+    Api.request(Routes.consentRetrieve, consentparameter, response => {
+      console.log(response.data.length)
+      if(response.data.length>0)
+      {
+        this.setState({consent:true});
+      }
+      else
+      {
+        this.setState({modalState:true});
+      }
+    });
     if(user != null){
       this.retrieve()
     }
+    
+  
   }
 
   retrieve = () => {
     let parameter = {
       status: 'positive'
     }
-    console.log('hi')
+    console.log(this.state.consent);
     this.setState({
       isLoading: true
     })
@@ -68,11 +93,20 @@ class Dashboard extends Component{
   }
 
   manageScannedData = (data) => {
+    
     this.setState({
       showScanner: false
     })
     if(data != null){
+      if(this.props.state.scannedUser!=null)
+      {
       this.redirect('scannedUserStack')
+      }
+      else
+      {
+        console.log('here')
+        this.redirect('scannedLocationStack')
+      }
     }
   }
   
@@ -433,7 +467,7 @@ class Dashboard extends Component{
           }}>
 
           <QRCode
-            value={user.code}
+            value={`account/${user.code}`}
             size={width - 40}
             color="black"
             backgroundColor="white"
@@ -494,10 +528,123 @@ class Dashboard extends Component{
     );
   }
 
+  modalOff=()=>{
+    
+    let parameter = {
+      account_id: this.props.state.user.id   
+    }
+    this.setState({isLoading:true});
+    Api.request(Routes.consentCreate, parameter, response => {
+      this.setState({isLoading: false})
+      console.log(response.data)
+      if(response.data>0)
+      {
+        this.setState({modalState:!this.state.modalState});
+      }
+
+      
+    });
+
+  }
+  
+  _modal=()=>{
+    const { user } = this.props.state;
+    return (
+    <View>
+      <Modal isVisible={this.state.modalState} 
+      style={{
+       
+        paddingBottom:15,
+        justifyContent: "center",
+        borderRadius: 20,
+        shadowRadius: 10,
+        width: screen.width - 50,
+        backgroundColor: "white",
+        zIndex:5,
+        position:"relative",
+        minHeight:"80%",
+        flex:0,
+
+      }}>
+        <View
+        style={{
+        
+          borderTopLeftRadius: 20,
+          borderTopRightRadius: 20,
+          overflow: 'hidden',
+          height:50,
+         borderWidth:2,
+         width:"100%",
+          backgroundColor: '#005b96',
+        }}>
+        <Text
+        style={{
+          color:"white",
+          fontSize:15,
+          fontWeight:"bold",
+         marginTop:15,
+          textAlign:"center"
+        }}>Consent Request</Text>
+        </View>
+             <Text style={{
+                paddingLeft:15,
+                paddingRight:15,
+                
+            paddingTop:15,
+            justifyContent:"center"
+            }}>Hi {user.username}!{"\n"}{"\n"}
+
+Welcome to BirdsEye. We would like you to know that we need to collect these data from you to help us compare and trace to the affected individual from Covid-19. {"\n"}{"\n"}
+
+(1) Personal information such as: username, e-mail address, password, first name, middle name, last name, birth date, address and gender{"\n"}{"\n"}
+
+(2) Your visited locations or places which includes route, locality, coordinates, country, date and time{"\n"}{"\n"}
+
+(3) Your used transportations which includes the information of the vehicle, the date and time{"\n"}{"\n"}
+
+(4) Your reported symptoms{"\n"}{"\n"}
+
+(5) Your recorded temperature{"\n"}{"\n"}
+
+By clicking the accept button, you fully give us a consent to use these informations.{"\n"}{"\n"}
+
+Thank you and stay safe.{"\n"}{"\n"}
+
+Regards,{"\n"}{"\n"}
+
+
+BirdsEye Team{"\n"}{"\n"}{"\n"}
+</Text>
+       <View
+       style={{
+         paddingLeft:15,
+         paddingRight:15,
+       }}>
+          <Button
+                onPress={()=>this.modalOff()} 
+                title="Accept"
+                color="red"
+                style={[{
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  height: 40,
+                  width:'50%'
+                  
+                  
+                }]}
+                >
+                
+              </Button>
+          </View>
+          </Modal>
+        </View>
+    )
+  }
   render() {
     const { isLoading, data } = this.state;
     const { user } = this.props.state;
     return (
+      
       <ScrollView 
         style={Style.ScrollView}
         onScroll={(event) => {
@@ -506,6 +653,7 @@ class Dashboard extends Component{
           }
         }}
         >
+        {this.state.consent?null:user != null && (this._modal())}
         <View style={[Style.MainContainer, {
           minHeight: height
         }]}>
@@ -535,6 +683,7 @@ class Dashboard extends Component{
             {user != null && (this._qrCode())}
             {data != null && (this._data())}
           </View>
+          
         </View>
       </ScrollView>
     );

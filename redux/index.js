@@ -12,8 +12,10 @@ const types = {
   SET_ALL_LOCATION: 'SET_ALL_LOCATION',
   SET_PREVIOUS_ROUTE: 'SET_PREVIOUS_ROUTE',
   SET_SCANNED_USER: 'SET_SCANNED_USER',
+  SET_SCANNED_LOCATION:'SET_SCANNED_LOCATION',
   SET_ACTIVE_ROUTE: 'SET_ACTIVE_ROUTE',
   SET_HEALTH_DECLARATION: 'SET_HEALTH_DECLARATION',
+  EMPLOYEE_HEALTH_DECLARATION:'EMPLOYEE_HEALTH_DECLARATION',
   nav: null,
 }
 
@@ -45,6 +47,9 @@ export const actions = {
   setScannedUser(scannedUser){
     return { type: types.SET_SCANNED_USER, scannedUser};
   },
+  setScannedLocation(scannedLocation){
+    return { type: types.SET_SCANNED_LOCATION, scannedLocation};
+  },
   setActiveRoute(activeRoute){
     return { type: types.SET_ACTIVE_ROUTE, activeRoute};
   },
@@ -61,6 +66,8 @@ const initialState = {
   locations: null,
   previousRoute: null,
   scannedUser: null,
+  scannedLocation:null,
+ 
   activeRoute: null,
   declaration: null
 }
@@ -78,6 +85,8 @@ const reducer = (state = initialState, action) => {
   const { unread } = action;
   const { notification, location, locations } = action;
   const { previousRoute, scannedUser } = action;
+  const { scannedLocation }=action;
+  
   const { activeRoute, declaration } = action;
   switch (type) {
     case types.LOGOUT:
@@ -160,6 +169,11 @@ const reducer = (state = initialState, action) => {
         ...state,
         scannedUser
       }
+    case types.SET_SCANNED_LOCATION:
+      return {
+        ...state,
+        scannedLocation
+      }
     case types.SET_ACTIVE_ROUTE:
       return {
         ...state,
@@ -170,6 +184,7 @@ const reducer = (state = initialState, action) => {
         ...state,
         declaration
       }
+  
     default:
       return {...state, nav: state.nav};
   }

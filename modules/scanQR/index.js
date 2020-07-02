@@ -626,6 +626,7 @@ _places = () => {
     }
     Api.request(Routes.accountRetrieve, parameter, response => {
       if(response.data.length > 0){
+       
           console.log(response)
           this.setState({scannedId:response.data[0].id})
           this.retrieveLoc(response.data[0].id)
@@ -930,6 +931,8 @@ let parameter2 = {
       isLoading: true
     })
     Api.request(Routes.temperaturesRetrieve, parameter, response => {
+      console.log("HERE")
+      console.log(response.data)
       this.setState({isLoading: false})
       if(response.data.length > 0){
         this.setState({dataTemp: response.data})
@@ -1124,6 +1127,23 @@ _qrdisplay=()=>{
           position:"relative",
         }}
       >
+        <TouchableOpacity
+              onPress={() => this.setState({isModalVisible:false})} 
+              style={[{
+                alignItems: 'center',
+                justifyContent: 'center',
+                height: 40,
+                borderRadius: 5
+              }, {
+                width: '25%',
+                backgroundColor: Color.danger
+              }]}
+              >
+              <Text style={{
+                color: Color.white,
+                textAlign: 'center'
+              }}>Close</Text>
+            </TouchableOpacity>
         {this.props.state.user.account_type==="ADMIN"? <View><Text>Admin</Text><Text>{this.props.state.user.username}</Text>{this.state.displayScan ?  
         this._TempStatusInput() : 
         <React.Fragment><Text>User Temperatures:</Text>
