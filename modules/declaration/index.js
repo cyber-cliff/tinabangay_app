@@ -112,6 +112,7 @@ class Declaration extends Component{
   }
 
   componentDidMount(){
+    console.log(this.props.state.declaration)
     this.retrieve()
   }
 

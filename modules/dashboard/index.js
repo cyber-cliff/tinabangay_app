@@ -93,11 +93,20 @@ class Dashboard extends Component{
   }
 
   manageScannedData = (data) => {
+    
     this.setState({
       showScanner: false
     })
     if(data != null){
+      if(this.props.state.scannedUser!=null)
+      {
       this.redirect('scannedUserStack')
+      }
+      else
+      {
+        console.log('here')
+        this.redirect('scannedLocationStack')
+      }
     }
   }
   
@@ -458,7 +467,7 @@ class Dashboard extends Component{
           }}>
 
           <QRCode
-            value={user.code}
+            value={`account/${user.code}`}
             size={width - 40}
             color="black"
             backgroundColor="white"
