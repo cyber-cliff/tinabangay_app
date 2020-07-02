@@ -556,8 +556,7 @@ class Dashboard extends Component{
        
         paddingBottom:15,
         justifyContent: "center",
-        borderRadius: 20,
-        shadowRadius: 10,
+        borderRadius: 5,
         width: screen.width - 50,
         backgroundColor: "white",
         zIndex:5,
@@ -568,14 +567,12 @@ class Dashboard extends Component{
       }}>
         <View
         style={{
-        
-          borderTopLeftRadius: 20,
-          borderTopRightRadius: 20,
+          borderTopLeftRadius: 5,
+          borderTopRightRadius: 5,
           overflow: 'hidden',
           height:50,
-         borderWidth:2,
-         width:"100%",
-          backgroundColor: '#005b96',
+          width:"100%",
+          backgroundColor: Color.primary,
         }}>
         <Text
         style={{
@@ -591,7 +588,7 @@ class Dashboard extends Component{
                 paddingRight:15,
                 
             paddingTop:15,
-            justifyContent:"center"
+            textAlign: 'justify'
             }}>Hi {user.username}!{"\n"}{"\n"}
 
 Welcome to BirdsEye. We would like you to know that we need to collect these data from you to help us compare and trace to the affected individual from Covid-19. {"\n"}{"\n"}

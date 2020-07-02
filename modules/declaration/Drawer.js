@@ -13,8 +13,13 @@ class HeaderOptions extends Component {
     super(props);
   }
   back = () => {
+    const { declaration } = this.props.state;
+    let route = 'Notification'
+    if(declaration != null && declaration.id == null){
+      route = 'scannedLocationStack'
+    }
     const navigateAction = NavigationActions.navigate({
-      routeName: 'Notification'
+      routeName: route
     });
     this.props.navigationProps.dispatch(navigateAction);
   };
@@ -39,12 +44,17 @@ const mapDispatchToProps = dispatch => {
   };
 };
 
+
+let HeaderOptionsConnect = connect(
+  mapStateToProps,
+  mapDispatchToProps)(HeaderOptions);
+
 const DeclarationStack = createStackNavigator({
   declarationScreen: {
     screen: Declaration, 
     navigationOptions: ({ navigation }) => ({
       title: 'Health Declaration',
-      headerLeft: <HeaderOptions navigationProps={navigation} />,
+      headerLeft: <HeaderOptionsConnect navigationProps={navigation} />,
       drawerLabel: 'Health Declaration',
       headerStyle: {
         backgroundColor: Color.primary,

@@ -336,9 +336,15 @@ class ScannedUser extends Component{
         console.log(error)
       });
     }else if(addFlag == 'form'){
+      if(user.assigned_location == null){
+        return
+      }
+
       let parameter = {
         account_id: scannedUser.id,
-        owner: user.id
+        owner: user.assigned_location.account_id,
+        to: scannedUser.id,
+        from: user.assigned_location.account_id
       }
       this.setState({isLoading: true})
       console.log(parameter)
@@ -481,7 +487,7 @@ class ScannedUser extends Component{
               <Text style={{
                 color: Color.white,
                 textAlign: 'center',
-              }}>Linked to my account</Text>
+              }}>Link to my account</Text>
             </TouchableHighlight>
             )
           }
@@ -533,7 +539,7 @@ class ScannedUser extends Component{
             )
           }
           {
-            (user.account_type != 'USER' && user.linked_account != null) && (
+            (user.account_type != 'USER' && user.assigned_location != null) && (
               <TouchableHighlight style={{
                   height: 50,
                   backgroundColor: Color.primary,

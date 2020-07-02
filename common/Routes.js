@@ -40,6 +40,7 @@ export default {
   consentCreate: apiUrl + 'consents/create',
   consentRetrieve: apiUrl + 'consents/retrieve',
   healthDeclarationCreate: apiUrl + 'health_declarations/create',
-  healthDeclaratioRetrieve: apiUrl + 'health_declarations/retrieve',
-  healthDeclaratinUpdate: apiUrl + 'health_declarations/update'
+  healthDeclarationRetrieve: apiUrl + 'health_declarations/retrieve',
+  healthDeclarationUpdate: apiUrl + 'health_declarations/update',
+  merchantRetrieve: apiUrl + 'merchants/retrieve_all'
 }

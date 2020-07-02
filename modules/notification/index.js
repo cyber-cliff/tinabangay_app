@@ -88,14 +88,14 @@ class Notifications extends Component{
         route = 'Declaration';
         searchParameter = {
           column: 'id',
-          value: notification.payload_value
+          id: notification.payload_value
         }
         break;
       case 'form_submitted':
         route = 'Declaration'
         searchParameter = {
           column: 'id',
-          value: notification.payload_value
+          id: notification.payload_value
         }
         break;
     }

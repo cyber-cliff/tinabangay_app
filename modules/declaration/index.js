@@ -107,23 +107,61 @@ class Declaration extends Component{
         flight: null,
         seat: null
       },
-      viewFlag: null
+      viewFlag: null,
+      format: null,
+      status: null,
+      statusLabel: null
     }
   }
 
   componentDidMount(){
-    console.log(this.props.state.declaration)
+    this.setState({
+      fotmat: this.props.state.declaration.format
+    })
     this.retrieve()
   }
 
   retrieve = () => {
-    const { user, declaration } = this.props.state;
+    const { user, declaration, scannedLocation } = this.props.state;
     if(user === null || declaration == null){
+      return
+    }
+    if(declaration != null && declaration.id === null){
+      if(scannedLocation == null){
+        return
+      }
+      this.setState({
+        isLoading: true, 
+        showDatePicker: false
+      })
+      let parameter = {
+        condition: [{
+          value: scannedLocation.account_id,
+          clause: '=',
+          column: 'account_id'
+        }]
+      }
+      Api.request(Routes.merchantRetrieve, parameter, response => {
+        if(response.data.length > 0){
+          let object = {
+            merchant: response.data[0]
+          }
+          this.setState({
+            data: object
+          })
+        }
+        this.setState({isLoading: false})
+      }, error => {
+        console.log('error', error)
+      });
+      this.setState({
+        viewFlag: false
+      })
       return
     }
     let parameter = {
       condition: [{
-        value: declaration.value,
+        value: declaration.id,
         clause: '=',
         column: 'id'
       }]
@@ -132,18 +170,16 @@ class Declaration extends Component{
       isLoading: true, 
       showDatePicker: false
     })
-    console.log('parameter', parameter)
-    Api.request(Routes.healthDeclaratioRetrieve, parameter, response => {
-      console.log('merchant', response.data[0])
+    Api.request(Routes.healthDeclarationRetrieve, parameter, response => {
       this.setState({isLoading: false, data: response.data[0]})
       if(response.data[0].content != null && response.data[0].content != ''){
         let parse = JSON.parse(response.data[0].content)
-        console.log('personalInformation', parse.personalInformation)
-        console.log('symptomsQuestions', parse.symptoms)
-        console.log('countries', parse.travelHistory.countries)
-        console.log('localities', parse.travelHistory.localities)
-        console.log('transportation', parse.travelHistory.transportation)
-        console.log('safetyRelatedQuestions', parse.safety_questions)
+        // console.log('personalInformation', parse.personalInformation)
+        // console.log('symptomsQuestions', parse.symptoms)
+        // console.log('countries', parse.travelHistory.countries)
+        // console.log('localities', parse.travelHistory.localities)
+        // console.log('transportation', parse.travelHistory.transportation)
+        // console.log('safetyRelatedQuestions', parse.safety_questions)
         this.setState({
           personalInformation: parse.personalInformation,
           symptomsQuestions: parse.symptoms,
@@ -151,6 +187,7 @@ class Declaration extends Component{
           localities: parse.travelHistory.localities,
           transportation: parse.travelHistory.transportation,
           safetyRelatedQuestions: parse.safety_questions,
+          format: parse.format != undefined && parse.format != null ? parse.format : declaration.format, 
           viewFlag: true
         })
       }else{
@@ -161,12 +198,37 @@ class Declaration extends Component{
     });
   }
 
+  createNew(content){
+    const { user, scannedLocation } = this.props.state;
+    this.setState({
+      isLoading: true, 
+      showDatePicker: false
+    })
+    let parameter = {
+      owner: scannedLocation.account_id,
+      account_id: user.id,
+      content: content,
+      to: scannedLocation.account_id,
+      from: user.id
+    }
+    parameter.content = JSON.stringify(content)
+    Api.request(Routes.healthDeclarationCreate, parameter, response => {
+      this.setState({isLoading: false, data: response.data[0]})
+    });
+  }
 
   submit(){
     const { data } = this.state;
+    const { declaration } = this.props.state;
     if(this.state.step == 3){
       for (var i = 0; i < this.state.safetyRelatedQuestions.length; i++) {
         let item = this.state.safetyRelatedQuestions[i]
+        if(item.answer == 'yes'){
+          this.setState({
+            status: 'danger',
+            statusLabel: 'Exposed in safety related questions.'
+          })
+        }
         if(item.answer == null){
           this.setState({
             errorMessage: 'Please answer each question.'
@@ -178,6 +240,12 @@ class Declaration extends Component{
     if(data === null){
       return
     }
+    if(this.state.symptomsQuestions.length > 0){
+      this.setState({
+        status: 'danger',
+        statusLabel: 'With symptoms'
+      })
+    }
     let content = {
       personalInformation: this.state.personalInformation,
       symptoms: this.state.symptomsQuestions,
@@ -186,15 +254,23 @@ class Declaration extends Component{
         localities: this.state.localities,
         transportation: this.state.transportation
       },
-      safety_questions: this.state.safetyRelatedQuestions
+      safety_questions: this.state.safetyRelatedQuestions,
+      format: declaration.format,
+      status: this.state.status,
+      statusLabel: this.state.statusLabel
     }
+    if(declaration != null && declaration.id == null){
+      this.createNew(content)
+      return
+    }
+    
     this.setState({
       isLoading: true, 
       showDatePicker: false
     })
     let parameter = data
     parameter.content = JSON.stringify(content)
-    Api.request(Routes.healthDeclaratinUpdate, parameter, response => {
+    Api.request(Routes.healthDeclarationUpdate, parameter, response => {
       this.setState({isLoading: false, data: response.data[0]})
     });
   }

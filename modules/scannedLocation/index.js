@@ -25,7 +25,8 @@ class ScannedLocation extends Component{
   }
 
   componentDidMount(){
-    
+    const { scannedLocation } = this.props.state;
+    console.log('scannedLocation', scannedLocation)
   }
 
   redirect = (route) => {
@@ -33,17 +34,17 @@ class ScannedLocation extends Component{
   }
 
   submitEmployeeCheckin=()=>{
-    this.props.setDeclaration({format:`employee_checkin`,id:null})
+    this.props.setDeclaration({format:`employee_checkin`, id:null})
     this.onSubmit()
   }
 
   submitEmployeeCheckout=()=>{
-    this.props.setDeclaration({format:`employee_checkout`,id:null})
+    this.props.setDeclaration({format:`employee_checkout`, id:null})
     this.onSubmit()
   }
 
   submitCustomerDeclaration=()=>{
-    this.props.setDeclaration({format:`customer`,id:null})
+    this.props.setDeclaration({format:`customer`, id:null})
     this.onSubmit()
   }
 
@@ -60,16 +61,14 @@ class ScannedLocation extends Component{
     })
   }
   
-  createLocationSubmit=()=>
-  {
-    const {user, scannedLocation}=this.props.state;
+  createLocationSubmit = () => {
+    const {user, scannedLocation } = this.props.state;
     
-    if(user==null)
-    {
+    if(user==null){
       this.setState({errorMessage: 'Invalid Account.'})
       return
     }
-
+    var moment = require('moment');
     let parameter = {
       account_id: user.id,
       longitude: scannedLocation.longitude,
@@ -78,6 +77,8 @@ class ScannedLocation extends Component{
       region: scannedLocation.region,
       country: scannedLocation.country,
       locality: scannedLocation.locality,
+      date: moment().format('YYYY-MM-DD'),
+      time: moment().format('HH:mm')
     }
     this.setState({isLoading: true})
     Api.request(Routes.visitedPlacesCreate, parameter, response => {
@@ -98,114 +99,131 @@ class ScannedLocation extends Component{
     return(
     <View
     style={[{
-     marginTop:5,
-     paddingTop:10,
-     alignItems:'center',
-     justifyContent:'center',
-     borderRadius: 5,
-     borderWidth:2,
-     marginRight:15,
-     marginLeft:15,
-     
+      paddingTop: 50,
+      paddingBottom: 50,
+      alignItems:'center',
+      justifyContent:'center'
     }]}>
-    <Text>Code: {scannedLocation.code?scannedLocation.code:"N/A"}{"\n"}{"\n"}</Text>
-    <Text>Route: {scannedLocation.route?scannedLocation.route:"N/A"}{"\n"}{"\n"}</Text>
-    <Text>Region: {scannedLocation.region?scannedLocation.region:"N/A"}{"\n"}{"\n"}</Text>
-    <Text>Locality: {scannedLocation.locality?scannedLocation.locality:"N/A"}{"\n"}{"\n"}</Text>
-    <Text>Country: {scannedLocation.country?scannedLocation.country:"N/A"}{"\n"}{"\n"}</Text>
-    <Text>Latitude: {scannedLocation.latitude?scannedLocation.latitude:"N/A"}{"\n"}{"\n"}</Text>
-    <Text>Longitude: {scannedLocation.longitude?scannedLocation.longitude:"N/A"}{"\n"}{"\n"}</Text>
+      <Text style={{
+        fontWeight: 'bold'
+      }}>
+        {
+          scannedLocation.route + ', ' + scannedLocation.locality + ', ' + scannedLocation.country
+        }
+      </Text>
+      <Text style={{
+        color: Color.gray
+      }}>
+        {
+          scannedLocation.longitude + '/' + scannedLocation.latitude
+        }
+      </Text>
+      <Text>({scannedLocation.code ? scannedLocation.code : "N/A"})</Text>
     </View>
     )
   }
 
-  onContinue=()=>
-  {
+  onContinue = () => {
     this.createLocationSubmit();
   }
 
-  _options=()=>{
-
+  _options = () => {
+    const { user } = this.props.state;
     return(
-    <View
-    style={[{
-      paddingLeft:15,
-      paddingRight:15,
-    }]}>
-    <View
-    style={[{
-      paddingBottom:8,
-      paddingTop:20,
-      
-    }]}>
-    <Button
-    onPress={()=>this.setState({showConfirmation:true})} 
-    title="Add to Visited Places"
-    color="#005b96"
-    style={[{
-      alignItems: 'center',
-      justifyContent: 'center',
-      height: 40,
-      width:'50%',
-      
-    }]}
-    >
-    </Button>
-    </View>
-    
-    <View style={[{
-      paddingBottom:8
-    }]}>
-    <Button
-     onPress={()=>this.submitCustomerDeclaration()} 
-    title="Health Declaration for Customer"
-    color="#005b96"
-    style={[{
-      alignItems: 'center',
-      justifyContent: 'center',
-      height: 40,
-      width:'50%'
-    }]}
-    >
-    </Button>
-    </View>
-    <View style={[{
-      paddingBottom:8
-    }]}>
-    <Button
-    onPress={()=>this.submitEmployeeCheckin()} 
-    title="Health Declaration for Employee Check-in"
-    color="#005b96"
-    style={[{
-      alignItems: 'center',
-      justifyContent: 'center',
-      height: 40,
-      width:'50%'
-    }]}
-    >
-    </Button>
-    </View>
-    <View style={[{
-      paddingBottom:8
-    }]}>
-    <Button
-    onPress={()=>this.submitEmployeeCheckout()} 
-    title="Health Declaration for Employee Check-out"
-    color="#005b96"
-    style={[{
-      alignItems: 'center',
-      justifyContent: 'center',
-      height: 40,
-      width:'50%'
-    }]}
-    >
-    </Button>
-    </View>
+      <View
+      style={[{
+        paddingLeft:15,
+        paddingRight:15,
+      }]}>
 
-</View>
+        <Text style={{
+          paddingTop: 20,
+          paddingBottom: 20,
+          paddingLeft: 10,
+          paddingRight: 10,
+          textAlign: 'center'
+        }}>
+          {
+            'Hi ' + user.username + '! Please choose the options below:'
+          }
+        </Text>
 
+        <TouchableHighlight style={{
+          height: 50,
+          backgroundColor: Color.primary,
+          width: '100%',
+          marginBottom: 10,
+          alignItems: 'center',
+          justifyContent: 'center',
+          borderRadius: 5,
+          marginLeft: '1%'
+        }}
+        onPress={() => {this.setState({showConfirmation:true})}}
+        underlayColor={Color.gray}
+          >
+          <Text style={{
+            color: Color.white,
+            textAlign: 'center',
+          }}>Add to visited places</Text>
+        </TouchableHighlight>
 
+        <TouchableHighlight style={{
+          height: 50,
+          backgroundColor: Color.primary,
+          width: '100%',
+          marginBottom: 10,
+          alignItems: 'center',
+          justifyContent: 'center',
+          borderRadius: 5,
+          marginLeft: '1%'
+        }}
+        onPress={() => {this.submitCustomerDeclaration()}}
+        underlayColor={Color.gray}
+          >
+          <Text style={{
+            color: Color.white,
+            textAlign: 'center',
+          }}>Health Declaration For Customer</Text>
+        </TouchableHighlight>
 
+        <TouchableHighlight style={{
+          height: 50,
+          backgroundColor: Color.primary,
+          width: '100%',
+          marginBottom: 10,
+          alignItems: 'center',
+          justifyContent: 'center',
+          borderRadius: 5,
+          marginLeft: '1%'
+        }}
+        onPress={() => {this.submitEmployeeCheckin()}}
+        underlayColor={Color.gray}
+          >
+          <Text style={{
+            color: Color.white,
+            textAlign: 'center',
+          }}>Health Declaration For Employee Check-in</Text>
+        </TouchableHighlight>
+
+        <TouchableHighlight style={{
+          height: 50,
+          backgroundColor: Color.primary,
+          width: '100%',
+          marginBottom: 10,
+          alignItems: 'center',
+          justifyContent: 'center',
+          borderRadius: 5,
+          marginLeft: '1%'
+        }}
+        onPress={() => {this.submitEmployeeCheckout()}}
+        underlayColor={Color.gray}
+          >
+          <Text style={{
+            color: Color.white,
+            textAlign: 'center',
+          }}>Health Declaration For Employee Check-out</Text>
+        </TouchableHighlight>
+      </View>
     )}
   
   render() {
