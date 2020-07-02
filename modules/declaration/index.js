@@ -121,11 +121,6 @@ class Declaration extends Component{
     if(user === null || declaration == null){
       return
     }
-
-    {
-      format: 'employee_checkin', 'employee_checkout', 'customer',
-      id: id ? null
-    }
     let parameter = {
       condition: [{
         value: declaration.value,
