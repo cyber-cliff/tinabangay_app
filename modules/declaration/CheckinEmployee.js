@@ -230,6 +230,12 @@ class Declaration extends Component{
           localities: parse.travelHistory.localities,
           transportation: parse.travelHistory.transportation,
           safetyRelatedQuestions: parse.safety_questions,
+          company: {
+            persons: [],
+            related_questions: [{
+              
+            }]
+          },
           format: parse.format != undefined && parse.format != null ? parse.format : declaration.format, 
           viewFlag: true
         })
