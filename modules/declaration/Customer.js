@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import Style from './Style.js';
-import { View, Image, TouchableHighlight, TouchableOpacity, Text, ScrollView, FlatList, TextInput, Picker} from 'react-native';
+import { View, Image, TouchableHighlight, TouchableOpacity, Text, ScrollView, FlatList, TextInput, Picker, Platform} from 'react-native';
 import { Routes, Color, Helper, BasicStyles } from 'common';
 import { Spinner, ImageUpload, DateTime } from 'components';
 import Api from 'services/api/index.js';
@@ -34,23 +34,6 @@ const steps = [{
   description: 'Symptoms'
 }, {
   title: '4',
-  description: 'Healthy and Safety - Related Questions'
-}]
-
-const stepsEmployeeIn = [{
-  title: '1',
-  description: 'Personal Information'
-}, {
-  title: '2',
-  description: 'Company Questions'
-}, {
-  title: '3',
-  description: 'Travel History'
-}, {
-  title: '4',
-  description: 'Symptoms'
-}, {
-  title: '5',
   description: 'Healthy and Safety - Related Questions'
 }]
 
@@ -88,12 +71,11 @@ const safetyRelated = [{
 }, {
   question: 'Do you have any household member/s, or close friend/s who have met a person currently having fever, cough and/or respiratory problems?',
   answer: null
-}, {
-  question: 'Have you taken medicines/vitamins/supplements in the past 24 hours? Please indicate specific names.',
-  answer: 'null'
 }]
 
 const modeOfTransportation = [{
+  title: 'Airplane'
+}, {
   title: 'PUJ'
 }, {
   title: 'Bus'
@@ -114,12 +96,11 @@ const modeOfTransportation = [{
 }, {
   title: 'Others'
 }]
-class Declaration extends Component{
+class Customer extends Component{
   constructor(props){
     super(props);
     this.state = {
       isLoading: false,
-      data: null,
       step: 0,
       errorMessage: null,
       personalInformation: {
@@ -145,104 +126,48 @@ class Declaration extends Component{
       newCountry: null,
       newLocality: null,
       newTransportation: {
+        type: 'Airplane',
         date: null,
         origin: null,
-        flight: null,
+        number: null,
         seat: null
       },
-      viewFlag: null,
       format: null,
       status: null,
-      statusLabel: null
+      statusLabel: null,
+      steps: steps
     }
   }
 
   componentDidMount(){
-    this.setState({
-      fotmat: this.props.state.declaration.format
-    })
-    this.retrieve()
-  }
-
-  retrieve = () => {
-    const { user, declaration, scannedLocation } = this.props.state;
-    if(user === null || declaration == null){
+    const { user } = this.props.state;
+    if(user == null){
       return
     }
-    if(declaration != null && declaration.id === null){
-      if(scannedLocation == null){
-        return
-      }
+    console.log('user Info', user)
+    if(user.account_information){
+      let information = user.account_information
       this.setState({
-        isLoading: true, 
-        showDatePicker: false
-      })
-      let parameter = {
-        condition: [{
-          value: scannedLocation.account_id,
-          clause: '=',
-          column: 'account_id'
-        }]
-      }
-      Api.request(Routes.merchantRetrieve, parameter, response => {
-        if(response.data.length > 0){
-          let object = {
-            merchant: response.data[0]
-          }
-          this.setState({
-            data: object
-          })
+        personalInformation: {
+          ...this.state.personalInformation,
+          first_name: information.first_name,
+          middle_name: information.middle_name,
+          last_name: information.last_name,
+          email: user.email,
+          gender: information.sex,
+          birth_date: information.birth_date,
+          contact_number: information.cellular_number,
+          address: information.address
         }
-        this.setState({isLoading: false})
-      }, error => {
-        console.log('error', error)
-      });
-      this.setState({
-        viewFlag: false
       })
-      return
     }
-    let parameter = {
-      condition: [{
-        value: declaration.id,
-        clause: '=',
-        column: 'id'
-      }]
-    }
-    this.setState({
-      isLoading: true, 
-      showDatePicker: false
-    })
-    Api.request(Routes.healthDeclarationRetrieve, parameter, response => {
-      this.setState({isLoading: false, data: response.data[0]})
-      if(response.data[0].content != null && response.data[0].content != ''){
-        let parse = JSON.parse(response.data[0].content)
-        // console.log('personalInformation', parse.personalInformation)
-        // console.log('symptomsQuestions', parse.symptoms)
-        // console.log('countries', parse.travelHistory.countries)
-        // console.log('localities', parse.travelHistory.localities)
-        // console.log('transportation', parse.travelHistory.transportation)
-        // console.log('safetyRelatedQuestions', parse.safety_questions)
-        this.setState({
-          personalInformation: parse.personalInformation,
-          symptomsQuestions: parse.symptoms,
-          countries: parse.travelHistory.countries,
-          localities: parse.travelHistory.localities,
-          transportation: parse.travelHistory.transportation,
-          safetyRelatedQuestions: parse.safety_questions,
-          format: parse.format != undefined && parse.format != null ? parse.format : declaration.format, 
-          viewFlag: true
-        })
-      }else{
-        this.setState({
-          viewFlag: false
-        })
-      }
-    });
   }
 
   createNew(content){
-    const { user, scannedLocation } = this.props.state;
+    const { user, scannedLocation, declaration } = this.props.state;
+    if(user == null || scannedLocation == null){
+      return
+    }
     this.setState({
       isLoading: true, 
       showDatePicker: false
@@ -250,18 +175,20 @@ class Declaration extends Component{
     let parameter = {
       owner: scannedLocation.account_id,
       account_id: user.id,
-      content: content,
+      content: JSON.stringify(content),
       to: scannedLocation.account_id,
-      from: user.id
+      from: user.id,
+      payload: 'form_submitted/' + declaration.format
     }
-    parameter.content = JSON.stringify(content)
+    console.log('create HDF', parameter)
     Api.request(Routes.healthDeclarationCreate, parameter, response => {
-      this.setState({isLoading: false, data: response.data[0]})
+      this.setState({isLoading: false})
+      console.log('response', response.data)
+      this.props.onFinish()
     });
   }
 
   submit(){
-    const { data } = this.state;
     const { declaration } = this.props.state;
     if(this.state.step == 3){
       for (var i = 0; i < this.state.safetyRelatedQuestions.length; i++) {
@@ -279,9 +206,6 @@ class Declaration extends Component{
           return
         }
       }
-    }
-    if(data === null){
-      return
     }
     if(this.state.symptomsQuestions.length > 0){
       this.setState({
@@ -311,10 +235,16 @@ class Declaration extends Component{
       isLoading: true, 
       showDatePicker: false
     })
-    let parameter = data
-    parameter.content = JSON.stringify(content)
+    let parameter = {
+      ...declaration,
+      content: JSON.stringify(content),
+      to: declaration.merchant.account_id,
+      from: user.id,
+      payload: 'form_submitted/' + declaration.format
+    }
     Api.request(Routes.healthDeclarationUpdate, parameter, response => {
-      this.setState({isLoading: false, data: response.data[0]})
+      this.setState({isLoading: false})
+      this.props.onFinish()
     });
   }
 
@@ -468,8 +398,8 @@ class Declaration extends Component{
   }
 
   addTransportation(){
-    if(this.state.newTransportation.date === null || this.state.newTransportation.origin === null || this.state.newTransportation.flight === null
-      || this.state.newTransportation.seat == null){
+    if(this.state.newTransportation.date === null || this.state.newTransportation.origin === null || this.state.newTransportation.number === null
+      || this.state.newTransportation.seat == null || this.state.newTransportation.type === null){
       this.setState({
         errorMessage: 'Transportation fields are required.'
       })
@@ -481,9 +411,10 @@ class Declaration extends Component{
     this.setState({
       transportation: transportation,
       newTransportation: {
+        type: 'Airplane',
         date: null,
         origin: null,
-        flight: null,
+        number: null,
         seat: null
       }
     })
@@ -498,234 +429,6 @@ class Declaration extends Component{
     this.setState({
       transportation: transportation
     })
-  }
-
-  _viewDetails = () => {
-    const { data, personalInformation, transportation, countries, localities, symptomsQuestions, safetyRelatedQuestions } = this.state;
-    return (
-      <View>
-        {
-          <View>
-              <Text style={{
-                paddingTop: 10,
-                paddingBottom: 10,
-                color: Color.danger
-              }}>
-                Submitted on {data.updated_at}
-              </Text>
-          </View>
-        }
-        {
-          personalInformation && (
-            <View>
-              <Text style={{
-                textAlign: 'justify',
-                fontWeight: 'bold'
-              }}>
-                PERSONAL INFORMATION
-              </Text>
-              <Text style={{
-                paddingTop: 2,
-                paddingBottom: 2
-              }}>
-                {
-                  personalInformation.first_name + ' ' + personalInformation.middle_name + ' ' + personalInformation.last_name + '(' + personalInformation.gender.toUpperCase() + ')'
-                }
-              </Text>
-
-              <Text style={{
-                paddingTop: 2,
-                paddingBottom: 2
-              }}>
-                {
-                  personalInformation.occupation + ' from ' + personalInformation.address
-                }
-              </Text>
-              <Text style={{
-                paddingTop: 2,
-                paddingBottom: 2
-              }}>
-                {
-                  'Birth Date: ' + personalInformation.birth_date
-                }
-              </Text>
-
-              <Text style={{
-                paddingTop: 2,
-                paddingBottom: 2
-              }}>
-                {
-                  'E-mail address: ' + personalInformation.email.toLowerCase()
-                }
-              </Text>
-
-              <Text style={{
-                paddingTop: 2,
-                paddingBottom: 2
-              }}>
-                {
-                  'Contact number: ' + personalInformation.contact_number
-                }
-              </Text>
-            </View>
-          )
-        }
-        {
-          transportation && transportation.length > 0 && (
-            <View style={{
-              paddingBottom: 10,
-              paddingTop: 10
-            }}>
-              <Text style={{
-                textAlign: 'justify',
-                fontWeight: 'bold'
-              }}>
-                TRANSPORTATION USED
-              </Text>
-              {
-                transportation.map((item, index) => {
-                  return(
-                    <View>
-                      <Text style={{
-                        paddingTop: 10
-                      }}>
-                        {
-                          item.date + ' from ' + item.origin
-                        }
-                      </Text>
-                      <Text>
-                        {
-                          'Flight #: ' + item.flight + ' / Seat #: ' + item.seat
-                        }
-                      </Text>
-                    </View>
-                  )
-                })
-              }
-            </View>
-          )
-        }
-
-        {
-          countries && countries.length > 0 && (
-            <View style={{
-              paddingBottom: 10,
-              paddingTop: 10
-            }}>
-              <Text style={{
-                textAlign: 'justify',
-                fontWeight: 'bold'
-              }}>
-                VISITED COUNTRIES
-              </Text>
-              {
-                countries.map((item, index) => {
-                  return (
-                    <Text style={{
-                      paddingTop: 10
-                    }}>
-                      {
-                        item.title
-                      }
-                    </Text> 
-                  )
-                })
-              }
-          </View>
-        )}
-
-
-        {
-          localities && localities.length > 0 && (
-            <View style={{
-              paddingBottom: 10,
-              paddingTop: 10
-            }}>
-              <Text style={{
-                textAlign: 'justify',
-                fontWeight: 'bold'
-              }}>
-                VISITED CITIES/MUNICIPALITIES
-              </Text>
-              {
-                localities.map((item, index) => {
-                  return (
-                    <Text style={{
-                      paddingTop: 10
-                    }}>
-                      {
-                        item.title
-                      }
-                    </Text> 
-                  )
-                })
-              }
-          </View>
-        )}
-
-        {
-          symptomsQuestions && symptomsQuestions.length > 0 && (
-            <View style={{
-              paddingBottom: 10,
-              paddingTop: 10
-            }}>
-              <Text style={{
-                textAlign: 'justify',
-                fontWeight: 'bold'
-              }}>
-                SYMPTOMS
-              </Text>
-              {
-                symptomsQuestions.map((item, index) => {
-                  return (
-                    <Text style={{
-                      color: item.answer == 'yes' ? Color.danger : Color.black,
-                      paddingTop: 10
-                    }}>
-                      {
-                        '[' + item.answer.toUpperCase() + ']' + item.question
-                      }
-                    </Text> 
-                  )
-                })
-              }
-          </View>
-        )}
-
-
-        {
-          safetyRelatedQuestions && safetyRelatedQuestions.length > 0 && (
-            <View style={{
-              paddingBottom: 10,
-              paddingTop: 10
-            }}>
-              <Text style={{
-                textAlign: 'justify',
-                fontWeight: 'bold'
-              }}>
-                HEALTH AND SAFETY - RELATED QUESTIONS
-              </Text>
-              {
-                safetyRelatedQuestions.map((item, index) => {
-                  return (
-                    <Text style={{
-                      color: item.answer == 'yes' ? Color.danger : Color.black,
-                      paddingTop: 10
-                    }}>
-                      {
-                        '[' + item.answer.toUpperCase() + ']' + item.question
-                      }
-                    </Text> 
-                  )
-                })
-              }
-          </View>
-        )}
-
-
-
-      </View>
-    )
   }
 
   _step3 = () => {
@@ -972,6 +675,13 @@ class Declaration extends Component{
  
   _step1 = () => {
     const { countries, localities, errorMessage, transportation } = this.state;
+    const iOSModeOfTransportation = modeOfTransportation.map((item, index) => {
+                      return {
+                        label: item.title,
+                        value: item.title
+                      };
+                    });
+
     return (
       <View>
         
@@ -1018,13 +728,18 @@ class Declaration extends Component{
                   }}>
                     <Text>
                       {
+                        item.type.toUpperCase()
+                      }
+                    </Text>
+                    <Text>
+                      {
                         item.date + ' from ' + item.origin
                       }
                     </Text>
 
                     <Text>
                       {
-                        'Flight #: ' + item.flight + ' / Seat #: ' + item.seat
+                        'Number: ' + item.number + ' / Seat #: ' + item.seat
                       }
                     </Text>
                   </View>
@@ -1059,7 +774,43 @@ class Declaration extends Component{
           paddingTop: 10,
           paddingBottom: 10
         }}>
-        
+          <View style={{
+          }}>
+            <Text>Mode of Transportation</Text>
+            {
+              Platform.OS == 'android' && (
+                <Picker selectedValue={this.state.sex}
+                  onValueChange={(sex) => this.setState({sex})}
+                  style={BasicStyles.pickerStyleCreate}
+                  >
+                    {
+                      modeOfTransportation.map((item, index) => {
+                        return (
+                          <Picker.Item
+                          key={index}
+                          label={item.title} 
+                          value={item.title}/>
+                        );
+                      })
+                    }
+                  </Picker>
+              )
+            }
+            {
+              Platform.OS == 'ios' && (
+                <RNPickerSelect
+                  onValueChange={(sex) => this.setState({sex})}
+                  items={iOSModeOfTransportation}
+                  style={BasicStyles.pickerStyleIOSNoMargin}
+                  placeholder={{
+                    label: 'Click to select',
+                    value: null,
+                    color: Color.primary
+                  }}
+                  />
+              )
+            }
+          </View>
         <View>
           <Text style={{
             paddingTop: 10
@@ -1106,13 +857,13 @@ class Declaration extends Component{
             <Text>Number #</Text>
             <TextInput
               style={BasicStyles.formControlCreate}
-              onChangeText={(flight) => this.setState({
+              onChangeText={(number) => this.setState({
                 newTransportation: {
                   ...this.state.newTransportation,
-                  flight
+                  number
                 }
               })}
-              value={this.state.newTransportation.flight}
+              value={this.state.newTransportation.number}
               placeholder={'Type flight #, plate number ...'}
             />
             </View>
@@ -1603,28 +1354,54 @@ class Declaration extends Component{
   }
 
   render() {
-    const { user } = this.props.state;
-    const { isLoading, data, step, viewFlag } = this.state;
+    const { user, declaration } = this.props.state;
+    const { isLoading, step } = this.state;
     return (
-      <ScrollView
-        style={Style.ScrollView}
-        onScroll={(event) => {
-          if(event.nativeEvent.contentOffset.y <= 0) {
-            if(this.state.isLoading == false){
-              this.retrieve()
-            }
-          }
-        }}
-        >
-          { (step == 0 && viewFlag == false) && (this._step0())}
-          { (step == 1 && viewFlag == false) && (this._step1())}
-          { (step == 2 && viewFlag == false) && (this._step2())}
-          { (step == 3 && viewFlag == false) && (this._step3())}
-          { viewFlag == true && (this._viewDetails())}
+        <View style={{
+          width: '100%'
+        }}>
 
+          <View style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}>
+
+            {
+              steps.map((item, index) => {
+                return(
+                <View style={{
+                  width: 50,
+                  height: 50,
+                  borderRadius: 25,
+                  justifyContent: 'center',
+                  backgroundColor: index == this.state.step ? Color.primary : Color.gray,
+                  marginRight: 5
+                }}>
+                  <Text style={{
+                    color: Color.white,
+                    textAlign: 'center'
+                  }}>{item.title}</Text>
+                </View>
+              )})  
+            }
+          </View>
+
+          <View>
+            <Text style={{
+              fontWeight: 'bold',
+              paddingTop: 10,
+              paddingBottom: 10,
+              textAlign: 'center'
+            }}>
+              {steps[this.state.step].description.toUpperCase()}
+            </Text>
+          </View>
+          { (step == 0) && (this._step0())}
+          { (step == 1) && (this._step1())}
+          { (step == 2) && (this._step2())}
+          { (step == 3) && (this._step3())}
         </View>
-        {isLoading ? <Spinner mode="overlay"/> : null }
-      </ScrollView>
     );
   }
 }
@@ -1639,4 +1416,4 @@ const mapDispatchToProps = dispatch => {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(Declaration);
+)(Customer);

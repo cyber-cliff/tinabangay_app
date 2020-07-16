@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import Style from './Style.js';
-import { View, Image, TouchableHighlight, TouchableOpacity, Text, ScrollView, FlatList, TextInput, Picker} from 'react-native';
+import { View, Image, TouchableHighlight, TouchableOpacity, Text, ScrollView, FlatList, TextInput, Picker, Platform} from 'react-native';
 import { Routes, Color, Helper, BasicStyles } from 'common';
 import { Spinner, ImageUpload, DateTime } from 'components';
 import Api from 'services/api/index.js';
@@ -35,23 +35,9 @@ const steps = [{
 }, {
   title: '4',
   description: 'Healthy and Safety - Related Questions'
-}]
-
-const stepsEmployeeIn = [{
-  title: '1',
-  description: 'Personal Information'
-}, {
-  title: '2',
-  description: 'Company Questions'
-}, {
-  title: '3',
-  description: 'Travel History'
-}, {
-  title: '4',
-  description: 'Symptoms'
 }, {
   title: '5',
-  description: 'Healthy and Safety - Related Questions'
+  description: 'Company Related'
 }]
 
 const symptoms = [{
@@ -88,12 +74,11 @@ const safetyRelated = [{
 }, {
   question: 'Do you have any household member/s, or close friend/s who have met a person currently having fever, cough and/or respiratory problems?',
   answer: null
-}, {
-  question: 'Have you taken medicines/vitamins/supplements in the past 24 hours? Please indicate specific names.',
-  answer: 'null'
 }]
 
 const modeOfTransportation = [{
+  title: 'Airplane'
+}, {
   title: 'PUJ'
 }, {
   title: 'Bus'
@@ -114,12 +99,26 @@ const modeOfTransportation = [{
 }, {
   title: 'Others'
 }]
-class Declaration extends Component{
+const companyRelatedQuestions = [
+  {
+    question: "Have you taken medicines/vitamins/supplements in the past 24 hours? Please indicate specific names.",
+    translate: "(Naa ka ba’y gitomar nga mga tambal sulod sa 24 ka oras? Unsa ang mga pangalan sa tambal?)",
+    answer: []
+  }, {
+    question: "What is your purpose of coming here?",
+    translate: "(Unsa imong katuyu-an sa pag-ari?)",
+    answer: []
+  }, {
+    question: "Aside from your own work area/section, do you plan to transact with other dept/ section today? To whom in particular?",
+    translate: "(Gawas sa imong section, naa ka bay plano mo transact sa lain nga departamento o section? Kang kinsa imong katuyuan?)",
+    answer: []
+  }
+]
+class CheckinEmployee extends Component{
   constructor(props){
     super(props);
     this.state = {
       isLoading: false,
-      data: null,
       step: 0,
       errorMessage: null,
       personalInformation: {
@@ -145,110 +144,59 @@ class Declaration extends Component{
       newCountry: null,
       newLocality: null,
       newTransportation: {
+        type: 'Airplane',
         date: null,
         origin: null,
-        flight: null,
+        number: null,
         seat: null
       },
-      viewFlag: null,
+      company: {
+        person_in_contact: [],
+        related_questions: companyRelatedQuestions
+      },
       format: null,
       status: null,
-      statusLabel: null
+      statusLabel: null,
+      steps: steps,
+      newPerson: {
+        name: null,
+        relation: null
+      },
+      medicine: null,
+      purpose: null,
+      office: null
     }
   }
 
   componentDidMount(){
-    this.setState({
-      fotmat: this.props.state.declaration.format
-    })
-    this.retrieve()
-  }
-
-  retrieve = () => {
-    const { user, declaration, scannedLocation } = this.props.state;
-    if(user === null || declaration == null){
+    const { user } = this.props.state;
+    if(user == null){
       return
     }
-    if(declaration != null && declaration.id === null){
-      if(scannedLocation == null){
-        return
-      }
+    console.log('user Info', user)
+    if(user.account_information){
+      let information = user.account_information
       this.setState({
-        isLoading: true, 
-        showDatePicker: false
-      })
-      let parameter = {
-        condition: [{
-          value: scannedLocation.account_id,
-          clause: '=',
-          column: 'account_id'
-        }]
-      }
-      Api.request(Routes.merchantRetrieve, parameter, response => {
-        if(response.data.length > 0){
-          let object = {
-            merchant: response.data[0]
-          }
-          this.setState({
-            data: object
-          })
+        personalInformation: {
+          ...this.state.personalInformation,
+          first_name: information.first_name,
+          middle_name: information.middle_name,
+          last_name: information.last_name,
+          email: user.email,
+          gender: information.sex,
+          birth_date: information.birth_date,
+          contact_number: information.cellular_number,
+          address: information.address
         }
-        this.setState({isLoading: false})
-      }, error => {
-        console.log('error', error)
-      });
-      this.setState({
-        viewFlag: false
       })
-      return
     }
-    let parameter = {
-      condition: [{
-        value: declaration.id,
-        clause: '=',
-        column: 'id'
-      }]
-    }
-    this.setState({
-      isLoading: true, 
-      showDatePicker: false
-    })
-    Api.request(Routes.healthDeclarationRetrieve, parameter, response => {
-      this.setState({isLoading: false, data: response.data[0]})
-      if(response.data[0].content != null && response.data[0].content != ''){
-        let parse = JSON.parse(response.data[0].content)
-        // console.log('personalInformation', parse.personalInformation)
-        // console.log('symptomsQuestions', parse.symptoms)
-        // console.log('countries', parse.travelHistory.countries)
-        // console.log('localities', parse.travelHistory.localities)
-        // console.log('transportation', parse.travelHistory.transportation)
-        // console.log('safetyRelatedQuestions', parse.safety_questions)
-        this.setState({
-          personalInformation: parse.personalInformation,
-          symptomsQuestions: parse.symptoms,
-          countries: parse.travelHistory.countries,
-          localities: parse.travelHistory.localities,
-          transportation: parse.travelHistory.transportation,
-          safetyRelatedQuestions: parse.safety_questions,
-          company: {
-            persons: [],
-            related_questions: [{
-              
-            }]
-          },
-          format: parse.format != undefined && parse.format != null ? parse.format : declaration.format, 
-          viewFlag: true
-        })
-      }else{
-        this.setState({
-          viewFlag: false
-        })
-      }
-    });
   }
 
   createNew(content){
-    const { user, scannedLocation } = this.props.state;
+    const { user, scannedLocation, declaration } = this.props.state;
+    if(user == null || scannedLocation == null){
+      return
+    }
     this.setState({
       isLoading: true, 
       showDatePicker: false
@@ -256,38 +204,46 @@ class Declaration extends Component{
     let parameter = {
       owner: scannedLocation.account_id,
       account_id: user.id,
-      content: content,
+      content: JSON.stringify(content),
       to: scannedLocation.account_id,
-      from: user.id
+      from: user.id,
+      payload: 'form_submitted/' + declaration.format
     }
-    parameter.content = JSON.stringify(content)
+    console.log('create HDF', parameter)
     Api.request(Routes.healthDeclarationCreate, parameter, response => {
-      this.setState({isLoading: false, data: response.data[0]})
+      this.setState({isLoading: false})
+      console.log('response', response.data)
+      this.props.onFinish()
     });
   }
 
   submit(){
-    const { data } = this.state;
     const { declaration } = this.props.state;
-    if(this.state.step == 3){
-      for (var i = 0; i < this.state.safetyRelatedQuestions.length; i++) {
-        let item = this.state.safetyRelatedQuestions[i]
-        if(item.answer == 'yes'){
-          this.setState({
-            status: 'danger',
-            statusLabel: 'Exposed in safety related questions.'
-          })
-        }
-        if(item.answer == null){
-          this.setState({
-            errorMessage: 'Please answer each question.'
-          })
-          return
-        }
+    if(this.state.step == 4){
+      if(this.state.company.person_in_contact.length < 5){
+        this.setState({
+          errorMessage: 'List down atleast 5 in contact person.'
+        })
+        return
       }
-    }
-    if(data === null){
-      return
+      if(this.state.company.related_questions[0].answer.length <= 0){
+       this.setState({
+          errorMessage: 'Medicine is required.'
+        })
+        return 
+      }
+      if(this.state.company.related_questions[1].answer.length <= 0){
+       this.setState({
+          errorMessage: 'Purpose is required.'
+        })
+        return 
+      }
+      if(this.state.company.related_questions[2].answer.length <= 0){
+       this.setState({
+          errorMessage: 'Office is required.'
+        })
+        return 
+      }
     }
     if(this.state.symptomsQuestions.length > 0){
       this.setState({
@@ -303,6 +259,7 @@ class Declaration extends Component{
         localities: this.state.localities,
         transportation: this.state.transportation
       },
+      company: this.state.company,
       safety_questions: this.state.safetyRelatedQuestions,
       format: declaration.format,
       status: this.state.status,
@@ -317,10 +274,16 @@ class Declaration extends Component{
       isLoading: true, 
       showDatePicker: false
     })
-    let parameter = data
-    parameter.content = JSON.stringify(content)
+    let parameter = {
+      ...declaration,
+      content: JSON.stringify(content),
+      to: declaration.merchant.account_id,
+      from: user.id,
+      payload: 'form_submitted/' + declaration.format
+    }
     Api.request(Routes.healthDeclarationUpdate, parameter, response => {
-      this.setState({isLoading: false, data: response.data[0]})
+      this.setState({isLoading: false})
+      this.props.onFinish()
     });
   }
 
@@ -359,6 +322,23 @@ class Declaration extends Component{
         this.setState({
           symptomsQuestions: symptoms
         })
+      }
+    }
+    if(this.state.step == 3){
+      for (var i = 0; i < this.state.safetyRelatedQuestions.length; i++) {
+        let item = this.state.safetyRelatedQuestions[i]
+        if(item.answer == 'yes'){
+          this.setState({
+            status: 'danger',
+            statusLabel: 'Exposed in safety related questions.'
+          })
+        }
+        if(item.answer == null){
+          this.setState({
+            errorMessage: 'Please answer each question.'
+          })
+          return
+        }
       }
     }
     this.setState({
@@ -474,8 +454,8 @@ class Declaration extends Component{
   }
 
   addTransportation(){
-    if(this.state.newTransportation.date === null || this.state.newTransportation.origin === null || this.state.newTransportation.flight === null
-      || this.state.newTransportation.seat == null){
+    if(this.state.newTransportation.date === null || this.state.newTransportation.origin === null || this.state.newTransportation.number === null
+      || this.state.newTransportation.seat == null || this.state.newTransportation.type === null){
       this.setState({
         errorMessage: 'Transportation fields are required.'
       })
@@ -487,9 +467,10 @@ class Declaration extends Component{
     this.setState({
       transportation: transportation,
       newTransportation: {
+        type: 'Airplane',
         date: null,
         origin: null,
-        flight: null,
+        number: null,
         seat: null
       }
     })
@@ -506,230 +487,426 @@ class Declaration extends Component{
     })
   }
 
-  _viewDetails = () => {
-    const { data, personalInformation, transportation, countries, localities, symptomsQuestions, safetyRelatedQuestions } = this.state;
+  addPersonInContact(){
+    if(this.state.newPerson.name === null || this.state.newPerson.relation === null){
+      this.setState({
+        errorMessage: 'Person fields are required.'
+      })
+      return
+    }
+    
+    let personInContact = this.state.company.person_in_contact
+    personInContact.push(this.state.newPerson)
+    this.setState({
+      company: {
+        ...this.state.company,
+        person_in_contact: personInContact
+      },
+      newPerson: {
+        name: null,
+        relation: null
+      }
+    })
+  }
+
+  removePersonInContact(indexParam){
+    let personInContact = this.state.company.person_in_contact.filter((item, index) => {
+      if(index != indexParam){
+        return item
+      }
+    })
+    this.setState({
+      company: {
+        ...this.state.company,
+        person_in_contact: personInContact
+      }
+    })
+  }
+
+  addRelatedQuestion(indexParam){
+    if(indexParam == 0 && this.state.medicine === null){
+      this.setState({
+        errorMessage: 'Medicine field is required.'
+      })
+      return
+    }else if(indexParam == 1 && this.state.purpose === null){
+      this.setState({
+        errorMessage: 'Purpose field is required.'
+      })
+      return
+    }else if(indexParam == 2 && this.state.office === null){
+      this.setState({
+        errorMessage: 'Office field is required.'
+      })
+      return
+    }
+    
+    let answer = this.state.company.related_questions[indexParam].answer
+    if(indexParam == 0){
+      answer.push(this.state.medicine)  
+    }else if(indexParam == 1){
+      answer.push(this.state.purpose)
+    }else if(indexParam == 2){
+      answer.push(this.state.office)
+    }
+    
+    let relatedQuestion = {
+      ...this.state.company.related_questions[indexParam],
+      answer: answer
+    }
+    let finalRelatedQuestions = this.state.company.related_questions.map((item, index) => {
+      if(index == indexParam){
+        return relatedQuestion
+      }else{
+        return item
+      }
+    })
+    this.setState({
+      company: {
+        ...this.state.company,
+        related_questions: finalRelatedQuestions
+      },
+      medicine: null,
+      purpose: null,
+      office: null
+    })
+  }
+
+  _addMedicine(){
+    return(
+      <View>
+        <View style={{
+          paddingTop: 10,
+          paddingBottom: 10,
+          flexDirection: 'row'
+        }}>
+            <TextInput
+              style={[BasicStyles.formControlCreate, {
+                marginRight: '1%',
+                width: '80%'
+              }]}
+              onChangeText={(medicine) => this.setState({
+                medicine
+              })}
+              value={this.state.medicine}
+              placeholder={'No or write down the medicine'}
+            />
+
+            <TouchableOpacity style={{
+                height: 50,
+                backgroundColor: Color.primary,
+                width: '19%',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: 5,
+              }}
+              onPress={() => {
+                this.addRelatedQuestion(0)
+              }}
+              underlayColor={Color.gray}
+                >
+                <FontAwesomeIcon icon={faPlus} style={{
+                  color: Color.white
+                }} />
+            </TouchableOpacity>
+        </View>
+      </View>
+    )
+  }
+  _addPurpose(){
+    return(
+      <View>
+        <View style={{
+          paddingTop: 10,
+          paddingBottom: 10,
+          flexDirection: 'row'
+        }}>
+            <TextInput
+              style={[BasicStyles.formControlCreate, {
+                marginRight: '1%',
+                width: '80%'
+              }]}
+              onChangeText={(purpose) => this.setState({
+                purpose
+              })}
+              value={this.state.purpose}
+              placeholder={'Purpose'}
+            />
+
+            <TouchableOpacity style={{
+                height: 50,
+                backgroundColor: Color.primary,
+                width: '19%',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: 5,
+              }}
+              onPress={() => {
+                this.addRelatedQuestion(1)
+              }}
+              underlayColor={Color.gray}
+                >
+                <FontAwesomeIcon icon={faPlus} style={{
+                  color: Color.white
+                }} />
+            </TouchableOpacity>
+        </View>
+      </View>
+    )
+  }
+  _addOffice(){
+    return(
+      <View>
+        <View style={{
+          paddingTop: 10,
+          paddingBottom: 10,
+          flexDirection: 'row'
+        }}>
+            <TextInput
+              style={[BasicStyles.formControlCreate, {
+                marginRight: '1%',
+                width: '80%'
+              }]}
+              onChangeText={(office) => this.setState({
+                office
+              })}
+              value={this.state.office}
+              placeholder={'Office'}
+            />
+
+            <TouchableOpacity style={{
+                height: 50,
+                backgroundColor: Color.primary,
+                width: '19%',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: 5,
+              }}
+              onPress={() => {
+                this.addRelatedQuestion(2)
+              }}
+              underlayColor={Color.gray}
+                >
+                <FontAwesomeIcon icon={faPlus} style={{
+                  color: Color.white
+                }} />
+            </TouchableOpacity>
+        </View>
+      </View>
+    )
+  }
+
+   _step4 = () => {
+    const { company, errorMessage } = this.state;
     return (
       <View>
+
         {
-          <View>
+          errorMessage != null && (
+            <View style={{
+              alignItems: 'center',
+              paddingTop: 5,
+              paddingBottom: 5
+            }}>
               <Text style={{
-                paddingTop: 10,
-                paddingBottom: 10,
                 color: Color.danger
-              }}>
-                Submitted on {data.updated_at}
-              </Text>
-          </View>
-        }
-        {
-          personalInformation && (
-            <View>
-              <Text style={{
-                textAlign: 'justify',
-                fontWeight: 'bold'
-              }}>
-                PERSONAL INFORMATION
-              </Text>
-              <Text style={{
-                paddingTop: 2,
-                paddingBottom: 2
-              }}>
-                {
-                  personalInformation.first_name + ' ' + personalInformation.middle_name + ' ' + personalInformation.last_name + '(' + personalInformation.gender.toUpperCase() + ')'
-                }
-              </Text>
-
-              <Text style={{
-                paddingTop: 2,
-                paddingBottom: 2
-              }}>
-                {
-                  personalInformation.occupation + ' from ' + personalInformation.address
-                }
-              </Text>
-              <Text style={{
-                paddingTop: 2,
-                paddingBottom: 2
-              }}>
-                {
-                  'Birth Date: ' + personalInformation.birth_date
-                }
-              </Text>
-
-              <Text style={{
-                paddingTop: 2,
-                paddingBottom: 2
-              }}>
-                {
-                  'E-mail address: ' + personalInformation.email.toLowerCase()
-                }
-              </Text>
-
-              <Text style={{
-                paddingTop: 2,
-                paddingBottom: 2
-              }}>
-                {
-                  'Contact number: ' + personalInformation.contact_number
-                }
-              </Text>
+              }}>{errorMessage}</Text>
             </View>
           )
         }
-        {
-          transportation && transportation.length > 0 && (
-            <View style={{
-              paddingBottom: 10,
-              paddingTop: 10
-            }}>
-              <Text style={{
-                textAlign: 'justify',
-                fontWeight: 'bold'
-              }}>
-                TRANSPORTATION USED
-              </Text>
-              {
-                transportation.map((item, index) => {
-                  return(
-                    <View>
-                      <Text style={{
-                        paddingTop: 10
-                      }}>
-                        {
-                          item.date + ' from ' + item.origin
-                        }
-                      </Text>
-                      <Text>
-                        {
-                          'Flight #: ' + item.flight + ' / Seat #: ' + item.seat
-                        }
-                      </Text>
-                    </View>
-                  )
-                })
-              }
-            </View>
-          )
-        }
+        <Text>
+          List down 5 person your in contact the last 12 hours and your relations.
+        </Text>
 
-        {
-          countries && countries.length > 0 && (
-            <View style={{
-              paddingBottom: 10,
-              paddingTop: 10
-            }}>
-              <Text style={{
-                textAlign: 'justify',
-                fontWeight: 'bold'
-              }}>
-                VISITED COUNTRIES
-              </Text>
-              {
-                countries.map((item, index) => {
-                  return (
+        <View style={{
+          paddingTop: 10,
+          paddingBottom: 10
+        }}>
+          {
+            company.person_in_contact.length > 0 && company.person_in_contact.map((item, index) => {
+              return(
+                <View style={{
+                  flexDirection: 'row',
+                  marginBottom: 10
+                }}>
+                  <View style={{
+                    width: '80%',
+                    marginRight: '1%'
+                  }}>
                     <Text style={{
-                      paddingTop: 10
-                    }}>
-                      {
-                        item.title
-                      }
-                    </Text> 
-                  )
-                })
-              }
-          </View>
-        )}
-
-
-        {
-          localities && localities.length > 0 && (
-            <View style={{
-              paddingBottom: 10,
-              paddingTop: 10
-            }}>
-              <Text style={{
-                textAlign: 'justify',
-                fontWeight: 'bold'
-              }}>
-                VISITED CITIES/MUNICIPALITIES
-              </Text>
-              {
-                localities.map((item, index) => {
-                  return (
+                      color: Color.primary
+                    }}>{item.name.toUpperCase()}</Text>
                     <Text style={{
-                      paddingTop: 10
-                    }}>
-                      {
-                        item.title
-                      }
-                    </Text> 
-                  )
-                })
-              }
-          </View>
-        )}
+                      color: Color.black
+                    }}>{item.relation.toUpperCase()}</Text>
+                    
+                  </View>
 
-        {
-          symptomsQuestions && symptomsQuestions.length > 0 && (
-            <View style={{
-              paddingBottom: 10,
-              paddingTop: 10
-            }}>
+                  <TouchableOpacity style={{
+                      height: 50,
+                      backgroundColor: Color.danger,
+                      width: '19%',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      borderRadius: 5,
+                    }}
+                    onPress={() => {
+                      this.removePersonInContact(index)
+                    }}
+                    underlayColor={Color.gray}
+                      >
+                      <FontAwesomeIcon icon={faTrash} style={{
+                        color: Color.white
+                      }}/>
+                  </TouchableOpacity>
+
+                </View>
+
+              )
+            })
+          }
+        </View>
+
+        <View style={{
+          paddingTop: 10,
+          paddingBottom: 10
+        }}>
+            <TextInput
+              style={[BasicStyles.formControlCreate, {
+                marginRight: '1%'
+              }]}
+              onChangeText={(name) => this.setState({
+                newPerson: {
+                  ...this.state.newPerson,
+                  name
+                }
+              })}
+              value={this.state.newPerson.name}
+              placeholder={'Full name'}
+            />
+
+            <TextInput
+              style={[BasicStyles.formControlCreate, {
+                marginRight: '1%'
+              }]}
+              onChangeText={(relation) => this.setState({
+                newPerson: {
+                  ...this.state.newPerson,
+                  relation
+                }
+              })}
+              value={this.state.newPerson.relation}
+              placeholder={'Relation'}
+            />
+
+            <TouchableOpacity style={{
+                height: 50,
+                backgroundColor: Color.primary,
+                width: '100%',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: 5,
+              }}
+              onPress={() => {
+                this.addPersonInContact()
+              }}
+              underlayColor={Color.gray}
+                >
+                <Text style={{
+                  color: Color.white
+                }}>
+                  Add person
+                </Text>
+            </TouchableOpacity>
+        </View>
+
+
+        <View style={{
+          paddingTop: 10,
+          paddingBottom: 10
+        }}>
+          {
+            company.related_questions.length > 0 && company.related_questions.map((item, index) => {
+              return(
+                <View style={{
+                  marginBottom: 10
+                }}>
+                  <Text style={{
+                    paddingTop: 10,
+                    fontWeight: 'bold'
+                  }}>
+                    {
+                      item.question
+                    }
+                  </Text>
+                  <Text style={{
+                    fontStyle: 'italic',
+                    marginBottom: 20
+                  }}>
+                    { item.translate}
+                  </Text>
+                  {
+                    (item.answer != undefined && item.answer.length > 0) && (
+                      item.answer.map((iItem, iIndex) => {
+                        return(
+                          <View>
+                            <Text>
+                              {
+                                (iIndex + 1) + ': ' + iItem
+                              }
+                            </Text>
+                          </View>
+                        )
+                      })
+                    )
+                  }
+                  {
+                    (index == 0) && (
+                      this._addMedicine()
+                    )
+                  }
+                  {
+                    (index == 1) && (
+                      this._addPurpose()
+                    )
+                  }
+                  {
+                    (index == 2) && (
+                      this._addOffice()
+                    )
+                  }
+                </View>
+
+              )
+            })
+          }
+        </View>
+
+
+
+        <View style={{
+          marginBottom: 10,
+          marginTop: 20
+        }}>
+          <TouchableHighlight style={{
+                height: 50,
+                backgroundColor: Color.primary,
+                width: '100%',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: 5,
+              }}
+              onPress={() => {
+                this.submit()
+              }}
+              underlayColor={Color.gray}
+                >
               <Text style={{
-                textAlign: 'justify',
-                fontWeight: 'bold'
-              }}>
-                SYMPTOMS
-              </Text>
-              {
-                symptomsQuestions.map((item, index) => {
-                  return (
-                    <Text style={{
-                      color: item.answer == 'yes' ? Color.danger : Color.black,
-                      paddingTop: 10
-                    }}>
-                      {
-                        '[' + item.answer.toUpperCase() + ']' + item.question
-                      }
-                    </Text> 
-                  )
-                })
-              }
-          </View>
-        )}
-
-
-        {
-          safetyRelatedQuestions && safetyRelatedQuestions.length > 0 && (
-            <View style={{
-              paddingBottom: 10,
-              paddingTop: 10
-            }}>
-              <Text style={{
-                textAlign: 'justify',
-                fontWeight: 'bold'
-              }}>
-                HEALTH AND SAFETY - RELATED QUESTIONS
-              </Text>
-              {
-                safetyRelatedQuestions.map((item, index) => {
-                  return (
-                    <Text style={{
-                      color: item.answer == 'yes' ? Color.danger : Color.black,
-                      paddingTop: 10
-                    }}>
-                      {
-                        '[' + item.answer.toUpperCase() + ']' + item.question
-                      }
-                    </Text> 
-                  )
-                })
-              }
-          </View>
-        )}
-
-
-
+                color: Color.white,
+                textAlign: 'center',
+              }}>Next</Text>
+          </TouchableHighlight>
+        </View>
       </View>
     )
   }
@@ -823,7 +1000,7 @@ class Declaration extends Component{
                 borderRadius: 5,
               }}
               onPress={() => {
-                this.submit()
+                this.validate()
               }}
               underlayColor={Color.gray}
                 >
@@ -978,6 +1155,13 @@ class Declaration extends Component{
  
   _step1 = () => {
     const { countries, localities, errorMessage, transportation } = this.state;
+    const iOSModeOfTransportation = modeOfTransportation.map((item, index) => {
+                      return {
+                        label: item.title,
+                        value: item.title
+                      };
+                    });
+
     return (
       <View>
         
@@ -1024,13 +1208,18 @@ class Declaration extends Component{
                   }}>
                     <Text>
                       {
+                        item.type.toUpperCase()
+                      }
+                    </Text>
+                    <Text>
+                      {
                         item.date + ' from ' + item.origin
                       }
                     </Text>
 
                     <Text>
                       {
-                        'Flight #: ' + item.flight + ' / Seat #: ' + item.seat
+                        'Number: ' + item.number + ' / Seat #: ' + item.seat
                       }
                     </Text>
                   </View>
@@ -1065,7 +1254,43 @@ class Declaration extends Component{
           paddingTop: 10,
           paddingBottom: 10
         }}>
-        
+          <View style={{
+          }}>
+            <Text>Mode of Transportation</Text>
+            {
+              Platform.OS == 'android' && (
+                <Picker selectedValue={this.state.sex}
+                  onValueChange={(sex) => this.setState({sex})}
+                  style={BasicStyles.pickerStyleCreate}
+                  >
+                    {
+                      modeOfTransportation.map((item, index) => {
+                        return (
+                          <Picker.Item
+                          key={index}
+                          label={item.title} 
+                          value={item.title}/>
+                        );
+                      })
+                    }
+                  </Picker>
+              )
+            }
+            {
+              Platform.OS == 'ios' && (
+                <RNPickerSelect
+                  onValueChange={(sex) => this.setState({sex})}
+                  items={iOSModeOfTransportation}
+                  style={BasicStyles.pickerStyleIOSNoMargin}
+                  placeholder={{
+                    label: 'Click to select',
+                    value: null,
+                    color: Color.primary
+                  }}
+                  />
+              )
+            }
+          </View>
         <View>
           <Text style={{
             paddingTop: 10
@@ -1112,13 +1337,13 @@ class Declaration extends Component{
             <Text>Number #</Text>
             <TextInput
               style={BasicStyles.formControlCreate}
-              onChangeText={(flight) => this.setState({
+              onChangeText={(number) => this.setState({
                 newTransportation: {
                   ...this.state.newTransportation,
-                  flight
+                  number
                 }
               })}
-              value={this.state.newTransportation.flight}
+              value={this.state.newTransportation.number}
               placeholder={'Type flight #, plate number ...'}
             />
             </View>
@@ -1609,159 +1834,55 @@ class Declaration extends Component{
   }
 
   render() {
-    const { user } = this.props.state;
-    const { isLoading, data, step, viewFlag } = this.state;
+    const { user, declaration } = this.props.state;
+    const { isLoading, step } = this.state;
     return (
-      <ScrollView
-        style={Style.ScrollView}
-        onScroll={(event) => {
-          if(event.nativeEvent.contentOffset.y <= 0) {
-            if(this.state.isLoading == false){
-              this.retrieve()
-            }
-          }
-        }}
-        >
-        <View style={[Style.MainContainer, {
-        }]}>
-          {
-            user != null && (
-               <View style={{
-                width: '100%',
-                alignItems: 'center'
-               }}>
-               {
-                  data != null && data.merchant != null && data.merchant.logo != null && (
-                    <Image
-                      source={{uri: Config.BACKEND_URL  + data.merchant.logo}}
-                      style={[BasicStyles.profileImageSize, {
-                        height: 100,
-                        width: 100,
-                        borderRadius: 50
-                      }]}/>
-                  )
-                }
-                {
-                  (data != null && data.merchant != null && data.merchant.logo == null) && (
-                    <FontAwesomeIcon
-                      icon={faUserCircle}
-                      size={100}
-                      style={{
-                        color: Color.primary
-                      }}
-                    />
-                  )
-                }
-                {
-                  (data != null && data.merchant != null) && (
-                    <Text style={{
-                      fontWeight: 'bold',
-                      paddingTop: 10,
-                      paddingBottom: 10,
-                      color: Color.primary
-                    }}>{data.merchant.name}</Text>
-                  )
-                }
-                <Text style={{
-                  paddingTop: 10,
-                  paddingBottom: 10,
-                  textAlign: 'center',
-                  fontWeight: 'bold'
-                }}>
-                  HEALTH DECLARATION FORM
-                </Text>
-                {
-                  viewFlag == false && (
-                    <Text  style={{
-                      textAlign: 'justify',
-                      paddingBottom: 10
-                    }}>
-                      Hi {user.username}! IMPORTANT REMINDER: Kindly complete this health declaration form honestly. Failure to answer or giving false information is punishable in accordance with Philippine laws.
-                    </Text>
-                  )
-                }
+        <View style={{
+          width: '100%'
+        }}>
+
+          <View style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}>
+
+            {
+              steps.map((item, index) => {
+                return(
                 <View style={{
-                  flexDirection: 'row',
-                  alignItems: 'center'
+                  width: 50,
+                  height: 50,
+                  borderRadius: 25,
+                  justifyContent: 'center',
+                  backgroundColor: index == this.state.step ? Color.primary : Color.gray,
+                  marginRight: 5
                 }}>
-
-                  {
-                    viewFlag == false && steps.map((item, index) => {
-                      return(
-                      <View style={{
-                        width: 50,
-                        height: 50,
-                        borderRadius: 25,
-                        justifyContent: 'center',
-                        backgroundColor: index == this.state.step ? Color.primary : Color.gray,
-                        marginRight: 5
-                      }}>
-                        <Text style={{
-                          color: Color.white,
-                          textAlign: 'center'
-                        }}>{item.title}</Text>
-                      </View>
-                    )})  
-                  }
+                  <Text style={{
+                    color: Color.white,
+                    textAlign: 'center'
+                  }}>{item.title}</Text>
                 </View>
-                {
-                  viewFlag == false && (
-                    <View>
-                      <Text style={{
-                        fontWeight: 'bold',
-                        paddingTop: 10,
-                        paddingBottom: 10
-                      }}>
-                        {steps[this.state.step].description.toUpperCase()}
-                      </Text>
-                    </View>
-                  )
-                }                
-              </View>
-            )
-          }
-          { (step == 0 && viewFlag == false) && (this._step0())}
-          { (step == 1 && viewFlag == false) && (this._step1())}
-          { (step == 2 && viewFlag == false) && (this._step2())}
-          { (step == 3 && viewFlag == false) && (this._step3())}
-          { viewFlag == true && (this._viewDetails())}
+              )})  
+            }
+          </View>
 
-          {
-            data != null && data.merchant != null && (
-              <View style={{
-                marginBottom: 100
-              }}>
-                <Text style={{
-                  fontWeight: 'bold',
-                  paddingTop: 10,
-                  paddingBottom: 10
-                }}>
-                  Data Privacy Notice
-                </Text>
-                <Text style={{
-                  textAlign: 'justify'
-                }}>
-                  {data.merchant.name}, in line with Republic Act 10173 or the Data Privacy Act of 2012, is committed to protect and secure personal information obtained in the performance of its duties. The establishment collects the following personal information relevant in the advancement of protocols and precautionary measures against COVID-19 Acute Respiratory Disease. The collected personal information will be kept/stored and accessed only by authorized personnel and will not be shared with any outside parties unless the disclosure is required by, or in compliance with applicable laws and regulations
-                </Text>
-                <Text style={{
-                  fontWeight: 'bold',
-                  paddingTop: 10,
-                  paddingBottom: 10
-                }}>
-                  Declaration and Data Privacy Consent Form:
-                </Text>
-                <Text style={{
-                  textAlign: 'justify'
-                }}>
-                  I knowingly and voluntarily agree to the terms of this binding Declaration, and in doing so represent the truthfulness and veracity of the above answers. I understand that failure to answer any question or giving false answer can be penalized in accordance with the law. Relative thereto, I voluntarily and freely consent to the processing and collection of personal data only in relation to COVID-19 internal protocols.
-                </Text>
-              </View>
-            )
-          }
-
+          <View>
+            <Text style={{
+              fontWeight: 'bold',
+              paddingTop: 10,
+              paddingBottom: 10,
+              textAlign: 'center'
+            }}>
+              {steps[this.state.step].description.toUpperCase()}
+            </Text>
+          </View>
+          { (step == 0) && (this._step0())}
+          { (step == 1) && (this._step1())}
+          { (step == 2) && (this._step2())}
+          { (step == 3) && (this._step3())}
+          { (step == 4) && (this._step4())}
         </View>
-        {isLoading ? <Spinner mode="overlay"/> : null }
-      </ScrollView>
     );
   }
 }
@@ -1776,4 +1897,4 @@ const mapDispatchToProps = dispatch => {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(Declaration);
+)(CheckinEmployee);

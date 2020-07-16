@@ -114,7 +114,7 @@ const modeOfTransportation = [{
 }, {
   title: 'Others'
 }]
-class Declaration extends Component{
+class CheckoutEmployee extends Component{
   constructor(props){
     super(props);
     this.state = {
@@ -1770,4 +1770,4 @@ const mapDispatchToProps = dispatch => {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(Declaration);
+)(CheckoutEmployee);

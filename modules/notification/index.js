@@ -84,18 +84,58 @@ class Notifications extends Component{
     let route = null;
     let searchParameter = null
     switch(notification.payload){
-      case 'form_request':
+      case 'form_request/customer':
         route = 'Declaration';
         searchParameter = {
           column: 'id',
-          id: notification.payload_value
+          id: notification.payload_value,
+          format: 'customer',
+          viewFlag: false
         }
         break;
-      case 'form_submitted':
+      case 'form_request/employee_checkin':
+        route = 'Declaration';
+        searchParameter = {
+          column: 'id',
+          id: notification.payload_value,
+          format: 'employee_checkin',
+          viewFlag: false
+        }
+        break;
+      case 'form_request/employee_checkout':
+        route = 'Declaration';
+        searchParameter = {
+          column: 'id',
+          id: notification.payload_value,
+          format: 'employee_checkout',
+          viewFlag: false
+        }
+        break;
+      case 'form_submitted/customer':
         route = 'Declaration'
         searchParameter = {
           column: 'id',
-          id: notification.payload_value
+          id: notification.payload_value,
+          format: 'customer',
+          viewFlag: true
+        }
+        break;
+      case 'form_submitted/employee_checkin':
+        route = 'Declaration'
+        searchParameter = {
+          column: 'id',
+          id: notification.payload_value,
+          format: 'employee_checkin',
+          viewFlag: true
+        }
+        break;
+      case 'form_submitted/employee_checkout':
+        route = 'Declaration'
+        searchParameter = {
+          column: 'id',
+          id: notification.payload_value,
+          format: 'employee_checkout',
+          viewFlag: true
         }
         break;
     }
