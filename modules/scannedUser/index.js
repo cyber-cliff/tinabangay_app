@@ -34,7 +34,7 @@ class ScannedUser extends Component{
   }
 
   componentDidMount(){
-    const { scannedUser } = this.props.state;
+    const { scannedUser, user } = this.props.state;
     if(scannedUser.overall_status != null && (scannedUser.overall_status.status != 'negative' && scannedUser.overall_status.status != 'recovered')){
       const { user } = this.props.state;
       if(user == null || (user != null && user.linked_account == null)){
@@ -470,7 +470,55 @@ class ScannedUser extends Component{
             marginTop: 20
           }}>
           {
-            user.account_type !== 'USER' && (
+            (user.account_type != 'USER' && user.assigned_location != null) && (
+              <TouchableHighlight style={{
+                  height: 50,
+                  backgroundColor: Color.primary,
+                  width: '49%',
+                  marginBottom: 10,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: 5,
+                  marginLeft: '1%'
+                }}
+                onPress={() => {this.sendForm()}}
+                underlayColor={Color.gray}
+                  >
+                <Text style={{
+                  color: Color.white,
+                  textAlign: 'center',
+                }}>Send form</Text>
+              </TouchableHighlight>
+            )
+          }
+
+          {
+            (user.account_type != 'USER') && (
+              <TouchableHighlight style={{
+                  height: 50,
+                  backgroundColor: Color.primary,
+                  width: '49%',
+                  marginBottom: 10,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: 5,
+                  marginLeft: '1%'
+                }}
+                onPress={() => {this.setState({
+                  addFlag: 'temperature'
+                })}}
+                underlayColor={Color.gray}
+                  >
+                <Text style={{
+                  color: Color.white,
+                  textAlign: 'center',
+                }}>Add Temperature</Text>
+              </TouchableHighlight>
+            )
+          }
+
+          {
+            (user.account_type !== 'USER') && (
               <TouchableHighlight style={{
               height: 50,
               backgroundColor: Color.primary,
@@ -514,52 +562,8 @@ class ScannedUser extends Component{
               </TouchableHighlight>
             )
           }
-          {
-            (user.account_type != 'USER') && (
-              <TouchableHighlight style={{
-                  height: 50,
-                  backgroundColor: Color.primary,
-                  width: '49%',
-                  marginBottom: 10,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  borderRadius: 5,
-                  marginLeft: '1%'
-                }}
-                onPress={() => {this.setState({
-                  addFlag: 'temperature'
-                })}}
-                underlayColor={Color.gray}
-                  >
-                <Text style={{
-                  color: Color.white,
-                  textAlign: 'center',
-                }}>Add Temperature</Text>
-              </TouchableHighlight>
-            )
-          }
-          {
-            (user.account_type != 'USER' && user.assigned_location != null) && (
-              <TouchableHighlight style={{
-                  height: 50,
-                  backgroundColor: Color.primary,
-                  width: '49%',
-                  marginBottom: 10,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  borderRadius: 5,
-                  marginLeft: '1%'
-                }}
-                onPress={() => {this.sendForm()}}
-                underlayColor={Color.gray}
-                  >
-                <Text style={{
-                  color: Color.white,
-                  textAlign: 'center',
-                }}>Send form</Text>
-              </TouchableHighlight>
-            )
-          }
+          
+          
           {
             (user.account_type == 'AGENCY_DOH' || user.account_type == 'ADMIN') && (
               <TouchableHighlight style={{

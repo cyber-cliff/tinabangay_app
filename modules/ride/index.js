@@ -322,6 +322,7 @@ class Ride extends Component{
           }
         }}
         >
+        {/*
         <View style={{
           borderRadius: 5,
           backgroundColor: Color.danger,
@@ -335,9 +336,9 @@ class Ride extends Component{
           }}>
             Hi {user != null ? user.username : ''}! We would like to ask your help to input your transportation history that you have been on board for the past months. Please, be honest and help us fight COVID-19. Don't worry your location is not viewable from other users.
           </Text>
-        </View>
+        </View>*/}
         {isLoading ? <Spinner mode="overlay"/> : null }
-        {
+        {/*
           newDataFlag == false && (
             <TouchableHighlight
               style={[BasicStyles.btn, {
@@ -354,7 +355,7 @@ class Ride extends Component{
                 color: Color.white
               }}>Add previous rides</Text>
             </TouchableHighlight>
-          )
+          )*/
         }
         {
           newDataFlag == true && (

@@ -27,7 +27,8 @@ class Dashboard extends Component{
       selected: null,
       data: null,
       showMapFlag: false,
-      showScanner:false
+      showScanner:false,
+      topPlacesFlag: false
     }
   }
 
@@ -148,14 +149,14 @@ class Dashboard extends Component{
                 borderRadius: 5
               }}
               onPress={() => {this.setState({
-                showMapFlag: true
+                topPlacesFlag: false
               })}}
               underlayColor={Color.gray}
                 >
               <Text style={{
                 color: Color.white,
                 textAlign: 'center',
-              }}>View on Map</Text>
+              }}>Hide affected places</Text>
           </TouchableHighlight>
         </View>
 
@@ -678,7 +679,36 @@ BirdsEye Team{"\n"}{"\n"}{"\n"}
           <View style={Style.MainContainer}>
             {(user != null && user.overall_status != null) && (this._status(user.overall_status, user.location))}
             {user != null && (this._qrCode())}
-            {data != null && (this._data())}
+            {
+              this.state.topPlacesFlag == false && (
+                <View style={{
+                  width: '100%',
+                  paddingTop: 20,
+                  paddingBottom: 50
+                }}>
+                  <TouchableHighlight style={{
+                        height: 50,
+                        backgroundColor: Color.primary,
+                        width: '100%',
+                        marginBottom: 20,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        borderRadius: 5
+                      }}
+                      onPress={() => {this.setState({
+                        topPlacesFlag: true
+                      })}}
+                      underlayColor={Color.gray}
+                        >
+                      <Text style={{
+                        color: Color.white,
+                        textAlign: 'center',
+                      }}>View affected places</Text>
+                  </TouchableHighlight>
+                </View>
+              )
+            }
+            {(data != null && this.state.topPlacesFlag == true) && (this._data())}
           </View>
           
         </View>

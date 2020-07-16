@@ -371,6 +371,7 @@ class Place extends Component{
           }
         }}
         >
+        {/*
         <View style={{
           borderRadius: 5,
           backgroundColor: Color.danger,
@@ -385,9 +386,10 @@ class Place extends Component{
             Hi {user != null ? user.username : ''}! We would like to ask your help to input places you have been visited for the past months. Please, be honest and help us fight COVID-19. Don't worry your location is not viewable from other users.
           </Text>
         </View>
+        */}
         {isLoading ? <Spinner mode="overlay"/> : null }
         {
-          newPlaceFlag == false && (
+          /* newPlaceFlag == false && (
             <TouchableHighlight
               style={[BasicStyles.btn, {
                 backgroundColor: Color.primary,
@@ -402,7 +404,7 @@ class Place extends Component{
                 color: Color.white
               }}>Add visited places</Text>
             </TouchableHighlight>
-          )
+          ) */
         }
         {
           newPlaceFlag == true && (
