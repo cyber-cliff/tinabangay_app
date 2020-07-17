@@ -124,7 +124,7 @@ class Declaration extends Component{
           ...this.props.state.declaration,
           id: response.data[0].id,
           content: parse,
-          viewFlag: true,
+          viewFlag: response.data[0].updated_at != null ? true : false,
           updated_at: response.data[0].updated_at,
           merchant: response.data[0].merchant,
           format: parse.format != undefined && parse.format != null ? parse.format : declaration.format
@@ -330,6 +330,12 @@ class Declaration extends Component{
           {
             (declaration != null && declaration.viewFlag === false && declaration.format === 'employee_checkin'  && submitted == false) && (
               <CheckinEmployee onFinish={() => this._onFinish()}/>
+            )
+          }
+
+          {
+            (declaration != null && declaration.viewFlag === false && declaration.format === 'employee_checkout'  && submitted == false) && (
+              <CheckoutEmployee onFinish={() => this._onFinish()}/>
             )
           }
 

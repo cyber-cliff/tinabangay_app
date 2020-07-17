@@ -78,3 +78,138 @@
 }}
 
 
+
+
+{
+  "personalInformation": {
+    "first_name": "test3 f",
+    "last_name": "test3 l",
+    "middle_name": null,
+    "gender": "male",
+    "birth_date": "1998-06-15",
+    "civil_status": null,
+    "occupation": null,
+    "contact_number": "09092208844",
+    "email": "test3@gmail.com",
+    "address": "Madua Norte",
+    "department": "dep",
+    "section": "sec",
+    "duty_hours": "8"
+  },
+  "travelHistory": {
+    "transportation": [
+      
+    ],
+    "countries": [
+      
+    ],
+    "localities": [
+      
+    ]
+  },
+  "symptoms": [
+    {
+      "question": "Fever",
+      "answer": "no"
+    },
+    {
+      "question": "Headache",
+      "answer": "no"
+    },
+    {
+      "question": "Sore Throat",
+      "answer": "no"
+    },
+    {
+      "question": "Cough",
+      "answer": "no"
+    },
+    {
+      "question": "Difficulty of Breathing",
+      "answer": "no"
+    },
+    {
+      "question": "Body Weakness",
+      "answer": "no"
+    },
+    {
+      "question": "Unexplained Bruising or Bleeding",
+      "answer": "no"
+    },
+    {
+      "question": "Severe Diarrhea",
+      "answer": "no"
+    }
+  ],
+  "safety_questions": [
+    
+  ],
+  "company": {
+    "person_in_contact": [
+      {
+        "name": "test",
+        "department": "test1"
+      },
+      {
+        "name": "test",
+        "department": "test2"
+      },
+      {
+        "name": "test",
+        "department": "test3"
+      },
+      {
+        "name": "test",
+        "department": "test4"
+      },
+      {
+        "name": "test",
+        "department": "test5"
+      }
+    ],
+    "related_questions": [
+      {
+        "question": "What Offices/Section you have been to today: (Official or non Official)",
+        "translate": "(Asa nga opisina/section imong giadto karon (opisyal or personal nga katuyuan))",
+        "answer": [
+          "test1"
+        ]
+      },
+      {
+        "question": "Where do you intend to go after here?",
+        "translate": "(Asa imong plano moadto moadto gikan diri?)",
+        "answer": [
+          "test2"
+        ]
+      },
+      {
+        "question": "Did you notice something irregular/unusual in your work or coworkers in terms of health/safety condition today? Please specify.",
+        "translate": "(Naa ka ba`y naobserbahan nga kalahian sa normal nga health and safety condisyon sa trabaho o sa imong mga kauban? I-detalye)",
+        "answer": [
+          "test3"
+        ]
+      }
+    ]
+  },
+  "format": "employee_checkout",
+  "status": "clear",
+  "statusLabel": "clear",
+  "location": {
+    "id": 29,
+    "code": "sRdjayP6mCQqcnhM9xGe1HO2WD5go8uA",
+    "assigned_code": null,
+    "payload": null,
+    "account_id": 11,
+    "longitude": "120.9842195",
+    "latitude": "14.5995124",
+    "route": "Manila Branch",
+    "locality": "Manila",
+    "country": "Philippines",
+    "region": "Metro Manila",
+    "created_at": "2020-07-02 03:48:05",
+    "updated_at": "2020-07-02 03:48:05",
+    "deleted_at": null
+  }
+}
+
+

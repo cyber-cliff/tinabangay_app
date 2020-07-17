@@ -218,7 +218,11 @@ class CheckinEmployee extends Component{
   }
 
   submit(){
-    const { declaration } = this.props.state;
+    const { declaration, scannedLocation, user } = this.props.state;
+    if(scannedLocation == null && declaration.id == null){
+      return
+    }
+
     if(this.state.step == 4){
       if(this.state.company.person_in_contact.length < 5){
         this.setState({
@@ -263,10 +267,15 @@ class CheckinEmployee extends Component{
       safety_questions: this.state.safetyRelatedQuestions,
       format: declaration.format,
       status: this.state.status,
-      statusLabel: this.state.statusLabel
+      statusLabel: this.state.statusLabel,
+      location: scannedLocation
     }
     if(declaration != null && declaration.id == null){
       this.createNew(content)
+      return
+    }
+    
+    if(user == null){
       return
     }
     
@@ -281,6 +290,7 @@ class CheckinEmployee extends Component{
       from: user.id,
       payload: 'form_submitted/' + declaration.format
     }
+    console.log('update HDF', parameter)
     Api.request(Routes.healthDeclarationUpdate, parameter, response => {
       this.setState({isLoading: false})
       this.props.onFinish()

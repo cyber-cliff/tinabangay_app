@@ -345,7 +345,7 @@ class ViewDetails extends Component{
                       paddingTop: 10
                     }}>
                       {
-                        item.name.toUpperCase() + ' - Relation(' + item.relation + ')'
+                        item.name.toUpperCase() + (item.relation != undefined ? ' - Relation(' + item.relation + ')' : ' - Department(' + item.department + ')' )
                       }
                     </Text> 
                   )

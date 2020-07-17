@@ -46,6 +46,8 @@ class ScannedUser extends Component{
       Api.request(Routes.emailAlert, alertParameter, alertResponse => {
       })
     }
+    console.log('scannedUser', scannedUser.linked_account)
+    console.log('user', user.linked_account)
   }
 
   onCancel = () => {
@@ -63,10 +65,10 @@ class ScannedUser extends Component{
     this.submit()
   }
 
-  sendForm = () => {
+  sendForm = (form) => {
     const { scannedUser } = this.props.state;
     this.setState({
-      addFlag: 'form'
+      addFlag: form
     })
     setTimeout(() => {
       this.validate()
@@ -160,7 +162,7 @@ class ScannedUser extends Component{
       this.setState({
         showConfirmation: true
       })
-    }else if(addFlag == 'form'){
+    }else if(addFlag == 'form' || addFlag == 'form_employee_checkin'){
       this.setState({
         showConfirmation: true
       })
@@ -335,16 +337,25 @@ class ScannedUser extends Component{
       }, error => {
         console.log(error)
       });
-    }else if(addFlag == 'form'){
+    }else if(addFlag == 'form' || addFlag == 'form_employee_checkin'){
       if(user.assigned_location == null){
         return
+      }
+
+      let content = {
+        location: user.assigned_location,
+        format: addFlag == 'form' ? 'customer' : 'employee_checkin',
+        status: null,
+        statusLabel: null
       }
 
       let parameter = {
         account_id: scannedUser.id,
         owner: user.assigned_location.account_id,
         to: scannedUser.id,
-        from: user.assigned_location.account_id
+        from: user.assigned_location.account_id,
+        payload: addFlag == 'form' ? 'form_request/customer' : 'form_request/employee_checkin',
+        content: JSON.stringify(content)
       }
       this.setState({isLoading: true})
       console.log(parameter)
@@ -481,13 +492,36 @@ class ScannedUser extends Component{
                   borderRadius: 5,
                   marginLeft: '1%'
                 }}
-                onPress={() => {this.sendForm()}}
+                onPress={() => {this.sendForm('form')}}
                 underlayColor={Color.gray}
                   >
                 <Text style={{
                   color: Color.white,
                   textAlign: 'center',
-                }}>Send form</Text>
+                }}>HDF: Customer</Text>
+              </TouchableHighlight>
+            )
+          }
+
+          {
+            (user.account_type != 'USER' && user.assigned_location != null && (scannedUser.linked_account != null && parseInt(scannedUser.linked_account.owner) == parseInt(user.linked_account.owner))) && (
+              <TouchableHighlight style={{
+                  height: 50,
+                  backgroundColor: Color.primary,
+                  width: '49%',
+                  marginBottom: 10,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: 5,
+                  marginLeft: '1%'
+                }}
+                onPress={() => {this.sendForm('form_employee_checkin')}}
+                underlayColor={Color.gray}
+                  >
+                <Text style={{
+                  color: Color.white,
+                  textAlign: 'center',
+                }}>HDF: Employee Checkin</Text>
               </TouchableHighlight>
             )
           }
@@ -535,7 +569,7 @@ class ScannedUser extends Component{
               <Text style={{
                 color: Color.white,
                 textAlign: 'center',
-              }}>Link to my account</Text>
+              }}>Add as employee</Text>
             </TouchableHighlight>
             )
           }

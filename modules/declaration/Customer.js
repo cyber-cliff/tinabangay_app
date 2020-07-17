@@ -189,7 +189,10 @@ class Customer extends Component{
   }
 
   submit(){
-    const { declaration } = this.props.state;
+    const { declaration, scannedLocation, user } = this.props.state;
+    if(scannedLocation == null && declaration.id == null){
+      return
+    }
     if(this.state.step == 3){
       for (var i = 0; i < this.state.safetyRelatedQuestions.length; i++) {
         let item = this.state.safetyRelatedQuestions[i]
@@ -224,10 +227,14 @@ class Customer extends Component{
       safety_questions: this.state.safetyRelatedQuestions,
       format: declaration.format,
       status: this.state.status,
-      statusLabel: this.state.statusLabel
+      statusLabel: this.state.statusLabel,
+      location: scannedLocation
     }
     if(declaration != null && declaration.id == null){
       this.createNew(content)
+      return
+    }
+    if(user == null){
       return
     }
     
