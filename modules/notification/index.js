@@ -25,6 +25,8 @@ class Notifications extends Component{
   };
 
   componentDidMount(){
+    const{ setDeclaration } = this.props;
+    setDeclaration(null)
     this.retrieve()
   }
 
