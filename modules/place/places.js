@@ -107,7 +107,7 @@ class Places extends Component{
                     {item.date_human}
                   </Text>
                   {
-                    item.status == 'death' && (
+                    /*item.status == 'death' && (
                       <View style={{
                         backgroundColor: 'black',
                         borderRadius: 2,
@@ -126,11 +126,11 @@ class Places extends Component{
                           There was death in this area.
                         </Text>
                       </View>
-                    )
+                    )*/
                   }
 
                   {
-                    item.status == 'positive' && (
+                    /*item.status == 'positive' && (
                       <View style={{
                         backgroundColor: Color.danger,
                         borderRadius: 2,
@@ -149,10 +149,10 @@ class Places extends Component{
                           There was a COVID Positive in this area.
                         </Text>
                       </View>
-                    )
+                    )*/
                   }
                   {
-                    item.status == 'pum' && (
+                    /*item.status == 'pum' && (
                       <View style={{
                         backgroundColor: Color.warning,
                         borderRadius: 2,
@@ -171,11 +171,11 @@ class Places extends Component{
                           There was a PUM in this area.
                         </Text>
                       </View>
-                    )
+                    )*/
                   }
 
                   {
-                    item.status == 'pui' && (
+                    /*item.status == 'pui' && (
                       <View style={{
                         backgroundColor: Color.primary,
                         borderRadius: 2,
@@ -194,10 +194,10 @@ class Places extends Component{
                           There was a PUI in this area.
                         </Text>
                       </View>
-                    )
+                    )*/
                   }
                   {
-                    item.status == 'negative' && (
+                    /*item.status == 'negative' && (
                       <View style={{
                         backgroundColor: 'green',
                         borderRadius: 2,
@@ -216,7 +216,7 @@ class Places extends Component{
                           This area is clear.
                         </Text>
                       </View>
-                    )
+                    )*/
                   }
 
                   

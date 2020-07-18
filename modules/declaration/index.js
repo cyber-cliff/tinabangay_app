@@ -240,7 +240,7 @@ class Declaration extends Component{
         }  
 
         {
-          (declaration.content != undefined && declaration.content.status != undefined && declaration.content.status != null) && (
+          (declaration != null && declaration.content != undefined && declaration.content.status != undefined && declaration.content.status != null) && (
             <Text style={{
               color: declaration.content.status == 'danger' ? Color.danger : Color.success
             }}>
