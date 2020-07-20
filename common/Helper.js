@@ -164,6 +164,12 @@ export default {
         return Color.success;
       case 'recovered':
         return Color.success;
+      case 'tested':
+        return Color.warning;
+      case 'lsi':
+        return Color.danger;
+      case 'sari':
+        return Color.danger;
     }
   }
 }
