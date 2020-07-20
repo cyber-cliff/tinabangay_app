@@ -180,6 +180,9 @@ class ScannedUser extends Component{
     }
     if(addFlag == 'temperature'){
       const { location } = this.props.state;
+      if(user.assigned_location == null){
+        return
+      }
       let parameter = {
         location: user.assigned_location,
         account_id: scannedUser.id,
