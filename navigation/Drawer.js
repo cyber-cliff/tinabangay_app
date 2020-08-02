@@ -37,15 +37,14 @@ class MenuDrawerStructure extends Component {
         {this.state.loginState === true && 
           <TouchableOpacity onPress={this.toggleDrawer.bind(this)}>
             {/*Donute Button Image */}
-            <FontAwesomeIcon icon={ faBars } size={BasicStyles.iconSize} style={BasicStyles.iconStyle}/>
+            <FontAwesomeIcon icon={ faBars } size={BasicStyles.iconSize} style={BasicStyles.iconStyle} />
           </TouchableOpacity>
         }
-        
       </View>
     );
   }
 }
- 
+
 const Dashboard_StackNavigator = createStackNavigator({
   Dashboard: {
     screen: Dashboard,

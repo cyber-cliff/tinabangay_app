@@ -188,7 +188,8 @@ class Place extends Component{
       <View style={{
         backgroundColor: Color.white,
         position: 'relative',
-        zIndex: -1
+        zIndex: -1,
+        height: height
       }}>
         <FlatList
           data={data}
@@ -379,7 +380,8 @@ class Place extends Component{
           paddingTop: 10,
           paddingLeft: 10,
           paddingRight: 10,
-          paddingBottom: 10
+          paddingBottom: 10,
+          minHeight: height
         }}>
           <Text style={{
             color: Color.white

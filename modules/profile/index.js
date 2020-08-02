@@ -36,7 +36,8 @@ class Declaration extends Component{
       address: null,
       birthDate: null,
       id: null,
-      isImageUpload: false
+      isImageUpload: false,
+      successMessage: null
     }
   }
 
@@ -114,7 +115,7 @@ class Declaration extends Component{
     this.setState({isLoading: true})
     console.log('accountInformationUpdate', parameter)
     Api.request(Routes.accountInformationUpdate, parameter, response => {
-      this.setState({isLoading: false})
+      this.setState({isLoading: false, successMessage: 'Successfully updated!'})
       console.log(response)
       if(response.data == true){
         this.retrieve()
@@ -154,7 +155,7 @@ class Declaration extends Component{
     }
     this.setState({isLoading: true})
     Api.request(Routes.accountProfileCreate, parameter, response => {
-      this.setState({isLoading: false})
+      this.setState({isLoading: false, successMessage: 'Successfully updated!'})
       this.reloadProfile()
     }, error => {
       console.log(error)
@@ -368,6 +369,19 @@ class Declaration extends Component{
                 }}>
                   Hi {user.username}!
                 </Text>
+                {
+                  this.state.successMessage && (
+                    <Text  style={{
+                      color: Color.primary,
+                      paddingTop: 10,
+                      paddingBottom: 10
+                    }}>
+                    {
+                      this.state.successMessage
+                    }
+                    </Text>
+                  )
+                }
               </View>
             )
           }
