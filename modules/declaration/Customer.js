@@ -264,8 +264,7 @@ class Customer extends Component{
     if(this.state.step == 0){
       console.log('personalInformation', personalInformation)
       if(personalInformation.first_name == null || personalInformation.middle_name == null || personalInformation.last_name == null
-        || personalInformation.birth_date == null || personalInformation.email == null || personalInformation.address == null || personalInformation.contact_number == null
-        || personalInformation.occupation == null || personalInformation.gender == null){
+        || personalInformation.email == null){
         this.setState({
           errorMessage: 'All fields are required.'
         })
@@ -1157,8 +1156,16 @@ class Customer extends Component{
           )
         }
         <View>
-          <Text style={{
-          }}>First Name</Text>
+          <View style={{
+            flexDirection: 'row'
+          }}>
+            <Text style={{
+            }}>First Name</Text>
+            <Text style={{
+              color: Color.danger,
+              paddingLeft: 5
+            }}>*</Text>
+          </View>
           <TextInput
             style={BasicStyles.formControlCreate}
             onChangeText={(firstName) => this.setState({
@@ -1172,8 +1179,17 @@ class Customer extends Component{
           />
         </View>
         <View>
-          <Text style={{
-          }}>Middle Name</Text>
+
+          <View style={{
+            flexDirection: 'row'
+          }}>
+            <Text style={{
+            }}>Middle Name</Text>
+            <Text style={{
+              color: Color.danger,
+              paddingLeft: 5
+            }}>*</Text>
+          </View>
           <TextInput
             style={BasicStyles.formControlCreate}
             onChangeText={(middleName) => this.setState({
@@ -1187,8 +1203,16 @@ class Customer extends Component{
           />
         </View>
         <View>
-          <Text style={{
-          }}>Last Name</Text>
+          <View style={{
+            flexDirection: 'row'
+          }}>
+            <Text style={{
+            }}>Last Name</Text>
+            <Text style={{
+              color: Color.danger,
+              paddingLeft: 5
+            }}>*</Text>
+          </View>
           <TextInput
             style={BasicStyles.formControlCreate}
             onChangeText={(lastName) => this.setState({
@@ -1203,8 +1227,16 @@ class Customer extends Component{
         </View>
 
         <View>
-          <Text style={{
-          }}>E-mail address</Text>
+          <View style={{
+            flexDirection: 'row'
+          }}>
+            <Text style={{
+            }}>E-mail address</Text>
+            <Text style={{
+              color: Color.danger,
+              paddingLeft: 5
+            }}>*</Text>
+          </View>
           <TextInput
             style={BasicStyles.formControlCreate}
             onChangeText={(email) => this.setState({
@@ -1239,7 +1271,16 @@ class Customer extends Component{
 
         <View style={{
         }}>
-          <Text>Gender</Text>
+          <View style={{
+            flexDirection: 'row'
+          }}>
+            <Text style={{
+            }}>Gender</Text>
+            <Text style={{
+              color: Color.danger,
+              paddingLeft: 5
+            }}>*</Text>
+          </View>
           {
             Platform.OS == 'android' && (
               <Picker selectedValue={this.state.sex}

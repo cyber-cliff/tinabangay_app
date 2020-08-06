@@ -126,6 +126,7 @@ class Declaration extends Component{
           content: parse,
           viewFlag: response.data[0].updated_at != null ? true : false,
           updated_at: response.data[0].updated_at,
+          updated_at_human: response.data[0].updated_at_human,
           merchant: response.data[0].merchant,
           format: parse.format != undefined && parse.format != null ? parse.format : declaration.format
         }

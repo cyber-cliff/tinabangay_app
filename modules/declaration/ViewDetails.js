@@ -409,7 +409,7 @@ class ViewDetails extends Component{
                 color: Color.gray,
                 textAlign: 'center'
               }}>
-                Submitted on {declaration.updated_at}
+                Submitted on {declaration.updated_at_human}
               </Text>
           </View>
         }
