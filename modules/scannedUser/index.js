@@ -280,8 +280,8 @@ class ScannedUser extends Component{
       });
     }else if(addFlag == 'link'){
       let parameter = {
-        owner: scannedUser.id,
-        account_id: user.id
+        owner: user.id,
+        account_id: scannedUser.id
       }
       this.setState({isLoading: true})
       console.log(parameter)
