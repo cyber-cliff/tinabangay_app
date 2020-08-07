@@ -22,10 +22,11 @@ export default {
   }, {
     title: 'Symptoms Reporting',
     route: 'Symptoms'
-  }, {
-    title: 'My Profile',
-    route: 'Profile'
   }
+  // , {
+  //   title: 'My Profile',
+  //   route: 'Profile'
+  // }
   // {
   //   title: 'Generate QR',
   //   route: 'GenerateQR'

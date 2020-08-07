@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { View, TouchableOpacity, Text, Platform, Dimensions } from 'react-native';
 import {NavigationActions} from 'react-navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faEnvelope, faBell, faBus, faMapMarker, faUsers} from '@fortawesome/free-solid-svg-icons';
+import { faEnvelope, faBell, faBus, faMapMarker, faUsers, faUser} from '@fortawesome/free-solid-svg-icons';
 import { faCopy } from '@fortawesome/free-regular-svg-icons';
 import { Color, BasicStyles } from 'common';
 
@@ -31,43 +31,48 @@ class NavigationDrawerStructureRight extends Component {
   render() {
     const { notifications, user, activeRoute } = this.props.state;
     return (
-      <View style={{ flexDirection: 'row', width: width - (width * .20)}}>
+      <View style={{ flexDirection: 'row', width: width - (width * .25)}}>
 
         <View style={{
-          width: '25%'
+          width: '40%'
         }}>
-          <TouchableOpacity onPress={() => this.navigateToScreen('LinkedAccounts')}>
+          <TouchableOpacity onPress={() => this.navigateToScreen('Profile')}>
             <View style={{ flexDirection: 'row'}}>
-              <FontAwesomeIcon icon={ faUsers } size={BasicStyles.iconSize} style={[BasicStyles.iconStyle, {
-                color: activeRoute == 'LinkedAccounts' ? Color.secondary : Color.white
+              <FontAwesomeIcon icon={ faUser } size={BasicStyles.iconSize} style={[BasicStyles.iconStyle, {
+                color: activeRoute == 'Profile' ? Color.secondary : Color.white
               }]}/>
             </View>
           </TouchableOpacity>   
         </View>
         <View style={{
-          width: '25%'
+          width: '40%'
           }}>
-          <TouchableOpacity onPress={() => this.navigateToScreen('Location')}>
+          <TouchableOpacity onPress={() => this.navigateToScreen('LinkedAccounts')}>
             <View style={{ flexDirection: 'row'}}>
-              <FontAwesomeIcon icon={ faMapMarker } size={BasicStyles.iconSize} style={[BasicStyles.iconStyle, {
-            color: activeRoute == 'Location' ? Color.secondary : Color.white
+              <FontAwesomeIcon icon={ faUsers } size={BasicStyles.iconSize} style={[BasicStyles.iconStyle, {
+            color: activeRoute == 'LinkedAccounts' ? Color.secondary : Color.white
           }]}/>
             </View>
           </TouchableOpacity>
         </View>
-        <View style={{
-          width: '25%'
-        }}>
-          <TouchableOpacity onPress={() => this.navigateToScreen('Transportation')}>
-            <View style={{ flexDirection: 'row'}}>
-              <FontAwesomeIcon icon={ faBus } size={BasicStyles.iconSize} style={[BasicStyles.iconStyle, {
-                color: activeRoute == 'Transportation' ? Color.secondary : Color.white
-              }]}/>
+        {
+          /*
+            <View style={{
+              width: '25%'
+            }}>
+              <TouchableOpacity onPress={() => this.navigateToScreen('Transportation')}>
+                <View style={{ flexDirection: 'row'}}>
+                  <FontAwesomeIcon icon={ faBus } size={BasicStyles.iconSize} style={[BasicStyles.iconStyle, {
+                    color: activeRoute == 'Transportation' ? Color.secondary : Color.white
+                  }]}/>
+                </View>
+              </TouchableOpacity>   
             </View>
-          </TouchableOpacity>   
-        </View>
+          */
+        }
+        
         <View style={{
-          width: '25%'
+          width: '20%'
         }}>
           <TouchableOpacity onPress={() => this.navigateToScreen('Notification')}>
             <View style={{ flexDirection: 'row'}}>

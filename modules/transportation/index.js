@@ -19,7 +19,7 @@ class Transportation extends Component{
     this.state = {
       isLoading: false,
       newFlag: false,
-      type: null,
+      type: 'Bus',
       model: null,
       number: null,
       selected: null,
@@ -337,7 +337,7 @@ class Transportation extends Component{
         >
         {isLoading ? <Spinner mode="overlay"/> : null }
         {
-          newFlag == false && (
+          /* newFlag == false && (
             <TouchableHighlight
               style={[BasicStyles.btn, {
                 backgroundColor: Color.primary,
@@ -352,7 +352,7 @@ class Transportation extends Component{
                 color: Color.white
               }}>Add transportation</Text>
             </TouchableHighlight>
-          )
+          )*/
         }
         {
           newFlag == true && (
