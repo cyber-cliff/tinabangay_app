@@ -226,8 +226,8 @@ class Customer extends Component{
       },
       safety_questions: this.state.safetyRelatedQuestions,
       format: declaration.format,
-      status: this.state.status,
-      statusLabel: this.state.statusLabel,
+      status: this.state.status ? this.state.status : 'clear',
+      statusLabel: this.state.statusLabel ? this.state.statusLabel : 'clear',
       location: scannedLocation
     }
     if(declaration != null && declaration.id == null){
@@ -266,7 +266,7 @@ class Customer extends Component{
       if(personalInformation.first_name == null || personalInformation.middle_name == null || personalInformation.last_name == null
         || personalInformation.email == null){
         this.setState({
-          errorMessage: 'All fields are required.'
+          errorMessage: 'Please fillup the required fields(*).'
         })
         return
       }else if(Helper.validateEmail(personalInformation.email) == false){

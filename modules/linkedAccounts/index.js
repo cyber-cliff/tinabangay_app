@@ -74,7 +74,8 @@ class LinkedAccounts extends Component{
       <View style={{
         backgroundColor: Color.white,
         position: 'relative',
-        zIndex: -1
+        zIndex: -1,
+        minHeight: height
       }}>
         <FlatList
           data={data}
@@ -101,7 +102,7 @@ class LinkedAccounts extends Component{
                       color: Color.primary
                     }]}>
                     {
-                      parseInt(item.owner) == user.id ? item.account.username : item.owner_account.username
+                      (user != null && parseInt(item.owner) == user.id) ? item.account.username : item.owner_account.username
                     }
                   </Text>
                 </View>

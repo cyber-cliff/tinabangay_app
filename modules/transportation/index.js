@@ -267,7 +267,8 @@ class Transportation extends Component{
       <View style={{
         backgroundColor: Color.white,
         position: 'relative',
-        zIndex: -1
+        zIndex: -1,
+        minHeight: height
       }}>
         <FlatList
           data={data}

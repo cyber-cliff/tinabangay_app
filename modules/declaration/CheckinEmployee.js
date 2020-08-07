@@ -226,18 +226,18 @@ class CheckinEmployee extends Component{
     }
 
     if(this.state.step == 4){
-      if(this.state.company.person_in_contact.length < 5){
+      if(this.state.company.person_in_contact.length < 1){
         this.setState({
-          errorMessage: 'List down atleast 5 in contact person.'
+          errorMessage: 'List down atleast 1 in contact person.'
         })
         return
       }
-      if(this.state.company.related_questions[0].answer.length <= 0){
-       this.setState({
-          errorMessage: 'Medicine is required.'
-        })
-        return 
-      }
+      // if(this.state.company.related_questions[0].answer.length <= 0){
+      //  this.setState({
+      //     errorMessage: 'Medicine is required.'
+      //   })
+      //   return 
+      // }
       if(this.state.company.related_questions[1].answer.length <= 0){
        this.setState({
           errorMessage: 'Purpose is required.'
@@ -268,8 +268,8 @@ class CheckinEmployee extends Component{
       company: this.state.company,
       safety_questions: this.state.safetyRelatedQuestions,
       format: declaration.format,
-      status: this.state.status,
-      statusLabel: this.state.statusLabel,
+      status: this.state.status ? this.state.status : 'clear',
+      statusLabel: this.state.statusLabel ? this.state.statusLabel : 'clear',
       location: scannedLocation
     }
     if(declaration != null && declaration.id == null){
@@ -310,7 +310,7 @@ class CheckinEmployee extends Component{
       if(personalInformation.first_name == null || personalInformation.middle_name == null || personalInformation.last_name == null
         || personalInformation.email == null || personalInformation.department == null || personalInformation.temperature == null){
         this.setState({
-          errorMessage: 'Fields with * are required.'
+          errorMessage: 'Please fillup the required fields(*).'
         })
         return
       }else if(Helper.validateEmail(personalInformation.email) == false){
@@ -726,7 +726,7 @@ class CheckinEmployee extends Component{
           )
         }
         <Text>
-          List down 5 person your in contact the last 12 hours and your relations.
+          List down atleast 1 person your in contact the last 12 hours and your relations.
         </Text>
 
         <View style={{
