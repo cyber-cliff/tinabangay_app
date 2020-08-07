@@ -127,7 +127,9 @@ class CheckoutEmployee extends Component{
         birth_date: null,
         occupation: null,
         contact_number: null,
-        address: null
+        address: null,
+        temperature: null,
+        department: null
       },
       safetyRelatedQuestions: safetyRelated,
       symptomsQuestions: symptoms,
@@ -302,9 +304,9 @@ class CheckoutEmployee extends Component{
     if(this.state.step == 0){
       console.log('personalInformation', personalInformation)
       if(personalInformation.first_name == null || personalInformation.middle_name == null || personalInformation.last_name == null
-        || personalInformation.email == null){
+        || personalInformation.email == null || personalInformation.department == null || personalInformation.temperature == null){
         this.setState({
-          errorMessage: 'All fields are required.'
+          errorMessage: 'Fields with * are required.'
         })
         return
       }else if(Helper.validateEmail(personalInformation.email) == false){
@@ -1264,8 +1266,13 @@ class CheckoutEmployee extends Component{
             <Text>Mode of Transportation</Text>
             {
               Platform.OS == 'android' && (
-                <Picker selectedValue={this.state.sex}
-                  onValueChange={(sex) => this.setState({sex})}
+                <Picker selectedValue={this.state.newTransportation.type}
+                  onValueChange={(type) => this.setState({
+                    newTransportation: {
+                      ...this.state.newTransportation,
+                      type: type
+                    }
+                  })}
                   style={BasicStyles.pickerStyleCreate}
                   >
                     {
@@ -1284,7 +1291,12 @@ class CheckoutEmployee extends Component{
             {
               Platform.OS == 'ios' && (
                 <RNPickerSelect
-                  onValueChange={(sex) => this.setState({sex})}
+                  onValueChange={(type) => this.setState({
+                    newTransportation: {
+                      ...this.state.newTransportation,
+                      type: type
+                    }
+                  })}
                   items={iOSModeOfTransportation}
                   style={BasicStyles.pickerStyleIOSNoMargin}
                   placeholder={{
@@ -1639,6 +1651,52 @@ class CheckoutEmployee extends Component{
             flexDirection: 'row'
           }}>
             <Text style={{
+            }}>Department</Text>
+            <Text style={{
+              color: Color.danger,
+              paddingLeft: 5
+            }}>*</Text>
+          </View>
+          <TextInput
+            style={BasicStyles.formControlCreate}
+            onChangeText={(department) => this.setState({
+              personalInformation: {
+                ...this.state.personalInformation,
+                department: department
+              }
+            })}
+            value={this.state.personalInformation.department}
+            placeholder={'Enter Department'}
+          />
+        </View>
+        <View>
+          <View style={{
+            flexDirection: 'row'
+          }}>
+            <Text style={{
+            }}>Temperature</Text>
+            <Text style={{
+              color: Color.danger,
+              paddingLeft: 5
+            }}>*</Text>
+          </View>
+          <TextInput
+            style={BasicStyles.formControlCreate}
+            onChangeText={(temperature) => this.setState({
+              personalInformation: {
+                ...this.state.personalInformation,
+                temperature: temperature
+              }
+            })}
+            value={this.state.personalInformation.temperature}
+            placeholder={'Enter Temperature'}
+          />
+        </View>
+        <View>
+          <View style={{
+            flexDirection: 'row'
+          }}>
+            <Text style={{
             }}>First Name</Text>
             <Text style={{
               color: Color.danger,
@@ -1761,7 +1819,7 @@ class CheckoutEmployee extends Component{
           </View>
           {
             Platform.OS == 'android' && (
-              <Picker selectedValue={this.state.sex}
+              <Picker selectedValue={this.state.personalInformation.gender}
                 onValueChange={(sex) => this.setState({
                   personalInformation: {
                     ...this.state.personalInformation,

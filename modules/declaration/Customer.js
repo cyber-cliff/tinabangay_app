@@ -785,8 +785,13 @@ class Customer extends Component{
             <Text>Mode of Transportation</Text>
             {
               Platform.OS == 'android' && (
-                <Picker selectedValue={this.state.sex}
-                  onValueChange={(sex) => this.setState({sex})}
+                <Picker selectedValue={this.state.newTransportation.type}
+                  onValueChange={(type) => this.setState({
+                    newTransportation: {
+                      ...this.state.newTransportation,
+                      type: type
+                    }
+                  })}
                   style={BasicStyles.pickerStyleCreate}
                   >
                     {
@@ -805,7 +810,12 @@ class Customer extends Component{
             {
               Platform.OS == 'ios' && (
                 <RNPickerSelect
-                  onValueChange={(sex) => this.setState({sex})}
+                  onValueChange={(type) => this.setState({
+                    newTransportation: {
+                      ...this.state.newTransportation,
+                      type: type
+                    }
+                  })}
                   items={iOSModeOfTransportation}
                   style={BasicStyles.pickerStyleIOSNoMargin}
                   placeholder={{
@@ -1283,7 +1293,7 @@ class Customer extends Component{
           </View>
           {
             Platform.OS == 'android' && (
-              <Picker selectedValue={this.state.sex}
+              <Picker selectedValue={this.state.personalInformation.gender}
                 onValueChange={(sex) => this.setState({
                   personalInformation: {
                     ...this.state.personalInformation,
