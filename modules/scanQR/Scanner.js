@@ -28,6 +28,7 @@ class Scanner extends Component {
   }
 
   retrieveUserInfo = (code) => {
+    // let test = 'https://birds-eye.org/#/location/ImcCflD1Z8HnNWOTwkUo3Kx6sJgvbXdS'
     let splitCode = code.split('/');
     let payload = null;
     let acctType = null;
