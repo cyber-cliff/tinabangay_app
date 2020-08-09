@@ -28,8 +28,18 @@ class Scanner extends Component {
   }
 
   retrieveUserInfo = (code) => {
-    let payload=code.split("/")[1];
-    let acctType=code.split("/")[0];
+    let splitCode = code.split('/');
+    let payload = null;
+    let acctType = null;
+    if(splitCode.length > 2){
+      // with website link
+      payload = splitCode[5]
+      acctType = splitCode[4]
+    }else if(splitCode.length > 0 && splitCode.length <= 2){
+      // without website link
+      payload = splitCode[1]
+      acctType = splitCode[0]
+    }
     console.log(payload)
     let parameter = {
       condition: [{
